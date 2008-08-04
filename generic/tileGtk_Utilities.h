@@ -24,8 +24,14 @@
 #define TILEGTK_ENSURE_WIDGET_OK \
   if (!widget) return;
 
+#define TILEGTK_ATTACH_STYLE_TO_WIDGET \
+  style = gtk_style_attach(style, widget->window);
+
 #define TILEGTK_WIDGET_CACHE_DEFINITION \
   TileGtk_WidgetCache *wc = (TileGtk_WidgetCache *) clientData;
+
+#define TILEGTK_ORIENTATION_DEFINITION \
+  int orientation = wc->orientation;
 
 #define TILEGTK_GTK_DRAWABLE_DEFINITIONS \
   TileGtk_WidgetCache *wc = (TileGtk_WidgetCache *) clientData; \
@@ -98,81 +104,6 @@
 #define TILEGTK_GTKBORDER_TO_PADDING(border) \
   Ttk_MakePadding(border.left, border.top, border.right, border.bottom)
 
-#define NULL_PROXY_WIDGET(widget) \
-   TileGtk_WidgetCache *wc = (TileGtk_WidgetCache *) clientData;\
-   if (wc == NULL) {\
-   printf("NULL ClientData: " STRINGIFY(widget) "!\n");fflush(NULL);return;}\
-   if (wc->widget == NULL) {\
-   printf("NULL Proxy Widget: %p->" STRINGIFY(widget) "!\n", wc);fflush(NULL);return;}
-#define NULL_PROXY_ORIENTED_WIDGET(widget) \
-   TileGtk_WidgetCache *wc = (TileGtk_WidgetCache *) clientData;\
-   if (wc == NULL) {\
-   printf("NULL ClientData: " STRINGIFY(widget) "!\n");fflush(NULL);return;}\
-   if (wc->widget == NULL) {\
-   printf("NULL Proxy Widget: %p->" STRINGIFY(widget) "!\n", wc);fflush(NULL);return;}\
-   int orient = wc->orientation;
-#define ENSURE_WIDGET_STYLE(widget) \
-   if (&(widget.style()) != wc->TileGtk_Style) widget.setStyle(wc->TileGtk_Style);
-
-
-#define TILEGTK_SET_FOCUS(state) \
-   if (state & TTK_STATE_FOCUS) {TileGtk_SetFocus(true);}
-#define TILEGTK_CLEAR_FOCUS(state) \
-   if (state & TTK_STATE_FOCUS) {TileGtk_SetFocus(false);}
-
-#ifdef TILEGTK_GTK_VERSION_3
-#define TILEGTK_PAINT_BACKGROUND(width, height) \
-    if (wc->TileGtk_QPixmap_BackgroundTile && \
-        !(wc->TileGtk_QPixmap_BackgroundTile->isNull())) { \
-        painter.fillRect(0, 0, width, height, \
-                         QBrush(QColor(255,255,255), \
-                         *(wc->TileGtk_QPixmap_BackgroundTile))); \
-    } else { \
-        painter.fillRect(0, 0, width, height, \
-                         qApp->palette().active().background());\
-    }
-#define TILEGTK_PAINT_BACKGROUND_BASE(width, height) \
-    if (wc->TileGtk_QPixmap_BackgroundTile && \
-        !(wc->TileGtk_QPixmap_BackgroundTile->isNull())) { \
-        painter.fillRect(0, 0, width, height, \
-                         QBrush(QColor(255,255,255), \
-                         *(wc->TileGtk_QPixmap_BackgroundTile))); \
-    } else { \
-        painter.fillRect(0, 0, width, height, \
-                         qApp->palette().active().base());\
-    }
-#endif /* TILEGTK_GTK_VERSION_3 */
-
-#ifdef TILEGTK_GTK_VERSION_4
-#define TILEGTK_PAINT_BACKGROUND(width, height) \
-    if (!(wc->TileGtk_QPixmap_BackgroundTile.isNull())) { \
-        painter.fillRect(0, 0, width, height, \
-                         QBrush(QColor(255,255,255), \
-                         wc->TileGtk_QPixmap_BackgroundTile)); \
-    } else { \
-        painter.fillRect(0, 0, width, height, \
-                         qApp->palette().color(QPalette::Normal, \
-                                               QPalette::Window));\
-    }
-#define TILEGTK_PAINT_BACKGROUND_BASE(width, height) \
-    if (!(wc->TileGtk_QPixmap_BackgroundTile.isNull())) { \
-        painter.fillRect(0, 0, width, height, \
-                         QBrush(QColor(255,255,255), \
-                         wc->TileGtk_QPixmap_BackgroundTile)); \
-    } else { \
-        painter.fillRect(0, 0, width, height, \
-                         qApp->palette().color(QPalette::Normal, \
-                                               QPalette::Base));\
-    }
-#endif /* TILEGTK_GTK_VERSION_4 */
-
-#ifdef TILEGTK_GTK_VERSION_3
-#define PMW(pm, w) (wc->TileGtk_Style->pixelMetric(QStyle::pm, w))
-#endif /* TILEGTK_GTK_VERSION_3 */
-#ifdef TILEGTK_GTK_VERSION_4
-#define PMW(pm, w) (wc->TileGtk_Style->pixelMetric(QStyle::pm, 0, w))
-#endif /* TILEGTK_GTK_VERSION_4 */
-
 TCL_DECLARE_MUTEX(tilegtkMutex);
 
 /* Global Symbols */
@@ -196,6 +127,9 @@ extern GtkWidget *TileGtk_GetFrame(TileGtk_WidgetCache* wc);
 extern GtkWidget *TileGtk_GetEntry(TileGtk_WidgetCache* wc);
 extern GtkWidget *TileGtk_GetComboboxEntry(TileGtk_WidgetCache* wc);
 extern GtkWidget *TileGtk_GetComboboxEntryButton(TileGtk_WidgetCache* wc);
+extern GtkWidget *TileGtk_GetHScrollBar(TileGtk_WidgetCache* wc);
+extern GtkWidget *TileGtk_GetVScrollBar(TileGtk_WidgetCache* wc);
+extern GtkWidget *TileGtk_GetScrollBar(TileGtk_WidgetCache* wc);
 #if 0
 extern void TileGtk_StoreStyleNameLowers(TileGtk_WidgetCache *wc);
 extern bool TileGtk_ThemeIs(TileGtk_WidgetCache *wc, const char* name);

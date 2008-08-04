@@ -6,9 +6,7 @@
  * The Tile-Gtk theme is a Tk/Tile theme that uses Gtk/GNOME for drawing.
  */
 
-#include "tileGtk_GtkHeaders.h"
 #include "tileGtk_Utilities.h"
-#include "tileGtk_Elements.h"
 #include "tileGtk_TkHeaders.h"
 #include <string.h>
 
@@ -129,6 +127,79 @@ int Tileqt_SettingsProperty(ClientData clientData, Tcl_Interp *interp,
   Tcl_MutexUnlock(&tilegtkMutex);
   return TCL_OK;
 }; /* Tileqt_SettingsProperty */
+
+int Tileqt_WidgetStyleProperty(ClientData clientData, Tcl_Interp *interp,
+                                 int objc, Tcl_Obj *const objv[]) {
+  static const char *Methods[] = {
+    "integer", "boolean", "string", (char *) NULL
+  };
+  enum methods {
+    INTEGER, BOOLEAN, STRING
+  };
+  static const char *Widgets[] = {
+    "GtkHScrollbar" , "GtkVScrollbar", (char *) NULL
+  };
+  enum widgets {
+    W_HSCROLLBAR, W_VSCROLLBAR
+  };
+  int          type  = STRING;
+  gchar       *s_val = NULL;
+  gboolean     b_val = FALSE;
+  gint         i_val = 0;
+  GtkWidget   *widget = NULL;
+  TileGtk_WidgetCache **wc_array = (TileGtk_WidgetCache **) clientData;
+  TileGtk_WidgetCache *wc;
+  if (!wc_array || !wc_array[0]) {
+    Tcl_SetResult(interp, (char *) "empty wc_array!", TCL_STATIC);
+    return TCL_ERROR;
+  }
+  wc = wc_array[0];
+  if (objc != 3 && objc != 4) {
+    Tcl_WrongNumArgs(interp, 1, objv,
+       "widget property ?integer|boolean|string?");
+    return TCL_ERROR;
+  }
+  /* Get widget... */
+  if (Tcl_GetIndexFromObj(interp, objv[1], (const char **) Widgets,
+                                 "widget", 0, &type) != TCL_OK) {
+    return TCL_ERROR;
+  }
+  switch ((enum widgets) type) {
+    case W_HSCROLLBAR: {widget = TileGtk_GetHScrollBar(wc); break;}
+    case W_VSCROLLBAR: {widget = TileGtk_GetVScrollBar(wc); break;}
+  }
+  /* Get property type, which defaults to "string"... */
+  if (objc == 4) {
+    if (Tcl_GetIndexFromObj(interp, objv[3], (const char **) Methods,
+                            "method", 0, &type) != TCL_OK) {
+      return TCL_ERROR;
+    }
+  }
+
+  Tcl_MutexLock(&tilegtkMutex);
+  if (widget) {
+    switch ((enum methods) type) {
+      case INTEGER:
+        gtk_widget_style_get(widget, Tcl_GetString(objv[2]), &i_val, NULL);
+        Tcl_SetObjResult(interp, Tcl_NewIntObj(i_val));
+        break;
+      case BOOLEAN:
+        gtk_widget_style_get(widget, Tcl_GetString(objv[2]), &b_val, NULL);
+        if (b_val == TRUE) Tcl_SetObjResult(interp, Tcl_NewBooleanObj(1));
+        else Tcl_SetObjResult(interp, Tcl_NewBooleanObj(0));
+        break;
+      case STRING:
+        gtk_widget_style_get(widget, Tcl_GetString(objv[2]), &s_val, NULL);
+        if (s_val) {
+          Tcl_SetResult(interp, (char *) s_val, TCL_VOLATILE);
+          g_free (s_val);
+        }
+        break;
+    }
+  }
+  Tcl_MutexUnlock(&tilegtkMutex);
+  return TCL_OK;
+}; /* Tileqt_WidgetStyleProperty */
 
 int Tileqt_ThemeColour(ClientData clientData, Tcl_Interp *interp,
                                  int objc, Tcl_Obj *const objv[]) {
@@ -693,16 +764,14 @@ Tilegtk_Init(Tcl_Interp *interp)
     Tk_Window tkwin;
     char tmpScript[1024];
     TileGtk_WidgetCache **wc = NULL;
+    GtkSettings *settings = NULL;
+    gchar       *strval = NULL;
 
     if (Tcl_InitStubs(interp, TCL_VERSION, 0) == NULL)
         return TCL_ERROR;
     if (Tk_InitStubs(interp,  TK_VERSION,  0) == NULL)
         return TCL_ERROR;
 
-    /* The first thing we must do, is to retrieve a valid display. */
-    // Tcl_MutexLock(&tilegtkMutex);
-    // if (TileGtk_GtkAppCreated == 0) qApp = NULL;
-    // Tcl_MutexUnlock(&tilegtkMutex);
     tkwin = Tk_MainWindow(interp);
     if (tkwin == NULL) return TCL_ERROR;
 
@@ -726,11 +795,11 @@ Tilegtk_Init(Tcl_Interp *interp)
     TileGtk_Init_Labelframe(interp, wc, themePtr);
     TileGtk_Init_Entry(interp, wc, themePtr);
     TileGtk_Init_Menubutton(interp, wc, themePtr);
+    TileGtk_Init_Scrollbar(interp, wc, themePtr);
 #if 0
     TileGtk_Init_ToolButton(interp, wc, themePtr);
     TileGtk_Init_Combobox(interp, wc, themePtr);
     TileGtk_Init_Notebook(interp, wc, themePtr);
-    TileGtk_Init_Scrollbar(interp, wc, themePtr);
     TileGtk_Init_Scale(interp, wc, themePtr);
     TileGtk_Init_TreeView(interp, wc, themePtr);
     TileGtk_Init_Progress(interp, wc, themePtr);
@@ -747,6 +816,8 @@ Tilegtk_Init(Tcl_Interp *interp)
      */
     Tcl_CreateObjCommand(interp, "ttk::theme::tilegtk::settingsProperty",
                          Tileqt_SettingsProperty, (ClientData) wc, NULL);
+    Tcl_CreateObjCommand(interp, "ttk::theme::tilegtk::widgetStyleProperty",
+                         Tileqt_WidgetStyleProperty, (ClientData) wc, NULL);
     Tcl_CreateObjCommand(interp, "ttk::theme::tilegtk::currentThemeName",
                          Tileqt_ThemeName, (ClientData) wc, NULL);
     Tcl_CreateObjCommand(interp,
@@ -772,7 +843,18 @@ Tilegtk_Init(Tcl_Interp *interp)
                          Tileqt_GetSubControlMetrics, (ClientData) wc, NULL);
     /* Save the name of the current theme... */
     strcpy(tmpScript, "namespace eval ttk::theme::tilegtk { variable theme ");
+    settings = gtk_settings_get_default();
+    if (settings) {
+      g_object_get(settings, "gtk-theme-name", &strval, NULL);
+      strcat(tmpScript, "{");
+      if (strval) {
+        strcat(tmpScript, strval);
+        g_free (strval);
+      }
+      strcat(tmpScript, "}");
+    } else {
       strcat(tmpScript, "{}");
+    }
     strcat(tmpScript, " };");
     Tcl_MutexUnlock(&tilegtkMutex);
     

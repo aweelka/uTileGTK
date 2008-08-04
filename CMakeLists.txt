@@ -44,6 +44,7 @@ SET ( PKG_SOURCES generic/tileGtk_Init.cpp
                   generic/tileGtk_Labelframe.cpp
                   generic/tileGtk_Entry.cpp
                   generic/tileGtk_Menubutton.cpp
+                  generic/tileGtk_Scrollbar.cpp
 )
 
 MESSAGE ( STATUS "===========================================================" )

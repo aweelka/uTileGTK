@@ -36,6 +36,9 @@ static int  TileGtk_XEventHandler(ClientData clientdata, XEvent *eventPtr);
 static void TileGtk_InterpDeleteProc(ClientData clientData, Tcl_Interp *interp) {
   TileGtk_WidgetCache **wc_array = (TileGtk_WidgetCache **) clientData;
   TileGtk_WidgetCache *wc = wc_array[0];
+  if (wc && wc->gtkWindow) {
+    gtk_widget_destroy(wc->gtkWindow); /*This will destroy also ALL children!*/
+  }
   // printf("Tk_DeleteGenericHandler: %p\n", interp); fflush(NULL);
   Tk_DeleteGenericHandler(&TileGtk_XEventHandler, (ClientData) interp);
   Tcl_Free((char *) wc_array[0]);
@@ -50,7 +53,11 @@ TileGtk_WidgetCache **TileGtk_CreateGtkApp(Tcl_Interp *interp) {
    */
   Tcl_MutexLock(&tilegtkMutex);
   if (!TileGtk_GtkInitialisedFlag) {
-    TileGtk_GtkInitialisedFlag = gtk_init_check(0, NULL);
+    int argc = 1;
+    char **argv = g_new0(char*, 2);
+    argv[0] = (char *) Tcl_GetNameOfExecutable();
+    TileGtk_GtkInitialisedFlag = gtk_init_check(&argc, &argv);
+    g_free(argv);
     if (!TileGtk_GtkInitialisedFlag) {
       Tcl_MutexUnlock(&tilegtkMutex);
       return NULL;
@@ -107,8 +114,10 @@ TileGtk_WidgetCache **TileGtk_CreateGtkApp(Tcl_Interp *interp) {
   wc->protoLayout = gtk_fixed_new();
   gtk_container_add((GtkContainer*)(wc->gtkWindow), wc->protoLayout);
   memcpy(wc_array[1], wc_array[0], sizeof(TileGtk_WidgetCache));
-  wc_array[0]->orientation = TTK_ORIENT_HORIZONTAL;
-  wc_array[1]->orientation = TTK_ORIENT_VERTICAL;
+  wc_array[0]->orientation    = TTK_ORIENT_HORIZONTAL;
+  wc_array[1]->orientation    = TTK_ORIENT_VERTICAL;
+  wc_array[0]->gtkOrientation = GTK_ORIENTATION_HORIZONTAL;
+  wc_array[1]->gtkOrientation = GTK_ORIENTATION_VERTICAL;
 
   Tcl_MutexLock(&tilegtkMutex);
   if (!TileGtk_xlib_rgb_initialised) {

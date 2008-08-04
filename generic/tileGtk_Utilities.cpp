@@ -85,6 +85,23 @@ GtkWidget *TileGtk_GetComboboxEntryButton(TileGtk_WidgetCache* wc) {
   return TileGtk_GetComboboxEntry(wc);
 }; /* TileGtk_GetComboboxEntryButton */
 
+GtkWidget *TileGtk_GetHScrollBar(TileGtk_WidgetCache* wc) {
+  GtkAdjustment *adjustment = (GtkAdjustment *)
+             gtk_adjustment_new(0.0, 0.0, 1.0, 0, 0, 0);
+  TILEGTK_CHECK_WIDGET(gtkHScrollBar, gtk_hscrollbar_new(adjustment));
+}; /* TileGtk_GetHScrollBar */
+
+GtkWidget *TileGtk_GetVScrollBar(TileGtk_WidgetCache* wc) {
+  TILEGTK_CHECK_WIDGET(gtkVScrollBar, gtk_vscrollbar_new(NULL));
+}; /* TileGtk_GetVScrollBar */
+
+GtkWidget *TileGtk_GetScrollBar(TileGtk_WidgetCache* wc) {
+  if (wc->orientation == TTK_ORIENT_HORIZONTAL) {
+    return TileGtk_GetHScrollBar(wc);
+  }
+  return TileGtk_GetVScrollBar(wc);
+}; /* TileGtk_GetScrollBar */
+
 const char *TileGtk_GtkStateStr(GtkStateType gtkState) {
   switch ((GtkStateType) gtkState) {
     case GTK_STATE_NORMAL:      return "GTK_STATE_NORMAL";
@@ -270,7 +287,20 @@ unsigned int TileGtk_StateShadowTableLookup(TileGtk_StateTable *map,
   if (!map) {
     map = default_map;
     /* Instead of writting huge tables, do some checks here... */
-    if (section & TILEGTK_SECTION_BUTTONS || section & TILEGTK_SECTION_ENTRY) {
+    if (section & TILEGTK_SECTION_STEPPERS) {
+      gtkShadow = GTK_SHADOW_OUT;
+      if (state & TTK_STATE_DISABLED) {
+        gtkState = GTK_STATE_INSENSITIVE;
+      } else if (state & TTK_STATE_PRESSED) {
+        gtkState = GTK_STATE_ACTIVE;
+        gtkShadow = GTK_SHADOW_IN;
+      } else if (state & TTK_STATE_ACTIVE) {
+        gtkState = GTK_STATE_PRELIGHT;
+      }
+      map = NULL; /* Do not search the table */
+    } else if (section & TILEGTK_SECTION_BUTTONS ||
+               section & TILEGTK_SECTION_ENTRY ||
+               section & TILEGTK_SECTION_SCROLLBAR) {
       /* Whether the button is drawn pressed or not, is defined by shadow. */
       if (state & TTK_STATE_PRESSED || state & TTK_STATE_SELECTED) {
         gtkShadow = GTK_SHADOW_IN;
@@ -281,6 +311,14 @@ unsigned int TileGtk_StateShadowTableLookup(TileGtk_StateTable *map,
         else if (state & TTK_STATE_ACTIVE) gtkState  = GTK_STATE_PRELIGHT;
         else if (state & TTK_STATE_FOCUS)  gtkState  = GTK_STATE_ACTIVE;
       }
+      map = NULL; /* Do not search the table */
+    } else if (section & TILEGTK_SECTION_TROUGH) {
+      if (state & TTK_STATE_PRESSED) {
+        gtkState = GTK_STATE_ACTIVE;
+      } else {
+        gtkState = GTK_STATE_INSENSITIVE;
+      }
+      gtkShadow = GTK_SHADOW_IN;
       map = NULL; /* Do not search the table */
     }
   }

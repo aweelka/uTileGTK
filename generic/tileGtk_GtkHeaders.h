@@ -26,6 +26,7 @@ typedef struct TileGtk_WidgetCache {
   Display*       TileGtk_MainDisplay;
   Tcl_Interp*    TileGtk_MainInterp;
   int            orientation;
+  GtkOrientation gtkOrientation;
   GdkDisplay*    gdkDisplay;
   GtkStyle*      gtkStyle;
   GtkWidget*     gtkNotebook;
@@ -64,8 +65,11 @@ typedef struct {
     unsigned int  section;  /* Table section to match */
 } TileGtk_StateTable;
 
-#define TILEGTK_SECTION_ALL     (1<<0)
-#define TILEGTK_SECTION_BUTTONS (1<<1)
-#define TILEGTK_SECTION_ENTRY   (1<<2)
+#define TILEGTK_SECTION_ALL       (1<<0)
+#define TILEGTK_SECTION_BUTTONS   (1<<1)
+#define TILEGTK_SECTION_ENTRY     (1<<2)
+#define TILEGTK_SECTION_SCROLLBAR (1<<3)
+#define TILEGTK_SECTION_STEPPERS  (1<<4)
+#define TILEGTK_SECTION_TROUGH    (1<<5)
 
 #endif

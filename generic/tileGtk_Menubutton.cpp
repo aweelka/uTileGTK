@@ -44,6 +44,22 @@ static void MenubuttonDropdownElementDraw(
     void *clientData, void *elementRecord, Tk_Window tkwin,
     Drawable d, Ttk_Box b, unsigned state)
 {
+    TILEGTK_GTK_DRAWABLE_DEFINITIONS;
+    TILEGTK_ENSURE_GTK_STYLE_ENGINE_ACTIVE;
+    TILEGTK_SETUP_GTK_DRAWABLE;
+    GtkWidget *widget = TileGtk_GetButton(wc);
+    TILEGTK_ENSURE_WIDGET_OK;
+    TileGtk_StateShadowTableLookup(NULL, state, gtkState, gtkShadow,
+            TILEGTK_SECTION_SCROLLBAR|TILEGTK_SECTION_ALL);
+    TILEGTK_WIDGET_SET_FOCUS(widget);
+    // TileGtk_StateInfo(state, gtkState, gtkShadow, tkwin, widget);
+    gtk_paint_arrow(style, pixmap, gtkState, gtkShadow, NULL, widget,
+            "",
+            GTK_ARROW_DOWN, FALSE,
+            0, 0, b.width, b.height);
+    TileGtk_CopyGtkPixmapOnToDrawable(pixmap, d, tkwin,
+                   0, 0, b.width, b.height, b.x, b.y);
+    TILEGTK_CLEANUP_GTK_DRAWABLE;
 }
 
 static Ttk_ElementSpec MenubuttonDropdownElementSpec = {
@@ -87,7 +103,7 @@ static void MenubuttonElementDraw(
             TILEGTK_SECTION_BUTTONS|TILEGTK_SECTION_ALL);
     TILEGTK_SETUP_WIDGET_SIZE(b.width, b.height);
     TILEGTK_WIDGET_SET_FOCUS(widget);
-    TILEGTK_DEFAULT_BACKGROUND;
+    // TILEGTK_DEFAULT_BACKGROUND;
     // TileGtk_StateInfo(state, gtkState, gtkShadow, tkwin, widget);
     gtk_paint_box(style, pixmap, gtkState, gtkShadow, NULL, widget,
                   GTK_WIDGET_HAS_DEFAULT(widget) ? "buttondefault" : "button",

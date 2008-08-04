@@ -2,13 +2,14 @@ namespace eval ttk::theme::tilegtk {
   variable PreviewInterp {}
 
   proc updateLayouts {} {
-    return
     ## Variable "theme" should be defined by the C part of the extension.
     variable theme
+    variable GtkHScrollbar
+    variable GtkVScrollbar
     if {![info exists theme]} {return}
     ttk::style theme use tilegtk
-    # puts "=================================================="
-    # puts "Current Qt Theme: [currentThemeName] ($theme)"
+    puts "============================================================"
+    puts "Current Gtk Theme: [currentThemeName] ($theme)"
     # puts "Tab alignment:    [getStyleHint   -SH_TabBar_Alignment]"
     # puts "Tab base overlap: [getPixelMetric -PM_TabBarBaseOverlap]"
     # puts "Tab overlap:      [getPixelMetric -PM_TabBarTabOverlap]"
@@ -19,122 +20,78 @@ namespace eval ttk::theme::tilegtk {
     #   foreach {x y w h} [getSubControlMetrics -$sc] {break}
     #   puts "$sc: x=$x, y=$y, w=$w, h=$h"
     # }
-    # puts "=================================================="
-    switch -glob -- [string tolower $theme] {
-      b3 -
-      default -
-      plastik -
-      metal4kde -
-      polyester -
-      liquid -
-      platinum -
-      highcolor -
-      highcontrast -
-      light -
-      light, -
-      {light, 2nd revision} -
-      {light, 3rd revision} -
-      phase -
-      baghira -
-      serenity -
-      help 
-      {
-        # 3 Arrows...
-        ttk::style layout Horizontal.TScrollbar {
-          Scrollbar.background
-          Horizontal.Scrollbar.trough -children {
-              Horizontal.Scrollbar.leftarrow -side left
-              Horizontal.Scrollbar.rightarrow -side right
-              Horizontal.Scrollbar.leftarrow -side right
-              Horizontal.Scrollbar.thumb -side left -expand true -sticky we
-          }
-        };# ttk::style layout Horizontal.TScrollbar
-        ttk::style layout Vertical.TScrollbar {
-          Scrollbar.background
-          Vertical.Scrollbar.trough -children {
-              Vertical.Scrollbar.uparrow -side top
-              Vertical.Scrollbar.downarrow -side bottom
-              Vertical.Scrollbar.uparrow -side bottom
-              Vertical.Scrollbar.thumb -side top -expand true -sticky ns
-          }
-        };# ttk::style layout Vertical.TScrollbar
+    ##
+    ## Update the scrollbars layouts, according to information retrieved from
+    ## the GTK style in use...
+    ##
+    ## has-backward-stepper:           Display the standard backward arrow
+    ##                                 button.
+    ## has-forward-stepper:            Display the standard forward arrow
+    ##                                 button.
+    ## has-secondary-backward-stepper: Display a second backward arrow button
+    ##                                 on the opposite end of the scrollbar.
+    ## has-secondary-forward-stepper:  Display a second forward arrow button
+    ##                                 on the opposite end of the scrollbar.
+    foreach widget {GtkHScrollbar GtkVScrollbar} {
+      foreach p {has-backward-stepper has-forward-stepper
+                 has-secondary-backward-stepper has-secondary-forward-stepper
+                 trough-under-steppers trough-side-details} {
+        set ${widget}($p) [widgetStyleProperty $widget $p boolean]
       }
-      keramik -
-      shinekeramik -
-      thinkeramik -
-      *keramik {
-        # 3 Arrows...
-        ttk::style layout Horizontal.TScrollbar {
-          Scrollbar.background
-          Horizontal.Scrollbar.trough -children {
-              Horizontal.Scrollbar.leftarrow -side left
-              Horizontal.Scrollbar.rightarrow -side right -children {
-                Horizontal.Scrollbar.subleftarrow -side left
-                Horizontal.Scrollbar.subrightarrow -side right
-              }
-              Horizontal.Scrollbar.thumb -side left -expand true -sticky we
-          }
-        };# ttk::style layout Horizontal.TScrollbar
-        ttk::style layout Vertical.TScrollbar {
-          Scrollbar.background
-          Vertical.Scrollbar.trough -children {
-              Vertical.Scrollbar.uparrow -side top
-              Vertical.Scrollbar.downarrow -side bottom -children {
-                Vertical.Scrollbar.subuparrow -side top
-                Vertical.Scrollbar.subdownarrow -side bottom
-              }
-              Vertical.Scrollbar.thumb -side top -expand true -sticky ns
-          }
-        };# ttk::style layout Vertical.TScrollbar
-      }
-      system -
-      systemalt
-      {
-        ## 2 arrows at ONE edge of the scrollbar
-        ttk::style layout Horizontal.TScrollbar {
-          Horizontal.Scrollbar.trough -children {
-              Horizontal.Scrollbar.rightarrow -side right
-              Horizontal.Scrollbar.leftarrow -side right
-              Horizontal.Scrollbar.thumb -side left -expand true -sticky we
-          }
-        };# ttk::style layout Horizontal.TScrollbar
-        ttk::style layout Vertical.TScrollbar {
-          Vertical.Scrollbar.trough -children {
-              Vertical.Scrollbar.downarrow -side bottom
-              Vertical.Scrollbar.uparrow -side bottom
-              Vertical.Scrollbar.thumb -side top -expand true -sticky ns
-          }
-        };# ttk::style layout Vertical.TScrollbar
-      }
-      bluecurve -
-      cde -
-      compact -
-      windows -
-      motif -
-      motifplus -
-      riscos -
-      sgi -
-      acqua -
-      marble -
-      dotnet -
-      default {
-        ## Default layout: 2 arrows at the two edges of the scrollbar
-        ttk::style layout Horizontal.TScrollbar {
-          Horizontal.Scrollbar.trough -children {
-              Horizontal.Scrollbar.leftarrow -side left
-              Horizontal.Scrollbar.rightarrow -side right
-              Horizontal.Scrollbar.thumb -side left -expand true -sticky we
-          }
-        };# ttk::style layout Horizontal.TScrollbar
-        ttk::style layout Vertical.TScrollbar {
-          Vertical.Scrollbar.trough -children {
-              Vertical.Scrollbar.uparrow -side top
-              Vertical.Scrollbar.downarrow -side bottom
-              Vertical.Scrollbar.thumb -side top -expand true -sticky ns
-          }
-        };# ttk::style layout Vertical.TScrollbar
+      foreach p {arrow-displacement-x arrow-displacement-y
+                 slider-width stepper-size stepper-spacing trough-border} {
+        set ${widget}($p) [widgetStyleProperty $widget $p integer]
       }
     }
+    parray GtkHScrollbar
+    puts "============================================================"
+
+    ##
+    ## Dynamically create the scrollbars layouts...
+    ##
+    set Horizontal.Scrollbar.trough [list]
+    if {$GtkHScrollbar(has-backward-stepper)} {
+      lappend Horizontal.Scrollbar.trough \
+              Horizontal.Scrollbar.leftarrow  -side left
+    }
+    if {$GtkHScrollbar(has-forward-stepper)} {
+      lappend Horizontal.Scrollbar.trough \
+              Horizontal.Scrollbar.rightarrow -side right
+    }
+    if {$GtkHScrollbar(has-secondary-backward-stepper)} {
+      lappend Horizontal.Scrollbar.trough \
+              Horizontal.Scrollbar.leftarrow -side right
+    }
+    if {$GtkHScrollbar(has-secondary-forward-stepper)} {
+      lappend Horizontal.Scrollbar.trough \
+              Horizontal.Scrollbar.rightarrow -side left
+    }
+    lappend Horizontal.Scrollbar.trough \
+            Horizontal.Scrollbar.thumb -side left -expand true -sticky we
+    ttk::style layout Horizontal.TScrollbar [list \
+         Horizontal.Scrollbar.trough -children ${Horizontal.Scrollbar.trough}]
+
+    set Vertical.Scrollbar.trough   [list]
+    if {$GtkVScrollbar(has-backward-stepper)} {
+      lappend Vertical.Scrollbar.trough \
+              Vertical.Scrollbar.uparrow -side top
+    }
+    if {$GtkVScrollbar(has-forward-stepper)} {
+      lappend Vertical.Scrollbar.trough \
+              Vertical.Scrollbar.downarrow -side bottom
+    }
+    if {$GtkVScrollbar(has-secondary-backward-stepper)} {
+      lappend Vertical.Scrollbar.trough \
+              Vertical.Scrollbar.uparrow -side bottom
+    }
+    if {$GtkVScrollbar(has-secondary-forward-stepper)} {
+      lappend Vertical.Scrollbar.trough \
+              Vertical.Scrollbar.downarrow -side top
+    }
+    lappend Vertical.Scrollbar.trough \
+            Vertical.Scrollbar.thumb -side top -expand true -sticky ns
+    ttk::style layout Vertical.TScrollbar \
+      [list Vertical.Scrollbar.trough -children ${Vertical.Scrollbar.trough}]
   }; # updateLayouts
 
   proc updateStyles {} {
@@ -658,7 +615,7 @@ namespace eval ttk::theme::tilegtk {
   };# availableStyles
   
   ## Update layouts on load...
-  # updateLayouts
+  updateLayouts
   # updateStyles
 
   ## Test the theme configuration panel...
@@ -685,7 +642,3 @@ namespace eval ttk::theme::tilegtk {
   # array set C [getStyleColourInformation]
   # parray C
 }
-puts "Theme: [ttk::theme::tilegtk::currentThemeName]"
-#foreach {prop type} {gtk-color-scheme s gtk-key-theme-name s} {
-#  puts "$prop: [ttk::theme::tilegtk::settingsProperty $prop $type]"
-#}

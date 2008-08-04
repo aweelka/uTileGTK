@@ -28,3 +28,4 @@
 #define NotebookClientUniformPadding             4
 #define TreeViewUniformPadding                   4
 #define PanedUniformPadding                      0
+#define ScrollbarThumpMinimumLen                 2

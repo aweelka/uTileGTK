@@ -50,13 +50,16 @@ static void LabelframeBorderElementDraw(
     TILEGTK_SETUP_GTK_DRAWABLE;
     GtkWidget *widget = TileGtk_GetFrame(wc);
     TILEGTK_ENSURE_WIDGET_OK;
-    TileGtk_StateShadowTableLookup(NULL, state, gtkState, gtkShadow,
-            TILEGTK_SECTION_BUTTONS|TILEGTK_SECTION_ALL);
-    TILEGTK_SETUP_WIDGET_SIZE(b.width, b.height);
-    TILEGTK_WIDGET_SET_FOCUS(widget);
+    // TILEGTK_ATTACH_STYLE_TO_WIDGET;
+    // TILEGTK_SETUP_WIDGET_SIZE(b.width, b.height);
+    // TILEGTK_WIDGET_SET_FOCUS(widget);
     TILEGTK_DEFAULT_BACKGROUND;
+    // gtk_paint_flat_box(style, pixmap, gtkState, gtkShadow, NULL, widget,
+    //                "frame", 0, 0, b.width, b.height);
     TileGtk_CopyGtkPixmapOnToDrawable(pixmap, d, tkwin,
                    0, 0, b.width, b.height, 0, 0);
+    TileGtk_StateShadowTableLookup(NULL, state, gtkState, gtkShadow,
+            TILEGTK_SECTION_BUTTONS|TILEGTK_SECTION_ALL);
     gtk_paint_shadow(style, pixmap, gtkState, gtkShadow, NULL, widget,
                      "frame", 0, 0, b.width, b.height);
     TileGtk_CopyGtkPixmapOnToDrawable(pixmap, d, tkwin,
