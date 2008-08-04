@@ -190,7 +190,22 @@ void TileGtk_CopyGtkPixmapOnToDrawable(GdkPixmap *pixmap, Drawable d,
             Tk_Window tkwin, int x, int y, int w, int h, int x1, int x2)
 {
 #ifdef __WIN32__
-    gdk_win32_drawable_get_handle(pixmap);
+#define gc_usage ((GdkGCValuesMask) \
+    (GDK_GC_FOREGROUND | GDK_GC_BACKGROUND | GDK_GC_EXPOSURES))
+    XGCValues gcValues;
+    gcValues.graphics_exposures = False;
+    GC gc = Tk_GetGC(tkwin, GCForeground | GCBackground | GCGraphicsExposures,
+                     &gcValues);
+    GdkGC *gdkGC = gdk_gc_new(pixmap);
+    HDC hdcSrc = gdk_win32_hdc_get(pixmap, gdkGC, gc_usage);
+    /* Create a Tk Drawable from the HDC... */
+    TkWinDrawable gtk_d;
+    gtk_d.type = TWD_WINDC;
+    gtk_d.winDC.hdc = hdcSrc;
+    XCopyArea(Tk_Display(tkwin), (Drawable) &gtk_d, d, gc, 0, 0, w, h, 0, 0);
+    gdk_win32_hdc_release(GDK_DRAWABLE(pixmap), gdkGC, gc_usage);
+    if (gdkGC) g_object_unref(gdkGC);
+    Tk_FreeGC(Tk_Display(tkwin), gc);
 #else
     GdkPixbuf *imgb;
     XGCValues gcValues;

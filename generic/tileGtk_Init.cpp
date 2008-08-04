@@ -771,6 +771,8 @@ Tilegtk_Init(Tcl_Interp *interp)
         return TCL_ERROR;
     if (Tk_InitStubs(interp,  TK_VERSION,  0) == NULL)
         return TCL_ERROR;
+    if (Ttk_InitStubs(interp) == NULL)
+        return TCL_ERROR;
 
     tkwin = Tk_MainWindow(interp);
     if (tkwin == NULL) return TCL_ERROR;

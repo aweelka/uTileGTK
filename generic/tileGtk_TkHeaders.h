@@ -24,5 +24,11 @@
 
 #include <tk.h>
 #include "ttkTheme.h"
+#define TILE_VERSION TTK_VERSION
+//#include "ttkDecls.h"
+
+#ifdef __WIN32__
+#include <tkWinInt.h>
+#endif
 
 #endif /* __TILEGTK_TK_HEADERS */

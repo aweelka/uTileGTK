@@ -85,11 +85,11 @@
 
 #define TILEGTK_WIDGET_SETUP_DEFAULT(obj) \
   int defaultState  = TTK_BUTTON_DEFAULT_DISABLED; \
-  Ttk_GetButtonDefaultStateFromObj(NULL, obj, &defaultState);
+  /*Ttk_GetButtonDefaultStateFromObj(NULL, obj, &defaultState);*/
 
 #define TILEGTK_WIDGET_SET_DEFAULT(widget, obj) { \
   int defaultState  = TTK_BUTTON_DEFAULT_DISABLED; \
-  Ttk_GetButtonDefaultStateFromObj(NULL, obj, &defaultState); \
+  /*Ttk_GetButtonDefaultStateFromObj(NULL, obj, &defaultState);*/ \
   if (defaultState == TTK_BUTTON_DEFAULT_ACTIVE) { \
     GTK_WIDGET_SET_FLAGS(widget,   GTK_HAS_DEFAULT); \
   } else { \
