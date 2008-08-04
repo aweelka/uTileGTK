@@ -189,6 +189,9 @@ void TileGtk_StateInfo(int state, GtkStateType gtkState,
 void TileGtk_CopyGtkPixmapOnToDrawable(GdkPixmap *pixmap, Drawable d,
             Tk_Window tkwin, int x, int y, int w, int h, int x1, int x2)
 {
+#ifdef __WIN32__
+    gdk_win32_drawable_get_handle(pixmap);
+#else
     GdkPixbuf *imgb;
     XGCValues gcValues;
     gcValues.graphics_exposures = False;
@@ -204,6 +207,7 @@ void TileGtk_CopyGtkPixmapOnToDrawable(GdkPixmap *pixmap, Drawable d,
          x, y, x1, x2, w, h, XLIB_RGB_DITHER_MAX, 0, 0);
     gdk_pixbuf_unref(imgb);
     Tk_FreeGC(Tk_Display(tkwin), gc);
+#endif
 }; /* TileGtk_CopyGtkPixmapOnToDrawable */
 
 void TileGtk_StoreStyleNameLowers(TileGtk_WidgetCache *wc) {

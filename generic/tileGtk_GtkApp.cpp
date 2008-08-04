@@ -104,7 +104,9 @@ TileGtk_WidgetCache **TileGtk_CreateGtkApp(Tcl_Interp *interp) {
     Tcl_Free((char *) wc_array);
     return NULL;
   }
+#ifndef __WIN32__
   wc->gdkDisplay = gdk_x11_lookup_xdisplay(wc->TileGtk_MainDisplay);
+#endif
   if (!wc->gdkDisplay) {
     wc->gdkDisplay = gdk_display_get_default();
   }
@@ -119,12 +121,14 @@ TileGtk_WidgetCache **TileGtk_CreateGtkApp(Tcl_Interp *interp) {
   wc_array[0]->gtkOrientation = GTK_ORIENTATION_HORIZONTAL;
   wc_array[1]->gtkOrientation = GTK_ORIENTATION_VERTICAL;
 
+#ifndef __WIN32__
   Tcl_MutexLock(&tilegtkMutex);
   if (!TileGtk_xlib_rgb_initialised) {
     xlib_rgb_init(wc->TileGtk_MainDisplay, Tk_Screen(wc->TileGtk_tkwin));
     TileGtk_xlib_rgb_initialised = 1;
   }
   Tcl_MutexUnlock(&tilegtkMutex);
+#endif
   return wc_array;
 }; /* TileGtk_CreateGtkApp */
 

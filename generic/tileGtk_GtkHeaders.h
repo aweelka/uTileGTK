@@ -15,11 +15,15 @@
 #ifndef _TILEGTK_GTKHEADERS
 #define _TILEGTK_GTKHEADERS
 
+#include <tk.h>
 #include <gtk/gtk.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
+#ifndef __WIN32__
 #include <gdk-pixbuf-xlib/gdk-pixbuf-xlib.h>
 #include <gdk/gdkx.h>
-#include <tk.h>
+#else
+#include <gdk/gdkwin32.h>
+#endif
 
 typedef struct TileGtk_WidgetCache {
   Tk_Window      TileGtk_tkwin;

@@ -4,8 +4,12 @@
 #  GTK_FOUND         - GTK was found
 #  GTK_GL_FOUND      - GTK's GL features were found
 
+SET ( GTK_BUNDLE_DIR_WIN "C:/Program Files (x86)/gtk+-bundle-2.12.11" )
+SET ( GTK_WIN_INCLUDE_DIR ${GTK_BUNDLE_DIR_WIN}/include )
+SET ( GTK_WIN_LIBRARY_DIR ${GTK_BUNDLE_DIR_WIN}/lib )
+
 # don't even bother under WIN32
-IF(UNIX)
+#IF(UNIX)
 
   FIND_PATH( GTK_gtk_INCLUDE_PATH NAMES gtk/gtk.h
     PATH_SUFFIXES gtk-2.0 gtk-1.2 gtk20 gtk12
@@ -15,6 +19,7 @@ IF(UNIX)
     /usr/openwin/share/include
     /usr/openwin/include
     /opt/gnome/include
+    ${GTK_WIN_INCLUDE_DIR}
   )
 
   FIND_PATH( GTK_gdk_INCLUDE_PATH NAMES gdkconfig.h
@@ -26,6 +31,7 @@ IF(UNIX)
     /usr/openwin/share/include
     /usr/openwin/include
     /opt/gnome/include
+    ${GTK_WIN_LIBRARY_DIR}/gtk-2.0/include
   )
 
   # Some Linux distributions (e.g. Red Hat) have glibconfig.h
@@ -42,6 +48,7 @@ IF(UNIX)
     /usr/local/lib/glib/include
     /opt/gnome/include
     /opt/gnome/lib/glib/include
+    ${GTK_WIN_LIBRARY_DIR}/glib-2.0/include
   )
 
   FIND_PATH( GTK_glib_INCLUDE_PATH NAMES glib.h
@@ -51,11 +58,13 @@ IF(UNIX)
     /usr/openwin/share/include
     /usr/lib/glib/include
     /opt/gnome/include
+    ${GTK_WIN_INCLUDE_DIR}
   )
 
   FIND_PATH( GTK_gtkgl_INCLUDE_PATH NAMES gtkgl/gtkglarea.h
     PATHS /usr/openwin/share/include
           /opt/gnome/include
+    ${GTK_WIN_INCLUDE_DIR}
   )
 
   FIND_PATH( GTK_cairo_INCLUDE_PATH NAMES cairo.h
@@ -66,6 +75,7 @@ IF(UNIX)
     /usr/openwin/share/include
     /usr/openwin/include
     /opt/gnome/include
+    ${GTK_WIN_INCLUDE_DIR}
   )
 
   FIND_PATH( GTK_pango_INCLUDE_PATH NAMES pango/pango.h
@@ -76,6 +86,7 @@ IF(UNIX)
     /usr/openwin/share/include
     /usr/openwin/include
     /opt/gnome/include
+    ${GTK_WIN_INCLUDE_DIR}
   )
 
   FIND_PATH( GTK_atk_INCLUDE_PATH NAMES atk/atkobject.h
@@ -86,12 +97,14 @@ IF(UNIX)
     /usr/openwin/share/include
     /usr/openwin/include
     /opt/gnome/include
+    ${GTK_WIN_INCLUDE_DIR}
   )
 
   FIND_LIBRARY( GTK_gtkgl_LIBRARY gtkgl
     /usr/openwin/lib
     /opt/gnome/lib
     /usr/lib
+    ${GTK_WIN_LIBRARY_DIR}
   )
 
   #
@@ -99,17 +112,21 @@ IF(UNIX)
   #
 
   FIND_LIBRARY( GTK_gtk_LIBRARY
-    NAMES gtk-x11-2.0 gtk-2.0 gtk20 gtk-x11-1.2 gtk-1.2 gtk12 gtk-x11 gtk
+    NAMES gtk-x11-2.0 gtk-win32-2.0 gtk-2.0 gtk20 gtk-win32
+          gtk-x11-1.2 gtk-win32-1.2 gtk-1.2 gtk12 gtk-x11 gtk
     PATHS /usr/openwin/lib
           /opt/gnome/lib
           /usr/lib
+    ${GTK_WIN_LIBRARY_DIR}
   )
 
   FIND_LIBRARY( GTK_gdk_LIBRARY
-    NAMES  gdk-x11-2.0 gdk-2.0 gdk20 gdk-x11-1.2 gdk-1.2 gdk12 gdk-x11 gdk
+    NAMES  gdk-x11-2.0 gdk-win32-2.0 gdk-2.0 gdk20 gdk-win32
+           gdk-x11-1.2 gdk-win32-1.2 gdk-1.2 gdk12 gdk-x11 gdk
     PATHS  /usr/openwin/lib
            /opt/gnome/lib
            /usr/lib
+    ${GTK_WIN_LIBRARY_DIR}
   )
 
   FIND_LIBRARY( GTK_gmodule_LIBRARY
@@ -117,6 +134,15 @@ IF(UNIX)
     PATHS  /usr/openwin/lib
            /opt/gnome/lib
            /usr/lib
+    ${GTK_WIN_LIBRARY_DIR}
+  )
+
+  FIND_LIBRARY( GTK_gobject_LIBRARY
+    NAMES  gobject-2.0 gobject20 gobject-1.2 gobject12 gobject
+    PATHS  /usr/openwin/lib
+           /opt/gnome/lib
+           /usr/lib
+    ${GTK_WIN_LIBRARY_DIR}
   )
 
   FIND_LIBRARY( GTK_glib_LIBRARY
@@ -124,6 +150,7 @@ IF(UNIX)
     PATHS  /usr/openwin/lib
            /opt/gnome/lib
            /usr/lib
+    ${GTK_WIN_LIBRARY_DIR}
   )
 
   FIND_LIBRARY( GTK_Xi_LIBRARY 
@@ -131,6 +158,7 @@ IF(UNIX)
     PATHS /usr/openwin/lib 
           /opt/gnome/lib 
           /usr/lib
+    ${GTK_WIN_LIBRARY_DIR}
     ) 
 
   FIND_LIBRARY( GTK_gthread_LIBRARY
@@ -138,7 +166,41 @@ IF(UNIX)
     PATHS  /usr/openwin/lib
            /opt/gnome/lib
            /usr/lib
+    ${GTK_WIN_LIBRARY_DIR}
   )
+
+  FIND_LIBRARY( GTK_cairo_LIBRARY
+    NAMES  cairo-2.0 cairo20 cairo-1.2 cairo12 cairo
+    PATHS  /usr/openwin/lib
+           /opt/gnome/lib
+           /usr/lib
+    ${GTK_WIN_LIBRARY_DIR}
+  )
+
+  FIND_LIBRARY( GTK_pango_LIBRARY
+    NAMES  pango-2.0 pango20 pango-1.2 pango12 pango
+    PATHS  /usr/openwin/lib
+           /opt/gnome/lib
+           /usr/lib
+    ${GTK_WIN_LIBRARY_DIR}
+  )
+
+  FIND_LIBRARY( GTK_atk_LIBRARY
+    NAMES  atk-2.0 atk20 atk-1.2 atk12 atk
+    PATHS  /usr/openwin/lib
+           /opt/gnome/lib
+           /usr/lib
+    ${GTK_WIN_LIBRARY_DIR}
+  )
+
+  FIND_LIBRARY( GTK_gio_LIBRARY
+    NAMES  gio-2.0 gio20 gio-1.2 gio12 gio
+    PATHS  /usr/openwin/lib
+           /opt/gnome/lib
+           /usr/lib
+    ${GTK_WIN_LIBRARY_DIR}
+  )
+
 
   # MESSAGE ( STATUS "    GTK_gtk_INCLUDE_PATH: "
   #                     ${GTK_gtk_INCLUDE_PATH} )
@@ -162,25 +224,52 @@ IF(UNIX)
 
     SET( GTK_FOUND "YES" )
     SET( GTK_INCLUDE_DIR  ${GTK_gtk_INCLUDE_PATH}
-                          ${GTK_gdk_INCLUDE_PATH}
                           ${GTK_glibconfig_INCLUDE_PATH}
-                          ${GTK_glib_INCLUDE_PATH}
-                          ${GTK_cairo_INCLUDE_PATH}
-                          ${GTK_pango_INCLUDE_PATH}
-                          ${GTK_atk_INCLUDE_PATH} )
+                          ${GTK_glib_INCLUDE_PATH} )
+
+    IF(GTK_gdk_INCLUDE_PATH)
+      SET(GTK_INCLUDE_DIR ${GTK_INCLUDE_DIR} ${GTK_gdk_INCLUDE_PATH})
+    ENDIF(GTK_gdk_INCLUDE_PATH)
+    IF(GTK_cairo_INCLUDE_PATH)
+      SET(GTK_INCLUDE_DIR ${GTK_INCLUDE_DIR} ${GTK_cairo_INCLUDE_PATH})
+    ENDIF(GTK_cairo_INCLUDE_PATH)
+    IF(GTK_pango_INCLUDE_PATH)
+      SET(GTK_INCLUDE_DIR ${GTK_INCLUDE_DIR} ${GTK_pango_INCLUDE_PATH})
+    ENDIF(GTK_pango_INCLUDE_PATH)
+    IF(GTK_atk_INCLUDE_PATH)
+      SET(GTK_INCLUDE_DIR ${GTK_INCLUDE_DIR} ${GTK_atk_INCLUDE_PATH})
+    ENDIF(GTK_atk_INCLUDE_PATH)
+
     SET( GTK_LIBRARIES  ${GTK_gtk_LIBRARY}
-                        ${GTK_gdk_LIBRARY}
                         ${GTK_glib_LIBRARY} )
 
+    IF(GTK_gdk_LIBRARY)
+      SET(GTK_LIBRARIES ${GTK_LIBRARIES} ${GTK_gdk_LIBRARY})
+    ENDIF(GTK_gdk_LIBRARY)
     IF(GTK_gmodule_LIBRARY)
       SET(GTK_LIBRARIES ${GTK_LIBRARIES} ${GTK_gmodule_LIBRARY})
     ENDIF(GTK_gmodule_LIBRARY)
+    IF(GTK_gobject_LIBRARY)
+      SET(GTK_LIBRARIES ${GTK_LIBRARIES} ${GTK_gobject_LIBRARY})
+    ENDIF(GTK_gobject_LIBRARY)
     IF(GTK_gthread_LIBRARY)
       SET(GTK_LIBRARIES ${GTK_LIBRARIES} ${GTK_gthread_LIBRARY})
     ENDIF(GTK_gthread_LIBRARY)
     IF(GTK_Xi_LIBRARY)
       SET(GTK_LIBRARIES ${GTK_LIBRARIES} ${GTK_Xi_LIBRARY})
     ENDIF(GTK_Xi_LIBRARY)
+    IF(GTK_cairo_LIBRARY)
+      SET(GTK_LIBRARIES ${GTK_LIBRARIES} ${GTK_cairo_LIBRARY})
+    ENDIF(GTK_cairo_LIBRARY)
+    IF(GTK_pango_LIBRARY)
+      SET(GTK_LIBRARIES ${GTK_LIBRARIES} ${GTK_pango_LIBRARY})
+    ENDIF(GTK_pango_LIBRARY)
+    IF(GTK_atk_LIBRARY)
+      SET(GTK_LIBRARIES ${GTK_LIBRARIES} ${GTK_atk_LIBRARY})
+    ENDIF(GTK_atk_LIBRARY)
+    IF(GTK_gio_LIBRARY)
+      SET(GTK_LIBRARIES ${GTK_LIBRARIES} ${GTK_gio_LIBRARY})
+    ENDIF(GTK_gio_LIBRARY)
 
     IF(GTK_gtkgl_INCLUDE_PATH AND GTK_gtkgl_LIBRARY)
       SET( GTK_GL_FOUND "YES" )
@@ -213,7 +302,4 @@ IF(UNIX)
     GTK_gtkgl_LIBRARY
   )
 
-ENDIF(UNIX)
-
-
-
+#ENDIF(UNIX)
