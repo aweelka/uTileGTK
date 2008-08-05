@@ -15,6 +15,7 @@
 
 #include "tileGtk_GtkHeaders.h"
 #include "tileGtk_Elements.h"
+#include <string.h>
 
 #define NO_GTK_STYLE_ENGINE {/*printf("NULL qApp\n");fflush(NULL);*/return;}
 
@@ -50,7 +51,7 @@
   pixmap = gdk_pixmap_new(GDK_DRAWABLE(gdkWindow), \
                           b.width, b.height, -1); \
   style = gtk_style_attach(style, gdkWindow); \
-  gdk_draw_rectangle(pixmap, *style->bg_gc, TRUE, 0, 0, b.width, b.height);
+  /*gdk_draw_rectangle(pixmap, *style->bg_gc, TRUE, 0, 0, b.width, b.height);*/
 
 #define TILEGTK_DEFAULT_BACKGROUND \
   gtk_style_apply_default_background(style, pixmap, TRUE, gtkState, \
@@ -130,6 +131,12 @@ extern GtkWidget *TileGtk_GetComboboxEntryButton(TileGtk_WidgetCache* wc);
 extern GtkWidget *TileGtk_GetHScrollBar(TileGtk_WidgetCache* wc);
 extern GtkWidget *TileGtk_GetVScrollBar(TileGtk_WidgetCache* wc);
 extern GtkWidget *TileGtk_GetScrollBar(TileGtk_WidgetCache* wc);
+extern GtkWidget *TileGtk_GetHScale(TileGtk_WidgetCache* wc);
+extern GtkWidget *TileGtk_GetVScale(TileGtk_WidgetCache* wc);
+extern GtkWidget *TileGtk_GetScale(TileGtk_WidgetCache* wc);
+extern GtkWidget *TileGtk_GetHProgressBar(TileGtk_WidgetCache* wc);
+extern GtkWidget *TileGtk_GetVProgressBar(TileGtk_WidgetCache* wc);
+extern GtkWidget *TileGtk_GetProgressBar(TileGtk_WidgetCache* wc);
 #if 0
 extern void TileGtk_StoreStyleNameLowers(TileGtk_WidgetCache *wc);
 extern bool TileGtk_ThemeIs(TileGtk_WidgetCache *wc, const char* name);
@@ -139,3 +146,5 @@ extern void TileGtk_SetFocus(bool focus);
 extern unsigned int TileGtk_StateShadowTableLookup(TileGtk_StateTable*,
        unsigned int, GtkStateType&, GtkShadowType&,
        unsigned int section = TILEGTK_SECTION_ALL);
+extern double TileGtk_ValueFromSlider(TileGtk_WidgetCache *wc, Tk_Window tkwin,
+                               Ttk_Box b);

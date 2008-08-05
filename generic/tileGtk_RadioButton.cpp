@@ -57,11 +57,11 @@ static void RadioButtonIndicatorElementDraw(
     TILEGTK_SETUP_GTK_DRAWABLE;
     GtkWidget *widget = TileGtk_GetRadioButton(wc);
     TILEGTK_ENSURE_WIDGET_OK;
-    TileGtk_StateShadowTableLookup(NULL, state, gtkState, gtkShadow,
-            TILEGTK_SECTION_BUTTONS|TILEGTK_SECTION_ALL);
     TILEGTK_SETUP_WIDGET_SIZE(b.width, b.height);
     TILEGTK_WIDGET_SET_FOCUS(widget);
-    // TILEGTK_DEFAULT_BACKGROUND;
+    TILEGTK_DEFAULT_BACKGROUND;
+    TileGtk_StateShadowTableLookup(NULL, state, gtkState, gtkShadow,
+            TILEGTK_SECTION_BUTTONS|TILEGTK_SECTION_ALL);
     // TileGtk_StateInfo(state, gtkState, gtkShadow, tkwin, widget);
     gtk_paint_option(style, pixmap, gtkState, gtkShadow, NULL, widget,
                      "radiobutton", 0, 0, b.width, b.height);

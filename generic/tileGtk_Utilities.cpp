@@ -92,7 +92,9 @@ GtkWidget *TileGtk_GetHScrollBar(TileGtk_WidgetCache* wc) {
 }; /* TileGtk_GetHScrollBar */
 
 GtkWidget *TileGtk_GetVScrollBar(TileGtk_WidgetCache* wc) {
-  TILEGTK_CHECK_WIDGET(gtkVScrollBar, gtk_vscrollbar_new(NULL));
+  GtkAdjustment *adjustment = (GtkAdjustment *)
+             gtk_adjustment_new(0.0, 0.0, 1.0, 0, 0, 0);
+  TILEGTK_CHECK_WIDGET(gtkVScrollBar, gtk_vscrollbar_new(adjustment));
 }; /* TileGtk_GetVScrollBar */
 
 GtkWidget *TileGtk_GetScrollBar(TileGtk_WidgetCache* wc) {
@@ -101,6 +103,42 @@ GtkWidget *TileGtk_GetScrollBar(TileGtk_WidgetCache* wc) {
   }
   return TileGtk_GetVScrollBar(wc);
 }; /* TileGtk_GetScrollBar */
+
+GtkWidget *TileGtk_GetHScale(TileGtk_WidgetCache* wc) {
+  TILEGTK_CHECK_WIDGET(gtkHScale, gtk_hscale_new_with_range(0, 1, 0.001));
+}; /* TileGtk_GetHScale */
+
+GtkWidget *TileGtk_GetVScale(TileGtk_WidgetCache* wc) {
+  TILEGTK_CHECK_WIDGET(gtkVScale, gtk_vscale_new_with_range(0, 1, 0.001));
+}; /* TileGtk_GetVScale */
+
+GtkWidget *TileGtk_GetScale(TileGtk_WidgetCache* wc) {
+  if (wc->orientation == TTK_ORIENT_HORIZONTAL) {
+    return TileGtk_GetHScale(wc);
+  }
+  return TileGtk_GetVScale(wc);
+}; /* TileGtk_GetScale */
+
+GtkWidget *TileGtk_GetHProgressBar(TileGtk_WidgetCache* wc) {
+  TILEGTK_CHECK_WIDGET(gtkHProgressBar, gtk_progress_bar_new());
+  gtk_progress_bar_set_orientation((GtkProgressBar*) wc->gtkHProgressBar,
+                                   GTK_PROGRESS_LEFT_TO_RIGHT);
+  gtk_progress_bar_set_fraction((GtkProgressBar *) wc->gtkHProgressBar, 1);
+}; /* TileGtk_GetHProgressBar */
+
+GtkWidget *TileGtk_GetVProgressBar(TileGtk_WidgetCache* wc) {
+  TILEGTK_CHECK_WIDGET(gtkVProgressBar, gtk_progress_bar_new());
+  gtk_progress_bar_set_orientation((GtkProgressBar*) wc->gtkVProgressBar,
+                                   GTK_PROGRESS_BOTTOM_TO_TOP);
+  gtk_progress_bar_set_fraction((GtkProgressBar *) wc->gtkVProgressBar, 1);
+}; /* TileGtk_GetVProgressBar */
+
+GtkWidget *TileGtk_GetProgressBar(TileGtk_WidgetCache* wc) {
+  if (wc->orientation == TTK_ORIENT_HORIZONTAL) {
+    return TileGtk_GetHProgressBar(wc);
+  }
+  return TileGtk_GetVProgressBar(wc);
+}; /* TileGtk_GetProgressBar */
 
 const char *TileGtk_GtkStateStr(GtkStateType gtkState) {
   switch ((GtkStateType) gtkState) {
@@ -207,6 +245,16 @@ void TileGtk_CopyGtkPixmapOnToDrawable(GdkPixmap *pixmap, Drawable d,
     if (gdkGC) g_object_unref(gdkGC);
     Tk_FreeGC(Tk_Display(tkwin), gc);
 #else
+
+#ifdef TILEGTK_USE_XCOPY
+    XGCValues gcValues;
+    gcValues.graphics_exposures = False;
+    GC gc = Tk_GetGC(tkwin, GCForeground | GCBackground | GCGraphicsExposures,
+                     &gcValues);
+    XCopyArea(Tk_Display(tkwin), GDK_DRAWABLE_XID(pixmap), d, gc,
+              x, y, w, h, x1, x2);
+    Tk_FreeGC(Tk_Display(tkwin), gc);
+#else
     GdkPixbuf *imgb;
     XGCValues gcValues;
     gcValues.graphics_exposures = False;
@@ -222,6 +270,8 @@ void TileGtk_CopyGtkPixmapOnToDrawable(GdkPixmap *pixmap, Drawable d,
          x, y, x1, x2, w, h, XLIB_RGB_DITHER_MAX, 0, 0);
     gdk_pixbuf_unref(imgb);
     Tk_FreeGC(Tk_Display(tkwin), gc);
+#endif
+
 #endif
 }; /* TileGtk_CopyGtkPixmapOnToDrawable */
 
@@ -352,3 +402,22 @@ unsigned int TileGtk_StateShadowTableLookup(TileGtk_StateTable *map,
   }
   return (map)? map->value : value;
 }; /* TileGtk_StateShadowTableLookup */
+
+double TileGtk_ValueFromSlider(TileGtk_WidgetCache *wc, Tk_Window tkwin,
+                               Ttk_Box b) {
+  double value = 0.0;
+  double ww = Tk_Width(tkwin), wh = Tk_Height(tkwin), dx = 0.0, x;
+  if (wc->orientation == TTK_ORIENT_HORIZONTAL) {
+    dx = b.width / 2.0;
+    x = b.x + dx;
+    value = x / ww;
+  } else {
+    dx = b.height / 2.0;
+    x = b.y + dx;
+    value = x / wh;
+  }
+  if (value < 0.0) value = 0.0;
+  if (value > 1.0) value = 1.0;
+  // printf("ww:%f, b.x:%d, x:%f, dx:%f, v:%f\n", ww, b.x, x, dx, value);
+  return value;
+}; /* TileGtk_ValueFromSlider */

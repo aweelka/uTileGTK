@@ -30,7 +30,6 @@ SET ( PKG_SOURCES generic/tileGtk_Init.cpp
                   generic/tileGtk_Notebook.cpp
                   generic/tileGtk_TreeView.cpp
                   generic/tileGtk_Progress.cpp
-                  generic/tileGtk_Scale.cpp
                   generic/tileGtk_Paned.cpp
                   generic/tileGtk_SizeGrip.cpp
                   generic/tileGtk_Separator.cpp
@@ -47,6 +46,8 @@ SET ( PKG_SOURCES generic/tileGtk_Init.cpp
                   generic/tileGtk_Entry.cpp
                   generic/tileGtk_Menubutton.cpp
                   generic/tileGtk_Scrollbar.cpp
+                  generic/tileGtk_Scale.cpp
+                  generic/tileGtk_Progress.cpp
 )
 
 MESSAGE ( STATUS "===========================================================" )

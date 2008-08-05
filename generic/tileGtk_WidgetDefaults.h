@@ -15,7 +15,7 @@
 
 #define DEFAULT_BORDERWIDTH "2"
 #define DEFAULT_ARROW_SIZE "15"
-#define MIN_THUMB_SIZE 8
+#define MIN_THUMB_SIZE 14
 #define BorderBorderWidth                       "0"
 #define PushButtonUniformPadding                 3
 #define PushButtonUniformPaddingDefaulted        5
@@ -28,4 +28,6 @@
 #define NotebookClientUniformPadding             4
 #define TreeViewUniformPadding                   4
 #define PanedUniformPadding                      0
-#define ScrollbarThumpMinimumLen                 2
+#define ScrollbarThumbMinimumLen                 2
+#define ScaleThumbMinimumLen                     2
+#define ProgressBarThumbSize                MIN_THUMB_SIZE

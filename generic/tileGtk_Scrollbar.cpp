@@ -43,7 +43,7 @@ static void ScrollbarTroughElementGeometry(
     GtkWidget *widget = TileGtk_GetScrollBar(wc);
     TILEGTK_ENSURE_GTK_STYLE_ENGINE_ACTIVE;
     TILEGTK_ENSURE_WIDGET_OK;
-    gtk_widget_style_get (widget, "trough-border", &trough_border, NULL);
+    gtk_widget_style_get(widget, "trough-border", &trough_border, NULL);
     // xt = widget->style->xthickness;
     // yt = widget->style->ythickness;
     *paddingPtr = Ttk_MakePadding(xt + trough_border,
@@ -114,7 +114,7 @@ static void ScrollbarThumbElementGeometry(
     int *widthPtr, int *heightPtr, Ttk_Padding *paddingPtr)
 {
     TILEGTK_WIDGET_CACHE_DEFINITION;
-    gint slider_width = 0, slider_min = ScrollbarThumpMinimumLen;
+    gint slider_width = 0, slider_min = ScrollbarThumbMinimumLen;
     GtkWidget *widget = TileGtk_GetScrollBar(wc);
     TILEGTK_ENSURE_GTK_STYLE_ENGINE_ACTIVE;
     TILEGTK_ENSURE_WIDGET_OK;
@@ -141,12 +141,13 @@ static void ScrollbarThumbElementDraw(
     GtkWidget *widget = TileGtk_GetScrollBar(wc);
     GtkAdjustment *adj = NULL;
     TILEGTK_ENSURE_WIDGET_OK;
-    TileGtk_StateShadowTableLookup(NULL, state, gtkState, gtkShadow,
-            TILEGTK_SECTION_SCROLLBAR|TILEGTK_SECTION_ALL);
     // TILEGTK_SETUP_WIDGET_SIZE(b.width, b.height);
     TILEGTK_WIDGET_SET_FOCUS(widget);
     adj = gtk_range_get_adjustment((GtkRange *) widget);
-    // TILEGTK_DEFAULT_BACKGROUND;
+    gtk_adjustment_set_value(adj, TileGtk_ValueFromSlider(wc, tkwin, b));
+    TILEGTK_DEFAULT_BACKGROUND;
+    TileGtk_StateShadowTableLookup(NULL, state, gtkState, gtkShadow,
+            TILEGTK_SECTION_SCROLLBAR|TILEGTK_SECTION_ALL);
     // TileGtk_StateInfo(state, gtkState, gtkShadow, tkwin, widget);
     gtk_paint_slider(style, pixmap, gtkState, gtkShadow, NULL, widget,
         GTK_RANGE_GET_CLASS(widget)->slider_detail, 0, 0, b.width, b.height,

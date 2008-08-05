@@ -17,26 +17,14 @@
 #include "tileGtk_TkHeaders.h"
 #include "tileGtk_WidgetDefaults.h"
 
+#if 0
 /*
  * Map between Tk/Tile & Gtk/GNOME state flags.
  */
 static Ttk_StateTable scale_statemap[] =
 {
-#ifdef TILEGTK_GTK_VERSION_3
-    {QStyle::Style_Default,                         TTK_STATE_DISABLED, 0},
-    {QStyle::Style_Enabled|QStyle::Style_Down,      TTK_STATE_PRESSED, 0},
-    {QStyle::Style_Enabled|QStyle::Style_HasFocus,  TTK_STATE_FOCUS, 0},
-    {QStyle::Style_Enabled|QStyle::Style_MouseOver, TK_STATE_ACTIVE, 0},
-    {QStyle::Style_Enabled,                         0, 0}
-#endif /* TILEGTK_GTK_VERSION_3 */
-#ifdef TILEGTK_GTK_VERSION_4
-    {QStyle::State_None,                            TTK_STATE_DISABLED, 0},
-    {QStyle::State_Enabled|QStyle::State_Sunken,    TTK_STATE_PRESSED, 0},
-    {QStyle::State_Enabled|QStyle::State_HasFocus,  TTK_STATE_FOCUS, 0},
-    {QStyle::State_Enabled|QStyle::State_MouseOver, TK_STATE_ACTIVE, 0},
-    {QStyle::State_Enabled,                         0, 0}
-#endif /* TILEGTK_GTK_VERSION_4 */
 };
+#endif
 
 typedef struct {
 } ScaleTroughElement;
@@ -49,120 +37,61 @@ static void ScaleTroughElementGeometry(
     void *clientData, void *elementRecord, Tk_Window tkwin,
     int *widthPtr, int *heightPtr, Ttk_Padding *paddingPtr)
 {
-    if (!TileGtk_GtkInitialised()) NO_GTK_STYLE_ENGINE;
-    NULL_PROXY_ORIENTED_WIDGET(TileGtk_QSlider_Hor_Widget);
-    QSlider* widget = NULL;
-    if (orient == TTK_ORIENT_HORIZONTAL) {
-      widget = wc->TileGtk_QSlider_Hor_Widget;
-    } else {
-      NULL_PROXY_WIDGET(TileGtk_QSlider_Ver_Widget);
-      widget = wc->TileGtk_QSlider_Ver_Widget;
-    }
-    Tcl_MutexLock(&tilegtkMutex);
-    widget->setRange(0, 100);
-    widget->setValue(0);
-    *widthPtr   = widget->sizeHint().width();
-    *heightPtr  = widget->sizeHint().height();
-    Tcl_MutexUnlock(&tilegtkMutex);
-    *paddingPtr = Ttk_UniformPadding(0);
+    TILEGTK_WIDGET_CACHE_DEFINITION;
+    gint trough_border = 0;
+    int xt = 0, yt = 0;
+    GtkWidget *widget = TileGtk_GetScale(wc);
+    TILEGTK_ENSURE_GTK_STYLE_ENGINE_ACTIVE;
+    TILEGTK_ENSURE_WIDGET_OK;
+    gtk_widget_style_get(widget, "trough-border", &trough_border, NULL);
+    // xt = widget->style->xthickness;
+    // yt = widget->style->ythickness;
+    *paddingPtr = Ttk_MakePadding(xt + trough_border,
+                                  yt + trough_border,
+                                  xt + trough_border,
+                                  yt + trough_border);
 }
 
 static void ScaleTroughElementDraw(
     void *clientData, void *elementRecord, Tk_Window tkwin,
     Drawable d, Ttk_Box b, unsigned state)
 {
-    if (!TileGtk_GtkInitialised()) NO_GTK_STYLE_ENGINE;
-    NULL_PROXY_ORIENTED_WIDGET(TileGtk_QSlider_Hor_Widget);
-    QSlider* widget = NULL;
-    int width, height;
-    QRect rc;
-#ifdef TILEGTK_GTK_VERSION_4
-    QStyleOptionSlider option;
-#endif /* TILEGTK_GTK_VERSION_4 */
-    if (orient == TTK_ORIENT_HORIZONTAL) {
-      Tcl_MutexLock(&tilegtkMutex);
-      widget = wc->TileGtk_QSlider_Hor_Widget;
-      widget->resize(b.width, b.height);
-#ifdef TILEGTK_GTK_VERSION_3
-      rc = widget->sliderRect();
-#endif /* TILEGTK_GTK_VERSION_3 */
-#ifdef TILEGTK_GTK_VERSION_4
-      option.initFrom(widget);
-      rc = wc->TileGtk_Style->subControlRect(QStyle::CC_Slider,
-           &option, QStyle::SC_SliderHandle, widget);
-#endif /* TILEGTK_GTK_VERSION_4 */
-      width = b.width + rc.width(); height = b.height;
+    TILEGTK_GTK_DRAWABLE_DEFINITIONS;
+    TILEGTK_ENSURE_GTK_STYLE_ENGINE_ACTIVE;
+    TILEGTK_SETUP_GTK_DRAWABLE;
+    GtkWidget *widget = TileGtk_GetScale(wc);
+    gboolean trough_side_details = FALSE;
+    TILEGTK_ENSURE_WIDGET_OK;
+    TileGtk_StateShadowTableLookup(NULL, state, gtkState, gtkShadow,
+            TILEGTK_SECTION_TROUGH|TILEGTK_SECTION_ALL);
+    // TILEGTK_SETUP_WIDGET_SIZE(b.width, b.height);
+    TILEGTK_WIDGET_SET_FOCUS(widget);
+    gtk_widget_style_get(widget, "trough-side-details",
+                                 &trough_side_details, NULL);
+    // TILEGTK_DEFAULT_BACKGROUND;
+    // TileGtk_StateInfo(state, gtkState, gtkShadow, tkwin, widget);
+    if (trough_side_details) {
+      int trough_change_pos_x = b.width, trough_change_pos_y = b.height;
+      if (wc->gtkOrientation == GTK_ORIENTATION_HORIZONTAL)
+        trough_change_pos_x = b.width / 2;
+      else
+        trough_change_pos_y = b.height / 2;
+      gtk_paint_box(style, pixmap, gtkState, GTK_SHADOW_IN, NULL, widget,
+          "trough-upper", 0, 0, trough_change_pos_x, trough_change_pos_y);
+      if (wc->gtkOrientation == GTK_ORIENTATION_HORIZONTAL)
+        trough_change_pos_y = 0;
+      else
+        trough_change_pos_x = 0;
+      gtk_paint_box(style, pixmap, gtkState, GTK_SHADOW_IN, NULL, widget,
+          "trough-lower", trough_change_pos_x, trough_change_pos_y,
+          b.width-trough_change_pos_x, b.height-trough_change_pos_y);
     } else {
-      NULL_PROXY_WIDGET(TileGtk_QSlider_Ver_Widget);
-      Tcl_MutexLock(&tilegtkMutex);
-      widget = wc->TileGtk_QSlider_Ver_Widget;
-      widget->resize(b.width, b.height);
-#ifdef TILEGTK_GTK_VERSION_3
-      rc = widget->sliderRect();
-#endif /* TILEGTK_GTK_VERSION_3 */
-#ifdef TILEGTK_GTK_VERSION_4
-      option.initFrom(widget);
-      rc = wc->TileGtk_Style->subControlRect(QStyle::CC_Slider,
-           &option, QStyle::SC_SliderHandle, widget);
-#endif /* TILEGTK_GTK_VERSION_4 */
-      width = b.width; height = b.height + rc.height();
+      gtk_paint_box(style, pixmap, gtkState, GTK_SHADOW_IN, NULL, widget,
+          "trough", 0, 0, b.width, b.height);
     }
-    widget->setEnabled(state != TTK_STATE_DISABLED);
-    widget->resize(width, height);
-    widget->setRange(0, 100);
-    widget->setValue(1);
-    //widget->setTickmarks(QSlider::Above);
-#ifdef TILEGTK_GTK_VERSION_3
-    widget->setBackgroundOrigin(QWidget::ParentOrigin);
-    widget->polish();
-#endif /* TILEGTK_GTK_VERSION_3 */
-#ifdef TILEGTK_GTK_VERSION_4
-    widget->ensurePolished();
-#endif /* TILEGTK_GTK_VERSION_4 */
-    // We cannot use qApp->style().drawComplexControl(QStyle::CC_Slider,...),
-    // as (due to Gtk bug ?), it doesn't work...
-    TILEGTK_SET_FOCUS(state);
-    QPixmap pixmap = QPixmap::grabWidget(widget);
-    TILEGTK_CLEAR_FOCUS(state);
-
-    // Try to redraw the whole window, to avoid drawing problems...
-    // int bg_width = Tk_Width(tkwin), bg_height = Tk_Height(tkwin);
-    // QPixmap      bg_pixmap(bg_width, bg_height);
-    // QPainter     bg_painter(&bg_pixmap);
-    // if (TileGtk_QPixmap_BackgroundTile &&
-    //     !(TileGtk_QPixmap_BackgroundTile->isNull())) {
-    //     bg_painter.fillRect(0, 0, bg_width, bg_height,
-    //                         QBrush(QColor(255,255,255),
-    //                         *TileGtk_QPixmap_BackgroundTile));
-    // } else {
-    //     bg_painter.fillRect(0, 0, bg_width, bg_height,
-    //                         qApp->palette().active().background());
-    // }
-    // TileGtk_CopyGtkPixmapOnToDrawable(bg_pixmap, d, tkwin,
-    //                                 0, 0, bg_width, bg_height, 0, 0);
-#ifdef TILEGTK_GTK_VERSION_3
-    rc = widget->sliderRect();
-#endif /* TILEGTK_GTK_VERSION_3 */
-#ifdef TILEGTK_GTK_VERSION_4
-    option.initFrom(widget);
-    rc = wc->TileGtk_Style->subControlRect(QStyle::CC_Slider,
-         &option, QStyle::SC_SliderHandle, widget);
-#endif /* TILEGTK_GTK_VERSION_4 */
-    // Copy the drawn widget, but skip the rectangle that has the handle.
-    if (orient == TTK_ORIENT_HORIZONTAL) {
-      TileGtk_CopyGtkPixmapOnToDrawable(pixmap, d, tkwin,
-                   0, 0, rc.x(), b.height, b.x, b.y);
-      TileGtk_CopyGtkPixmapOnToDrawable(pixmap, d, tkwin,
-                   rc.x()+rc.width(), 0, width-(rc.x()+rc.width()),
-                   b.height, rc.x(), b.y);
-    } else {
-      TileGtk_CopyGtkPixmapOnToDrawable(pixmap, d, tkwin,
-                   0, 0, b.width, rc.y(), b.x, b.y);
-      TileGtk_CopyGtkPixmapOnToDrawable(pixmap, d, tkwin,
-                   0, rc.y()+rc.height(), b.width, height-(rc.y()+rc.height()),
-                   b.x, rc.y());
-    }
-    Tcl_MutexUnlock(&tilegtkMutex);
+    TileGtk_CopyGtkPixmapOnToDrawable(pixmap, d, tkwin,
+                   0, 0, b.width, b.height, b.x, b.y);
+    TILEGTK_CLEANUP_GTK_DRAWABLE;
 }
 
 static Ttk_ElementSpec ScaleTroughElementSpec = {
@@ -187,32 +116,21 @@ static void ScaleSliderElementGeometry(
     void *clientData, void *elementRecord, Tk_Window tkwin,
     int *widthPtr, int *heightPtr, Ttk_Padding *paddingPtr)
 {
-    if (!TileGtk_GtkInitialised()) NO_GTK_STYLE_ENGINE;
-    NULL_PROXY_ORIENTED_WIDGET(TileGtk_QSlider_Hor_Widget);
-    QSlider* widget = NULL;
-    QRect rc;
-    if (orient == TTK_ORIENT_HORIZONTAL) {
-      widget = wc->TileGtk_QSlider_Hor_Widget;
+    TILEGTK_WIDGET_CACHE_DEFINITION;
+    gint slider_len = 0, slider_width = ScaleThumbMinimumLen;
+    GtkWidget *widget = TileGtk_GetScale(wc);
+    TILEGTK_ENSURE_GTK_STYLE_ENGINE_ACTIVE;
+    TILEGTK_ENSURE_WIDGET_OK;
+    gtk_widget_style_get (widget, "slider-length", &slider_len,
+                                  "slider-width",  &slider_width, NULL);
+    *heightPtr = *widthPtr = slider_width;
+    if (wc->orientation == TTK_ORIENT_HORIZONTAL) {
+      *heightPtr = slider_width;
+      *widthPtr  = slider_len;
     } else {
-      NULL_PROXY_WIDGET(TileGtk_QSlider_Ver_Widget);
-      widget = wc->TileGtk_QSlider_Ver_Widget;
+      *widthPtr  = slider_width;
+      *heightPtr = slider_len;
     }
-    Tcl_MutexLock(&tilegtkMutex);
-    widget->setRange(0, 100);
-    widget->setValue(50);
-    widget->resize(widget->sizeHint().width(), widget->sizeHint().height());
-#ifdef TILEGTK_GTK_VERSION_3
-    rc = widget->sliderRect();
-#endif /* TILEGTK_GTK_VERSION_3 */
-#ifdef TILEGTK_GTK_VERSION_4
-    QStyleOptionSlider option;
-    option.initFrom(widget);
-    rc = wc->TileGtk_Style->subControlRect(QStyle::CC_Slider,
-         &option, QStyle::SC_SliderHandle, widget);
-#endif /* TILEGTK_GTK_VERSION_4 */
-    *widthPtr   = rc.width();
-    *heightPtr  = rc.height();
-    Tcl_MutexUnlock(&tilegtkMutex);
     *paddingPtr = Ttk_UniformPadding(0);
 }
 
@@ -220,43 +138,26 @@ static void ScaleSliderElementDraw(
     void *clientData, void *elementRecord, Tk_Window tkwin,
     Drawable d, Ttk_Box b, unsigned state)
 {
-    if (!TileGtk_GtkInitialised()) NO_GTK_STYLE_ENGINE;
-    NULL_PROXY_ORIENTED_WIDGET(TileGtk_QSlider_Hor_Widget);
-    QSlider* widget = NULL;
-    if (orient == TTK_ORIENT_HORIZONTAL) {
-      widget = wc->TileGtk_QSlider_Hor_Widget;
-    } else {
-      NULL_PROXY_WIDGET(TileGtk_QSlider_Ver_Widget);
-      widget = wc->TileGtk_QSlider_Ver_Widget;
-    }
-    Tcl_MutexLock(&tilegtkMutex);
-#ifdef TILEGTK_GTK_VERSION_3
-    widget->setBackgroundOrigin(QWidget::ParentOrigin);
-#endif /* TILEGTK_GTK_VERSION_3 */
-    widget->setEnabled(state != TTK_STATE_DISABLED);
-    widget->setRange(0, 100);
-    widget->setValue(50);
-    // We cannot use qApp->style().drawComplexControl(QStyle::CC_Slider,...),
-    // as (due to Gtk bug ?), it doesn't work...
-    QPixmap pixmap = QPixmap::grabWidget(widget);
-
-    //QStyle::SFlags sflags = TileGtk_StateTableLookup(scale_statemap, state);
-    //QStyle::SCFlags activeflags = QStyle::SC_SliderHandle;
-    //qApp->style().drawComplexControl(QStyle::CC_Slider, &painter, widget,
-    //      QRect(0, 0, widget->width(), widget->height()),
-    //      qApp->palette().active(), sflags, scflags, activeflags);
-#ifdef TILEGTK_GTK_VERSION_3
-    QRect rc = widget->sliderRect();
-#endif /* TILEGTK_GTK_VERSION_3 */
-#ifdef TILEGTK_GTK_VERSION_4
-    QStyleOptionSlider option;
-    option.initFrom(widget);
-    QRect rc = wc->TileGtk_Style->subControlRect(QStyle::CC_Slider,
-         &option, QStyle::SC_SliderHandle, widget);
-#endif /* TILEGTK_GTK_VERSION_4 */
+    TILEGTK_GTK_DRAWABLE_DEFINITIONS;
+    TILEGTK_ENSURE_GTK_STYLE_ENGINE_ACTIVE;
+    TILEGTK_SETUP_GTK_DRAWABLE;
+    GtkWidget *widget = TileGtk_GetScale(wc);
+    GtkAdjustment *adj = NULL;
+    TILEGTK_ENSURE_WIDGET_OK;
+    // TILEGTK_SETUP_WIDGET_SIZE(b.width, b.height);
+    TILEGTK_WIDGET_SET_FOCUS(widget);
+    adj = gtk_range_get_adjustment((GtkRange *) widget);
+    gtk_adjustment_set_value(adj, TileGtk_ValueFromSlider(wc, tkwin, b));
+    TILEGTK_DEFAULT_BACKGROUND;
+    TileGtk_StateShadowTableLookup(NULL, state, gtkState, gtkShadow,
+            TILEGTK_SECTION_SCROLLBAR|TILEGTK_SECTION_ALL);
+    // TileGtk_StateInfo(state, gtkState, gtkShadow, tkwin, widget);
+    gtk_paint_slider(style, pixmap, gtkState, gtkShadow, NULL, widget,
+        GTK_RANGE_GET_CLASS(widget)->slider_detail, 0, 0, b.width, b.height,
+        wc->gtkOrientation);
     TileGtk_CopyGtkPixmapOnToDrawable(pixmap, d, tkwin,
-                 rc.x(), rc.y(), b.width, b.height, b.x, b.y);
-    Tcl_MutexUnlock(&tilegtkMutex);
+                   0, 0, b.width, b.height, b.x, b.y);
+    TILEGTK_CLEANUP_GTK_DRAWABLE;
 }
 
 static Ttk_ElementSpec ScaleSliderElementSpec = {

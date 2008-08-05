@@ -35,9 +35,10 @@ typedef struct TileGtk_WidgetCache {
   GtkStyle*      gtkStyle;
   GtkWidget*     gtkNotebook;
   GtkWidget*     gtkEntry;
-  GtkWidget*     hScaleWidget;
-  GtkWidget*     vScaleWidget;
-  GtkWidget*     gtkProgressBar;
+  GtkWidget*     gtkHScale;
+  GtkWidget*     gtkVScale;
+  GtkWidget*     gtkHProgressBar;
+  GtkWidget*     gtkVProgressBar;
   GtkWidget*     gtkComboBox;
   GtkWidget*     gtkHScrollBar;
   GtkWidget*     gtkVScrollBar;

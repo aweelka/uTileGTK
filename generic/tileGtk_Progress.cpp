@@ -17,18 +17,12 @@
 #include "tileGtk_TkHeaders.h"
 #include "tileGtk_WidgetDefaults.h"
 
+#if 0
 /*
  * Map between Tk/Tile & Gtk/GNOME state flags.
  */
-#if 0
 static Ttk_StateTable progress_statemap[] =
 {
-    {QStyle::Style_Default                          , TTK_STATE_DISABLED, 0},
-    {QStyle::Style_Enabled | QStyle::Style_Down     , TTK_STATE_PRESSED, 0},
-    {QStyle::Style_Enabled | QStyle::Style_MouseOver, TTK_STATE_ACTIVE, 0},
-    {QStyle::Style_Enabled | QStyle::Style_HasFocus , TTK_STATE_FOCUS, 0},
-    {QStyle::Style_Enabled | QStyle::Style_Active   , TTK_STATE_ALTERNATE, 0},
-    {QStyle::Style_Enabled, 0, 0 }
 };
 #endif
 
@@ -43,7 +37,6 @@ static void ProgressTroughElementGeometry(
     void *clientData, void *elementRecord, Tk_Window tkwin,
     int *widthPtr, int *heightPtr, Ttk_Padding *paddingPtr)
 {
-    if (!TileGtk_GtkInitialised()) NO_GTK_STYLE_ENGINE;
     *paddingPtr = Ttk_UniformPadding(0);
 }
 
@@ -51,49 +44,22 @@ static void ProgressTroughElementDraw(
     void *clientData, void *elementRecord, Tk_Window tkwin,
     Drawable d, Ttk_Box b, unsigned state)
 {
-    if (!TileGtk_GtkInitialised()) NO_GTK_STYLE_ENGINE;
-    NULL_PROXY_ORIENTED_WIDGET(TileGtk_QProgressBar_Hor_Widget);
-    Tcl_MutexLock(&tilegtkMutex);
-    QProgressBar& widget = *wc->TileGtk_QProgressBar_Hor_Widget;
-    if (orient == TTK_ORIENT_HORIZONTAL) {
-#ifdef TILEGTK_GTK_VERSION_3
-      widget.resize(b.width, b.height);
-#endif /* TILEGTK_GTK_VERSION_3 */
-#ifdef TILEGTK_GTK_VERSION_4
-      widget.setOrientation(Gtk::Horizontal);
-#endif /* TILEGTK_GTK_VERSION_4 */
-    } else {
-#ifdef TILEGTK_GTK_VERSION_3
-      widget.resize(b.height, b.width);
-#endif /* TILEGTK_GTK_VERSION_3 */
-#ifdef TILEGTK_GTK_VERSION_4
-      widget.setOrientation(Gtk::Vertical);
-#endif /* TILEGTK_GTK_VERSION_4 */
-    }
-    widget.reset();
-#ifdef TILEGTK_GTK_VERSION_3
-    widget.setCenterIndicator(false);
-    widget.setPercentageVisible(false);
-#endif /* TILEGTK_GTK_VERSION_3 */
-#ifdef TILEGTK_GTK_VERSION_4
-    widget.resize(b.width, b.height);
-    widget.setTextVisible(false);
-#endif /* TILEGTK_GTK_VERSION_4 */
-    if (state & TTK_STATE_DISABLED) widget.setEnabled(false);
-    TILEGTK_SET_FOCUS(state);
-    QPixmap pixmap = QPixmap::grabWidget(&widget);
-    TILEGTK_CLEAR_FOCUS(state);
-#ifdef TILEGTK_GTK_VERSION_3
-    if (orient == TTK_ORIENT_VERTICAL) {
-      // Gtk 3.x does not support vertical progress bars. Rotate it :-)
-      QWMatrix matrix;
-      matrix.rotate(270);
-      pixmap = pixmap.xForm(matrix);
-    }
-#endif /* TILEGTK_GTK_VERSION_3 */
+    TILEGTK_GTK_DRAWABLE_DEFINITIONS;
+    TILEGTK_ENSURE_GTK_STYLE_ENGINE_ACTIVE;
+    TILEGTK_SETUP_GTK_DRAWABLE;
+    GtkWidget *widget = TileGtk_GetProgressBar(wc);
+    TILEGTK_ENSURE_WIDGET_OK;
+    TileGtk_StateShadowTableLookup(NULL, state, gtkState, gtkShadow,
+            TILEGTK_SECTION_TROUGH|TILEGTK_SECTION_ALL);
+    // TILEGTK_SETUP_WIDGET_SIZE(b.width, b.height);
+    TILEGTK_WIDGET_SET_FOCUS(widget);
+    // TILEGTK_DEFAULT_BACKGROUND;
+    // TileGtk_StateInfo(state, gtkState, gtkShadow, tkwin, widget);
+    gtk_paint_box(style, pixmap, gtkState, GTK_SHADOW_IN, NULL, widget,
+        "trough", 0, 0, b.width, b.height);
     TileGtk_CopyGtkPixmapOnToDrawable(pixmap, d, tkwin,
-                                    0, 0, b.width, b.height, b.x, b.y);
-    Tcl_MutexUnlock(&tilegtkMutex);
+                   0, 0, b.width, b.height, b.x, b.y);
+    TILEGTK_CLEANUP_GTK_DRAWABLE;
 }
 
 static Ttk_ElementSpec ProgressTroughElementSpec = {
@@ -132,136 +98,50 @@ static void ProgressBarElementGeometry(
     void *clientData, void *elementRecord, Tk_Window tkwin,
     int *widthPtr, int *heightPtr, Ttk_Padding *paddingPtr)
 {
-    if (!TileGtk_GtkInitialised()) NO_GTK_STYLE_ENGINE;
-    NULL_PROXY_ORIENTED_WIDGET(TileGtk_QProgressBar_Hor_Widget);
-    int length;
-    bool determinate = true;
-    ProgressBarElement *pbar = (ProgressBarElement *) elementRecord;
-    Tk_GetPixelsFromObj(NULL, tkwin, pbar->lengthObj, &length);
-    if (strncmp(Tcl_GetString(pbar->modeObj), "determinate", 10) != 0)
-        determinate = false;
-
-    Tcl_MutexLock(&tilegtkMutex);
-    QProgressBar& widget = *wc->TileGtk_QProgressBar_Hor_Widget;
-#ifdef TILEGTK_GTK_VERSION_4
-    widget.setOrientation(Gtk::Horizontal);
-#endif /* TILEGTK_GTK_VERSION_4 */
-    if (orient == TTK_ORIENT_HORIZONTAL) {
-      *widthPtr   = length/4 /*widget.sizeHint().width()*/;
-      *heightPtr  = widget.sizeHint().height();
-    } else {
-      *widthPtr   = widget.sizeHint().height();
-      *heightPtr  = length/4 /*widget.sizeHint().width()*/;
-    }
-    Tcl_MutexUnlock(&tilegtkMutex);
-    *paddingPtr = Ttk_UniformPadding(0);
+    *widthPtr = *heightPtr = ProgressBarThumbSize;
 }
 
 static void ProgressBarElementDraw(
     void *clientData, void *elementRecord, Tk_Window tkwin,
     Drawable d, Ttk_Box b, unsigned state)
 {
-    if (!TileGtk_GtkInitialised()) NO_GTK_STYLE_ENGINE;
-    NULL_PROXY_ORIENTED_WIDGET(TileGtk_QProgressBar_Hor_Widget);
-    ProgressBarElement *pbar = (ProgressBarElement *) elementRecord;
-    int width = Tk_Width(tkwin), height = Tk_Height(tkwin);
-    bool determinate = true;
-    double value, maximum;
-    Tcl_GetDoubleFromObj(NULL, pbar->valueObj, &value);
-    Tcl_GetDoubleFromObj(NULL, pbar->maximumObj, &maximum);
-    if (strncmp(Tcl_GetString(pbar->modeObj), "determinate", 10) != 0) {
-      determinate = false;
-    }
-    
-    int src_x = 0, src_y = 0, dest_x = 0, dest_y = 0;
+    //ProgressBarElement *pbar = (ProgressBarElement *) elementRecord;
+    //int width = Tk_Width(tkwin), height = Tk_Height(tkwin);
+    //bool determinate = true;
+    //double value, maximum;
+    TILEGTK_GTK_DRAWABLE_DEFINITIONS;
+    TILEGTK_ENSURE_GTK_STYLE_ENGINE_ACTIVE;
+    TILEGTK_SETUP_GTK_DRAWABLE;
+    GtkWidget *widget = TileGtk_GetProgressBar(wc);
+    TILEGTK_ENSURE_WIDGET_OK;
+    // Tcl_GetDoubleFromObj(NULL, pbar->valueObj, &value);
+    // Tcl_GetDoubleFromObj(NULL, pbar->maximumObj, &maximum);
+    // if (strncmp(Tcl_GetString(pbar->modeObj), "determinate", 10) != 0) {
+    //   determinate = false;
+    // }
 
-    Tcl_MutexLock(&tilegtkMutex);
-    QProgressBar& widget = *wc->TileGtk_QProgressBar_Hor_Widget;
-    double percentage = value/maximum*100.0;
-    if (orient == TTK_ORIENT_HORIZONTAL) {
-#ifdef TILEGTK_GTK_VERSION_4
-      widget.setOrientation(Gtk::Horizontal);
-#endif /* TILEGTK_GTK_VERSION_4 */
-      if (!determinate) {
-        widget.resize(b.width, height);
-#ifdef TILEGTK_GTK_VERSION_3
-        widget.setTotalSteps(0);
-#endif /* TILEGTK_GTK_VERSION_3 */
-        percentage = 1.0;
-        width = b.width;
-        dest_x = b.x;
-      } else {
-        widget.resize(width, height);
-#ifdef TILEGTK_GTK_VERSION_3
-        widget.setTotalSteps(100);
-#endif /* TILEGTK_GTK_VERSION_3 */
-      }
-    } else {
-#ifdef TILEGTK_GTK_VERSION_4
-      widget.setOrientation(Gtk::Vertical);
-#endif /* TILEGTK_GTK_VERSION_4 */
-      if (!determinate) {
-#ifdef TILEGTK_GTK_VERSION_3
-        widget.resize(b.height, width);
-        widget.setTotalSteps(0);
-#endif /* TILEGTK_GTK_VERSION_3 */
-#ifdef TILEGTK_GTK_VERSION_4
-        widget.resize(b.width, height);
-#endif /* TILEGTK_GTK_VERSION_4 */
-        percentage = 1.0;
-        height = b.height;
-        dest_y = b.y;
-      } else {
-#ifdef TILEGTK_GTK_VERSION_3
-        widget.resize(height, width);
-        widget.setTotalSteps(100);
-#endif /* TILEGTK_GTK_VERSION_3 */
-#ifdef TILEGTK_GTK_VERSION_4
-        widget.resize(width, height);
-#endif /* TILEGTK_GTK_VERSION_4 */
-      }
-    }
-#ifdef TILEGTK_GTK_VERSION_3
-    widget.setProgress((int)(percentage));
-    widget.setFrameStyle(QFrame::NoFrame);
-#endif /* TILEGTK_GTK_VERSION_3 */
-#ifdef TILEGTK_GTK_VERSION_4
-    widget.setValue((int)(percentage));
-#endif /* TILEGTK_GTK_VERSION_4 */
-    if (state & TTK_STATE_DISABLED) {
-      widget.setEnabled(false);
-    } else {
-      widget.setEnabled(true);
-    }
-    if (determinate) {
-#ifdef TILEGTK_GTK_VERSION_3
-      widget.setCenterIndicator(true);
-      widget.setPercentageVisible(true);
-#endif /* TILEGTK_GTK_VERSION_3 */
-#ifdef TILEGTK_GTK_VERSION_4
-      widget.setTextVisible(true);
-#endif /* TILEGTK_GTK_VERSION_4 */
-    } else {
-#ifdef TILEGTK_GTK_VERSION_3
-      widget.setCenterIndicator(false);
-      widget.setPercentageVisible(false);
-#endif /* TILEGTK_GTK_VERSION_3 */
-#ifdef TILEGTK_GTK_VERSION_4
-      widget.setTextVisible(false);
-#endif /* TILEGTK_GTK_VERSION_4 */
-    }
-    QPixmap pixmap = QPixmap::grabWidget(&widget);
-#ifdef TILEGTK_GTK_VERSION_3
-    if (orient == TTK_ORIENT_VERTICAL) {
-      // Gtk 3.x does not support vertical progress bars. Rotate it :-)
-      QWMatrix matrix;
-      matrix.rotate(270);
-      pixmap = pixmap.xForm(matrix);
-    }
-#endif /* TILEGTK_GTK_VERSION_3 */
+    // if (determinate) {
+    //   gtk_progress_bar_set_bar_style((GtkProgressBar *) widget,
+    //                                   GTK_PROGRESS_DISCRETE);
+    //   gtk_progress_bar_set_fraction((GtkProgressBar *) widget,
+    //                      TileGtk_ValueFromSlider(wc, tkwin, b));
+    // } else {
+    //   gtk_progress_bar_set_bar_style((GtkProgressBar *) widget,
+    //                                   GTK_PROGRESS_CONTINUOUS);
+    //   gtk_progress_bar_set_fraction((GtkProgressBar *) widget,
+    //                      TileGtk_ValueFromSlider(wc, tkwin, b));
+    // }
+
+    TILEGTK_WIDGET_SET_FOCUS(widget);
+    // TILEGTK_DEFAULT_BACKGROUND;
+    TileGtk_StateShadowTableLookup(NULL, state, gtkState, gtkShadow,
+            TILEGTK_SECTION_SCROLLBAR|TILEGTK_SECTION_ALL);
+    // TileGtk_StateInfo(state, gtkState, gtkShadow, tkwin, widget);
+    gtk_paint_box(style, pixmap, gtkState, gtkShadow, NULL, widget,
+        "bar", 0, 0, b.width, b.height);
     TileGtk_CopyGtkPixmapOnToDrawable(pixmap, d, tkwin,
-                           src_x, src_y, width, height, dest_x, dest_y);
-    Tcl_MutexUnlock(&tilegtkMutex);
+                   0, 0, b.width, b.height, b.x, b.y);
+    TILEGTK_CLEANUP_GTK_DRAWABLE;
 }
 
 static Ttk_ElementSpec ProgressBarElementSpec = {

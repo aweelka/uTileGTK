@@ -71,7 +71,7 @@ int Tileqt_ThemeName(ClientData clientData, Tcl_Interp *interp,
     g_object_get(settings, "gtk-theme-name", &strval, NULL);
     if (strval) {
       Tcl_SetResult(interp, (char *) strval, TCL_VOLATILE);
-      g_free (strval);
+      g_free(strval);
     }
   }
   Tcl_MutexUnlock(&tilegtkMutex);
@@ -201,30 +201,97 @@ int Tileqt_WidgetStyleProperty(ClientData clientData, Tcl_Interp *interp,
   return TCL_OK;
 }; /* Tileqt_WidgetStyleProperty */
 
+int Tileqt_GtkDirectory(ClientData clientData, Tcl_Interp *interp,
+                                 int objc, Tcl_Obj *const objv[]) {
+  static const char *Methods[] = {
+    "theme", "default_files", (char *) NULL
+  };
+  enum methods {
+    THEME, DEFAULT_FILES
+  };
+  int type;
+  gchar *dir = NULL, **dirs = NULL;
+  
+  if (objc != 2 && objc != 3) {
+    Tcl_WrongNumArgs(interp, 1, objv, "category ?value?");
+    return TCL_ERROR;
+  }
+  if (Tcl_GetIndexFromObj(interp, objv[1], (const char **) Methods,
+                          "method", 0, &type) != TCL_OK) {
+    return TCL_ERROR;
+  }
+
+  Tcl_MutexLock(&tilegtkMutex);
+  switch ((enum methods) type) {
+    case THEME:
+      dir = gtk_rc_get_theme_dir();
+      break;
+    case DEFAULT_FILES:
+      if (objc == 3) {
+        int mobjc; Tcl_Obj **mobjv;
+        if (Tcl_ListObjGetElements(interp, objv[2], &mobjc, &mobjv) != TCL_OK) {
+          return TCL_ERROR;
+        }
+        dirs = g_new0(gchar *, mobjc+1);
+        for (int i = 0; i < mobjc; ++i) {
+          dirs[i] = Tcl_GetString(mobjv[i]);
+        }
+        gtk_rc_set_default_files(dirs);
+        g_free(dirs); dirs = NULL;
+      } else {
+        dirs = gtk_rc_get_default_files();
+      }
+      break;
+  }
+  if (dir) {
+    Tcl_SetResult(interp, (char *) dir, TCL_VOLATILE);
+    g_free(dir);
+  }
+  if (dirs) {
+    Tcl_Obj *list = Tcl_NewListObj(0, NULL);
+    while (*dirs) {
+      Tcl_ListObjAppendElement(NULL, list, Tcl_NewStringObj(*dirs, -1));
+      ++dirs;
+    }
+    Tcl_SetObjResult(interp, list);
+  }
+  Tcl_MutexUnlock(&tilegtkMutex);
+  return TCL_OK;
+}; /* Tileqt_GtkDirectory */
+
+int Tileqt_gtk_method(ClientData clientData, Tcl_Interp *interp,
+                                 int objc, Tcl_Obj *const objv[]) {
+  static const char *Methods[] = {
+    "gtk_rc_reparse_all_for_settings", "gtk_rc_reset_styles", (char *) NULL
+  };
+  enum methods {
+    GTK_RC_REPARSE_ALL_FOR_SETTINGS, GTK_RC_RESET_STYLES
+  };
+  int type;
+  
+  if (objc != 2) {
+    Tcl_WrongNumArgs(interp, 1, objv, "method"); return TCL_ERROR;
+  }
+  if (Tcl_GetIndexFromObj(interp, objv[1], (const char **) Methods,
+                          "method", 0, &type) != TCL_OK) {
+    return TCL_ERROR;
+  }
+
+  Tcl_MutexLock(&tilegtkMutex);
+  switch ((enum methods) type) {
+    case GTK_RC_REPARSE_ALL_FOR_SETTINGS:
+      gtk_rc_reparse_all_for_settings(gtk_settings_get_default(), TRUE);
+      break;
+    case GTK_RC_RESET_STYLES:
+      gtk_rc_reset_styles(gtk_settings_get_default());
+      break;
+  }
+  Tcl_MutexUnlock(&tilegtkMutex);
+  return TCL_OK;
+}; /* Tileqt_gtk_method */
+
 int Tileqt_ThemeColour(ClientData clientData, Tcl_Interp *interp,
                                  int objc, Tcl_Obj *const objv[]) {
-  // static const char *Methods[] = {
-  //   "-fg(NORMAL)",        "-fg(PRELIGHT)",        "-fg(ACTIVE)",
-  //   "-fg(SELECTED)",      "-fg(INSENSITIVE)",
-  //   "-bg(NORMAL)",        "-bg(PRELIGHT)",        "-bg(ACTIVE)",
-  //   "-bg(SELECTED)",      "-bg(INSENSITIVE)",
-  //   "-base(NORMAL)",      "-base(PRELIGHT)",      "-base(ACTIVE)",
-  //   "-base(SELECTED)",    "-base(INSENSITIVE)",
-  //   "-text(NORMAL)",      "-text(PRELIGHT)",      "-text(ACTIVE)",
-  //   "-text(SELECTED)",    "-text(INSENSITIVE)",
-  //   (char *) NULL
-  // };
-  // enum methods {
-  //   FG_NORMAL,        FG_PRELIGHT,        FG_ACTIVE,
-  //   FG_SELECTED,      FG_INSENSITIVE,
-  //   BG_NORMAL ,       BG_PRELIGHT,        BG_ACTIVE,
-  //   BG_SELECTED,      BG_INSENSITIVE,
-  //   BASE_NORMAL,      BASE_PRELIGHT,      BASE_ACTIVE,
-  //   BASE_SELECTED,    BASE_INSENSITIVE,
-  //   TEXT_NORMAL,      TEXT_PRELIGHT,      TEXT_ACTIVE,
-  //   TEXT_SELECTED,    TEXT_INSENSITIVE
-  // };
-  int index;
   TileGtk_WidgetCache **wc = (TileGtk_WidgetCache **) clientData;
   GdkColor colour;
   gchar* colour_str;
@@ -240,10 +307,6 @@ int Tileqt_ThemeColour(ClientData clientData, Tcl_Interp *interp,
     Tcl_WrongNumArgs(interp, 1, objv, "colour");
     return TCL_ERROR;
   }
-  //if (Tcl_GetIndexFromObj(interp, objv[1], (const char **) Methods,
-  //                          "method", 0, &index) != TCL_OK) {
-  //  return TCL_ERROR;
-  //}
 
   if (gtk_style_lookup_color(wc[0]->gtkStyle, Tcl_GetString(objv[1]), &colour)
        == TRUE) {
@@ -259,6 +322,7 @@ int Tileqt_ThemeColour(ClientData clientData, Tcl_Interp *interp,
 
 int Tileqt_SetPalette(ClientData clientData, Tcl_Interp *interp,
                                  int objc, Tcl_Obj *const objv[]) {
+#if 0
   static const char *Methods[] = {
     "-background",       "-foreground",
     "-buttonBackground", "-buttonForeground",
@@ -283,147 +347,10 @@ int Tileqt_SetPalette(ClientData clientData, Tcl_Interp *interp,
     return TCL_ERROR;
   }
   Tcl_MutexLock(&tilegtkMutex);
-#if 0
-#ifdef TILEGTK_GTK_VERSION_3
-  QColor gnome34Background( 239, 239, 239 );
-  QColor gnome34Blue( 103,141,178 );
-
-  QColor gnome34Button;
-  if ( QPixmap::defaultDepth() > 8 )
-    gnome34Button.setRgb( 221, 223, 228 );
-  else
-    gnome34Button.setRgb( 220, 220, 220 );
-
-  QColor gnome34Link( 0, 0, 238 );
-  QColor gnome34VisitedLink( 82, 24, 139 );
-
-
-  QColor background(gnome34Background), foreground(Gtk::black),
-         button(gnome34Button),         buttonText(Gtk::black),
-         highlight(gnome34Blue),        highlightedText(Gtk::white),
-         base(Gtk::white),             baseText(Gtk::black),
-         link(gnome34Link),             visitedLink(gnome34VisitedLink);
-  for (int i = 1; i < objc; i+=2) {
-    if (Tcl_GetIndexFromObj(interp, objv[i], (const char **) Methods,
-                            "method", 0, &index) != TCL_OK) {
-      Tcl_MutexUnlock(&tilegtkMutex); return TCL_ERROR;
-    }
-    value = Tcl_GetString(objv[i+1]);
-    switch ((enum methods) index) {
-      case CLR_background:        background.setNamedColor(value);      break;
-      case CLR_foreground:        foreground.setNamedColor(value);      break;
-      case CLR_buttonBackground:  button.setNamedColor(value);          break;
-      case CLR_buttonForeground:  buttonText.setNamedColor(value);      break;
-      case CLR_selectBackground:  highlight.setNamedColor(value);       break;
-      case CLR_selectForeground:  highlightedText.setNamedColor(value); break;
-      case CLR_windowBackground:  base.setNamedColor(value);            break;
-      case CLR_windowForeground:  baseText.setNamedColor(value);        break;
-      case CLR_linkColor:         link.setNamedColor(value);            break;
-      case CLR_visitedLinkColor:  visitedLink.setNamedColor(value);     break;
-      case CLR_contrast: {
-        if (Tcl_GetIntFromObj(interp, objv[i+1], &contrast_) != TCL_OK) {
-          Tcl_MutexUnlock(&tilegtkMutex); return TCL_ERROR;
-        }
-        break;
-      }
-    }
-  }
-  int highlightVal, lowlightVal;
-  highlightVal = 100 + (2*contrast_+4)*16/10;
-  lowlightVal = 100 + (2*contrast_+4)*10;
-
-  QColor disfg = foreground;
-
-  int h, s, v;
-  disfg.hsv( &h, &s, &v );
-  if (v > 128)
-      // dark bg, light fg - need a darker disabled fg
-      disfg = disfg.dark(lowlightVal);
-  else if (disfg != Gtk::black)
-      // light bg, dark fg - need a lighter disabled fg - but only if !black
-      disfg = disfg.light(highlightVal);
-  else
-      // black fg - use darkgray disabled fg
-      disfg = Gtk::darkGray;
-
-
-  QColorGroup disabledgrp(disfg, background,
-                          background.light(highlightVal),
-                          background.dark(lowlightVal),
-                          background.dark(120),
-                          background.dark(120), base);
-
-  QColorGroup colgrp(foreground, background, background.light(highlightVal),
-                     background.dark(lowlightVal),
-                     background.dark(120),
-                     baseText, base);
-
-  int inlowlightVal = lowlightVal-25;
-  if(inlowlightVal < 120)
-      inlowlightVal = 120;
-
-  colgrp.setColor(QColorGroup::Highlight, highlight);
-  colgrp.setColor(QColorGroup::HighlightedText, highlightedText);
-  colgrp.setColor(QColorGroup::Button, button);
-  colgrp.setColor(QColorGroup::ButtonText, buttonText);
-  colgrp.setColor(QColorGroup::Midlight, background.light(110));
-  colgrp.setColor(QColorGroup::Link, link);
-  colgrp.setColor(QColorGroup::LinkVisited, visitedLink);
-
-  disabledgrp.setColor(QColorGroup::Button, button);
-
-  QColor disbtntext = buttonText;
-  disbtntext.hsv( &h, &s, &v );
-  if (v > 128)
-      // dark button, light buttonText - need a darker disabled buttonText
-      disbtntext = disbtntext.dark(lowlightVal);
-  else if (disbtntext != Gtk::black)
-      // light buttonText, dark button - need a lighter disabled buttonText -
-      // but only if !black
-      disbtntext = disbtntext.light(highlightVal);
-  else
-      // black button - use darkgray disabled buttonText
-      disbtntext = Gtk::darkGray;
-
-  disabledgrp.setColor(QColorGroup::ButtonText, disbtntext);
-  disabledgrp.setColor(QColorGroup::Midlight, background.light(110));
-  disabledgrp.setColor(QColorGroup::Highlight, highlight.dark(120));
-  disabledgrp.setColor(QColorGroup::Link, link);
-  disabledgrp.setColor(QColorGroup::LinkVisited, visitedLink);
-
-  GtkApplication::setPalette( QPalette(colgrp, disabledgrp, colgrp), true);
-#endif /* TILEGTK_GTK_VERSION_3 */
-#endif
   Tcl_MutexUnlock(&tilegtkMutex);
+#endif
   return TCL_OK;
 }; /* Tileqt_SetPalette */
-
-int Tileqt_AvailableStyles(ClientData clientData, Tcl_Interp *interp,
-                                 int objc, Tcl_Obj *const objv[]) {
-  if (objc != 1) {Tcl_WrongNumArgs(interp, 1, objv, ""); return TCL_ERROR;}
-  Tcl_MutexLock(&tilegtkMutex);
-#if 0
-  if (qApp) {
-    QStringList styles = QStyleFactory::keys();
-    Tcl_Obj* stylesObj = Tcl_NewListObj(0, NULL);
-    for (QStringList::Iterator it = styles.begin(); it != styles.end(); ++it ) {
-        Tcl_ListObjAppendElement(interp, stylesObj, Tcl_NewStringObj(
-#ifdef TILEGTK_GTK_VERSION_3                    
-                                 (*it).utf8()
-#endif /* TILEGTK_GTK_VERSION_3 */
-#ifdef TILEGTK_GTK_VERSION_4
-                                 (*it).toUtf8().data()
-#endif /* TILEGTK_GTK_VERSION_4 */
-                                  , -1));
-    }
-    Tcl_SetObjResult(interp, stylesObj);
-  } else {
-    Tcl_SetResult(interp, (char *) "", TCL_STATIC);
-  }
-#endif
-  Tcl_MutexUnlock(&tilegtkMutex);
-  return TCL_OK;
-}; /* Tileqt_AvailableStyles */
 
 int Tileqt_SetStyle(ClientData clientData, Tcl_Interp *interp,
                                  int objc, Tcl_Obj *const objv[]) {
@@ -798,13 +725,13 @@ Tilegtk_Init(Tcl_Interp *interp)
     TileGtk_Init_Entry(interp, wc, themePtr);
     TileGtk_Init_Menubutton(interp, wc, themePtr);
     TileGtk_Init_Scrollbar(interp, wc, themePtr);
+    TileGtk_Init_Scale(interp, wc, themePtr);
+    TileGtk_Init_Progress(interp, wc, themePtr);
 #if 0
     TileGtk_Init_ToolButton(interp, wc, themePtr);
     TileGtk_Init_Combobox(interp, wc, themePtr);
     TileGtk_Init_Notebook(interp, wc, themePtr);
-    TileGtk_Init_Scale(interp, wc, themePtr);
     TileGtk_Init_TreeView(interp, wc, themePtr);
-    TileGtk_Init_Progress(interp, wc, themePtr);
     TileGtk_Init_Paned(interp, wc, themePtr);
     TileGtk_Init_SizeGrip(interp, wc, themePtr);
     //TileGtk_Init_Separator(interp, wc, themePtr);
@@ -822,15 +749,16 @@ Tilegtk_Init(Tcl_Interp *interp)
                          Tileqt_WidgetStyleProperty, (ClientData) wc, NULL);
     Tcl_CreateObjCommand(interp, "ttk::theme::tilegtk::currentThemeName",
                          Tileqt_ThemeName, (ClientData) wc, NULL);
+    Tcl_CreateObjCommand(interp, "ttk::theme::tilegtk::gtkDirectory",
+                         Tileqt_GtkDirectory, (ClientData) wc, NULL);
+    Tcl_CreateObjCommand(interp, "ttk::theme::tilegtk::setStyle",
+                         Tileqt_SetStyle, (ClientData) wc, NULL);
+    Tcl_CreateObjCommand(interp, "ttk::theme::tilegtk::gtk_method",
+                         Tileqt_gtk_method, (ClientData) wc, NULL);
     Tcl_CreateObjCommand(interp,
                          "ttk::theme::tilegtk::currentThemeColour",
                          Tileqt_ThemeColour, (ClientData) wc, NULL);
-    Tcl_CreateObjCommand(interp,
-                         "ttk::theme::tilegtk::availableStyles_AsReturned",
-                         Tileqt_AvailableStyles, (ClientData) wc, NULL);
-    Tcl_CreateObjCommand(interp,
-                         "ttk::theme::tilegtk::setStyle",
-                         Tileqt_SetStyle, (ClientData) wc, NULL);
+#if 0
     Tcl_CreateObjCommand(interp,
                          "ttk::theme::tilegtk::setPalette",
                          Tileqt_SetPalette, (ClientData) wc, NULL);
@@ -843,6 +771,7 @@ Tilegtk_Init(Tcl_Interp *interp)
     Tcl_CreateObjCommand(interp,
                          "ttk::theme::tilegtk::getSubControlMetrics",
                          Tileqt_GetSubControlMetrics, (ClientData) wc, NULL);
+#endif
     /* Save the name of the current theme... */
     strcpy(tmpScript, "namespace eval ttk::theme::tilegtk { variable theme ");
     settings = gtk_settings_get_default();

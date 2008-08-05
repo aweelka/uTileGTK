@@ -1,5 +1,58 @@
 namespace eval ttk::theme::tilegtk {
   variable PreviewInterp {}
+  variable System
+  variable StyleToRc
+
+  proc getSystemInfo {} {
+    global env
+    variable System
+
+    set System(GTK_RC_FILES) {}
+    if {[info exists env(GTK_RC_FILES)]} {
+      set System(GTK_RC_FILES) $env(GTK_RC_FILES)
+    } elseif {[info exists env(HOME)]} {
+      foreach rc [glob -nocomplain -dir $env(HOME) -type f .gtkrc*] {
+        lappend System(GTK_RC_FILES) $rc
+      }
+      set System(GTK_RC_FILES) [lsort -dictionary $System(GTK_RC_FILES)]
+    }
+
+    set System(HOME) {}
+    foreach var {HOME} {
+      if {[info exists env($var)]} {set System(HOME) $env($var); break}
+    }
+
+    set System(TEMP) {}
+    foreach var {TEMP TMP temp tmp} {
+      if {[info exists env($var)]} {set System(TEMP) $env($var); break}
+    } 
+    if {![string length $System(TEMP)]} {
+      foreach dir {/tmp} {
+        if {[file isdirectory $dir] && [file writable $dir]} {
+          set System(TEMP) $dir; break
+        }
+      }
+    }
+
+    set System(DEFAULT_FILES) [gtkDirectory default_files]
+  };# getSystemInfo
+
+  ## availableStyles_AsReturned:
+  #  Returns the available styles...
+  proc availableStyles_AsReturned {} {
+    variable StyleToRc
+    set styles {}
+    foreach dir [list $::env(HOME)/.themes [gtkDirectory theme]] {
+      foreach theme [glob -nocomplain -type d -directory $dir *] {
+        if {[file exists $theme/gtk-2.0/gtkrc]} {
+          set style [file tail $theme]
+          lappend styles $style
+          set StyleToRc($style) [file normalize $theme/gtk-2.0/gtkrc]
+        }
+      }
+    }
+    return $styles
+  };# availableStyles_AsReturned
 
   proc updateLayouts {} {
     ## Variable "theme" should be defined by the C part of the extension.
@@ -95,6 +148,8 @@ namespace eval ttk::theme::tilegtk {
   }; # updateLayouts
 
   proc updateStyles {} {
+    array set C [getStyleColourInformation]
+    parray C
     return
     ttk::style theme settings tilegtk {
       ttk::style configure . \
@@ -439,12 +494,36 @@ namespace eval ttk::theme::tilegtk {
   #  Ths "style" parameter must be a string from the style names returned by
   #  ttk::theme::tilegtk::availableStyles.
   proc applyStyle {style} {
-    return
+    variable StyleToRc
+    variable System
+    if {![info exists StyleToRc($style)]} {
+      error "unknown GTK style: \"$style\""
+    }
+    ##
+    ## In order to force a style update, we need to create an rc file, and force
+    ## GTK to load it...
+    ##
+    set rc [file normalize $System(TEMP)/gtkrc.tilegtk-[pid]]
+    set fd [open $rc w]
+    puts $fd {# -- THEME AUTO-WRITTEN DO NOT EDIT}
+    puts $fd "include \"$StyleToRc($style)\""
+    puts $fd "include \"$System(HOME)/.gtkrc.mine\""
+    puts $fd {# -- THEME AUTO-WRITTEN DO NOT EDIT}
+    close $fd
+    ##
+    ## Set it as the default file...
+    ##
+    set default_files [gtkDirectory default_files]
+    gtkDirectory default_files [list $rc]
+    gtk_method gtk_rc_reparse_all_for_settings
+    gtk_method gtk_rc_reset_styles
+    #gtkDirectory default_files $default_files
+    puts $StyleToRc($style)
     updateColourPalette
-    setStyle $style
     updateStyles
     updateLayouts
     event generate {} <<ThemeChanged>>
+    file delete -force $rc
   };# applyStyle
 
   ## kdePaletteChangeNotification:
@@ -467,10 +546,9 @@ namespace eval ttk::theme::tilegtk {
   #  This method will create a configuration panel for the tilegtk theme in the
   #  provided frame widget.
   proc createThemeConfigurationPanel {dlgFrame} {
-    return
     ## The first element in our panel, is a combobox, with all the available
     ## Qt/KDE styles.
-    ttk::labelframe $dlgFrame.style_selection -text "Qt/KDE Style:"
+    ttk::labelframe $dlgFrame.style_selection -text "GTK+ Style:"
       ttk::combobox $dlgFrame.style_selection.style -state readonly
       $dlgFrame.style_selection.style set [currentThemeName]
       bind $dlgFrame.style_selection.style <<ThemeChanged>> \
@@ -504,7 +582,7 @@ namespace eval ttk::theme::tilegtk {
           set auto_path \{$::auto_path\}
           package require tile
           package require ttk::theme::tilegtk
-          ttk::theme::tilegtk::applyStyle \{[currentThemeName]\}
+          #ttk::theme::tilegtk::applyStyle \{[currentThemeName]\}
           toplevel .widgets -height 250 -width 400 \
                             -use [winfo id $dlgFrame.preview.container]
           ttk::theme::tilegtk::selectStyleDlg_previewWidgets .widgets
@@ -519,7 +597,6 @@ namespace eval ttk::theme::tilegtk {
   };# createThemeConfigurationPanel
 
   proc destroyThemeConfigurationPanel {} {
-    return
     variable PreviewInterp
     interp delete $PreviewInterp
     set PreviewInterp {}
@@ -532,7 +609,6 @@ namespace eval ttk::theme::tilegtk {
   };# updateThemeConfigurationPanel
 
   proc selectStyleDlg_previewWidgets {{win {}}} {
-    return
     ## Create a notebook widget...
     ttk::notebook $win.nb -padding 6
     set tab1 [ttk::frame $win.nb.tab1]
@@ -614,10 +690,6 @@ namespace eval ttk::theme::tilegtk {
     return [lsort -dictionary [availableStyles_AsReturned]]
   };# availableStyles
   
-  ## Update layouts on load...
-  updateLayouts
-  # updateStyles
-
   ## Test the theme configuration panel...
   if {0 && ![info exists ::testConfigurationPanel]} {
     toplevel .themeConfPanel
@@ -634,11 +706,18 @@ namespace eval ttk::theme::tilegtk {
     foreach prefix {fg bg base text} {
       foreach state {NORMAL PRELIGHT ACTIVE SELECTED INSENSITIVE} {
         set colour ${prefix}\[$state\]
-        catch {set C($colour) [currentThemeColour $colour]}
+        catch {set C($colour) [currentThemeColour $colour]} e
+        puts $e
       }
     }
     return [array get C]
   };# getStyleColourInformation
   # array set C [getStyleColourInformation]
   # parray C
+
+  ## Update layouts on load...
+  getSystemInfo
+  availableStyles_AsReturned
+  updateLayouts
+  updateStyles
 }
