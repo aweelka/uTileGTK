@@ -240,7 +240,7 @@ void TileGtk_CopyGtkPixmapOnToDrawable(GdkPixmap *pixmap, Drawable d,
     TkWinDrawable gtk_d;
     gtk_d.type = TWD_WINDC;
     gtk_d.winDC.hdc = hdcSrc;
-    XCopyArea(Tk_Display(tkwin), (Drawable) &gtk_d, d, gc, 0, 0, w, h, 0, 0);
+    XCopyArea(Tk_Display(tkwin), (Drawable) &gtk_d, d, gc, x, y, w, h, x1, x2);
     gdk_win32_hdc_release(GDK_DRAWABLE(pixmap), gdkGC, gc_usage);
     if (gdkGC) g_object_unref(gdkGC);
     Tk_FreeGC(Tk_Display(tkwin), gc);
