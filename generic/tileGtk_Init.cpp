@@ -112,7 +112,7 @@ int Tileqt_SettingsProperty(ClientData clientData, Tcl_Interp *interp,
         break;
       case BOOLEAN:
         g_object_get(settings, Tcl_GetString(objv[1]), &b_val, NULL);
-        if (b_val == TRUE) Tcl_SetObjResult(interp, Tcl_NewBooleanObj(1));
+        if (b_val) Tcl_SetObjResult(interp, Tcl_NewBooleanObj(1));
         else Tcl_SetObjResult(interp, Tcl_NewBooleanObj(0));
         break;
       case STRING:
@@ -185,7 +185,7 @@ int Tileqt_WidgetStyleProperty(ClientData clientData, Tcl_Interp *interp,
         break;
       case BOOLEAN:
         gtk_widget_style_get(widget, Tcl_GetString(objv[2]), &b_val, NULL);
-        if (b_val == TRUE) Tcl_SetObjResult(interp, Tcl_NewBooleanObj(1));
+        if (b_val) Tcl_SetObjResult(interp, Tcl_NewBooleanObj(1));
         else Tcl_SetObjResult(interp, Tcl_NewBooleanObj(0));
         break;
       case STRING:
@@ -308,8 +308,8 @@ int Tileqt_ThemeColour(ClientData clientData, Tcl_Interp *interp,
     return TCL_ERROR;
   }
 
-  if (gtk_style_lookup_color(wc[0]->gtkStyle, Tcl_GetString(objv[1]), &colour)
-       == TRUE) {
+  if (gtk_style_lookup_color(wc[0]->gtkStyle,
+                             Tcl_GetString(objv[1]), &colour)) {
     colour_str = gdk_color_to_string(&colour);
     Tcl_SetResult(interp, (char *) colour_str, TCL_VOLATILE);
     g_free(colour_str);
@@ -584,6 +584,7 @@ int Tileqt_GetStyleHint(ClientData clientData, Tcl_Interp *interp,
 
 int Tileqt_GetSubControlMetrics(ClientData clientData, Tcl_Interp *interp,
                                  int objc, Tcl_Obj *const objv[]) {
+#if 0
   /*
    * QStyle::SC_ScrollBarAddLine - scrollbar add line (i.e. down/right arrow). 
    * QStyle::SC_ScrollBarSubLine - scrollbar sub line (i.e. up/left arrow). 
@@ -620,7 +621,6 @@ int Tileqt_GetSubControlMetrics(ClientData clientData, Tcl_Interp *interp,
                             "method", 0, &index) != TCL_OK) {
     return TCL_ERROR;
   }
-#if 0
   QStyle::ComplexControl control = QStyle::CC_ScrollBar;
   QWidget *widget = 0;
   QStyle::SubControl subcontrol = QStyle::SC_None;
@@ -679,8 +679,8 @@ int Tileqt_GetSubControlMetrics(ClientData clientData, Tcl_Interp *interp,
   Tcl_ListObjAppendElement(interp, result, Tcl_NewIntObj(rc.y()));
   Tcl_ListObjAppendElement(interp, result, Tcl_NewIntObj(rc.width()));
   Tcl_ListObjAppendElement(interp, result, Tcl_NewIntObj(rc.height()));
-#endif
   Tcl_SetObjResult(interp, result);
+#endif
   return TCL_OK;
 }; /* Tileqt_GetSubControlMetrics */
 
