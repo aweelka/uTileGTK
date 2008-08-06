@@ -495,8 +495,6 @@ typedef struct _GtkStylePrivate GtkStylePrivate;
 int Tileqt_ColourKeys(ClientData clientData, Tcl_Interp *interp,
                                  int objc, Tcl_Obj *const objv[]) {
   TileGtk_WidgetCache **wc = (TileGtk_WidgetCache **) clientData;
-  GdkColor colour;
-  gchar* colour_str;
   if (!wc) {
     Tcl_SetResult(interp, (char *) "empty wc!", TCL_STATIC);
     return TCL_ERROR;
