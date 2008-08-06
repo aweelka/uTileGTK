@@ -18,20 +18,7 @@ SET ( PKG_HOME_DIR      ${PROJECT_SOURCE_DIR} )
 SET ( NO_MSVCRT ON )
 
 SET ( PKG_SOURCES generic/tileGtk_Init.cpp
-                  generic/tileGtk_GtkApp.cpp
-                  generic/tileGtk_Utilities.cpp
-                  generic/tileGtk_Button.cpp
-                  generic/tileGtk_CheckButton.cpp
-                  generic/tileGtk_RadioButton.cpp
-                  generic/tileGtk_Menubutton.cpp
-                  generic/tileGtk_ToolButton.cpp
-                  generic/tileGtk_Combobox.cpp
-                  generic/tileGtk_Scrollbar.cpp
-                  generic/tileGtk_Notebook.cpp
                   generic/tileGtk_TreeView.cpp
-                  generic/tileGtk_Progress.cpp
-                  generic/tileGtk_Paned.cpp
-                  generic/tileGtk_SizeGrip.cpp
                   generic/tileGtk_Separator.cpp
                   generic/tileGtk_Arrows.cpp )
 
@@ -42,12 +29,17 @@ SET ( PKG_SOURCES generic/tileGtk_Init.cpp
                   generic/tileGtk_Button.cpp
                   generic/tileGtk_CheckButton.cpp
                   generic/tileGtk_RadioButton.cpp
+                  generic/tileGtk_ToolButton.cpp
                   generic/tileGtk_Labelframe.cpp
                   generic/tileGtk_Entry.cpp
                   generic/tileGtk_Menubutton.cpp
                   generic/tileGtk_Scrollbar.cpp
                   generic/tileGtk_Scale.cpp
                   generic/tileGtk_Progress.cpp
+                  generic/tileGtk_SizeGrip.cpp
+                  generic/tileGtk_Paned.cpp
+                  generic/tileGtk_Notebook.cpp
+                  generic/tileGtk_Combobox.cpp
 )
 
 MESSAGE ( STATUS "===========================================================" )

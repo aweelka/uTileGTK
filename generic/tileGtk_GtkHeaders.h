@@ -39,24 +39,20 @@ typedef struct TileGtk_WidgetCache {
   GtkWidget*     gtkVScale;
   GtkWidget*     gtkHProgressBar;
   GtkWidget*     gtkVProgressBar;
-  GtkWidget*     gtkComboBox;
+  GtkWidget*     gtkCombobox;
+  GtkWidget*     gtkComboboxEntry;
   GtkWidget*     gtkHScrollBar;
   GtkWidget*     gtkVScrollBar;
   GtkWidget*     gtkButton;
   GtkWidget*     gtkCheckButton;
   GtkWidget*     gtkSpinButton;
-  GtkWidget*     gtkToolbar;
-  GtkWidget*     gtkMenuItem;
-  GtkWidget*     gtkMenubarItem;
-  GtkWidget*     gtkMenubar;
-  GtkWidget*     gtkMenu;
+  GtkWidget*     gtkToolBar;
   GtkWidget*     gtkTreeView;
   GtkWidget*     gtkTreeHeader;
-  GtkWidget*     gtkMenuSeparator;
-  GtkWidget*     gtkCheckMenuItem;
   GtkWidget*     gtkFrame;
-  GtkWidget*     gtkComboboxEntry;
-  //GtkWidget*     gtkComboboxEntryButton;
+  GtkWidget*     gtkStatusBar;
+  GtkWidget*     gtkHPaned;
+  GtkWidget*     gtkVPaned;
   GtkWidget*     gtkWindow;
   GtkWidget*     protoLayout;
 } TileGtk_WidgetCache;
@@ -76,5 +72,7 @@ typedef struct {
 #define TILEGTK_SECTION_SCROLLBAR (1<<3)
 #define TILEGTK_SECTION_STEPPERS  (1<<4)
 #define TILEGTK_SECTION_TROUGH    (1<<5)
+#define TILEGTK_SECTION_SASH      (1<<6)
+#define TILEGTK_SECTION_TABS      (1<<7)
 
 #endif

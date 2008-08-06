@@ -17,38 +17,14 @@
 #include "tileGtk_TkHeaders.h"
 #include "tileGtk_WidgetDefaults.h"
 
+#if 0
 /*
  * Map between Tk/Tile & Gtk/GNOME state flags.
  */
 static Ttk_StateTable notebook_statemap[] =
 {
-#ifdef TILEGTK_GTK_VERSION_3
-    {QStyle::Style_Default,                         TTK_STATE_DISABLED, 0},
-    {QStyle::Style_Enabled|QStyle::Style_Selected,  TTK_STATE_SELECTED, 0},
-    {QStyle::Style_Enabled|QStyle::Style_MouseOver, TTK_STATE_ACTIVE,   0},
-    {QStyle::Style_Enabled|QStyle::Style_HasFocus,  TTK_STATE_FOCUS,    0},
-    {QStyle::Style_Enabled,                         0,                  0},
-#endif /* TILEGTK_GTK_VERSION_3 */
-#ifdef TILEGTK_GTK_VERSION_4
-    {QStyle::State_None,                            TTK_STATE_DISABLED, 0},
-    {QStyle::State_Enabled|QStyle::State_Selected,  TTK_STATE_SELECTED, 0},
-    {QStyle::State_Enabled|QStyle::State_MouseOver, TTK_STATE_ACTIVE,   0},
-    {QStyle::State_Enabled|QStyle::State_HasFocus,  TTK_STATE_FOCUS,    0},
-    {QStyle::State_Enabled,                         0,                  0},
-#endif /* TILEGTK_GTK_VERSION_4 */
 };
-
-#ifdef TILEGTK_GTK_VERSION_3
-#define PM(pm) (wc->TileGtk_Style->pixelMetric(QStyle::pm, \
-                                              wc->TileGtk_GTKabBar_Widget))
-#endif /* TILEGTK_GTK_VERSION_3 */
-#ifdef TILEGTK_GTK_VERSION_4
-#ifndef QStyleOptionTabV2
-#define QStyleOptionTabV2 QStyleOptionTab
-#endif /* QStyleOptionTabV2 */
-#define PM(pm) (wc->TileGtk_Style->pixelMetric(QStyle::pm, &option, \
-                                              wc->TileGtk_GTKabBar_Widget))
-#endif /* TILEGTK_GTK_VERSION_4 */
+#endif
 
 typedef struct {
 } NotebookTabElement;
@@ -62,167 +38,53 @@ static void NotebookTabElementGeometry(
     void *clientData, void *elementRecord, Tk_Window tkwin,
     int *widthPtr, int *heightPtr, Ttk_Padding *paddingPtr)
 {
-    if (!TileGtk_GtkInitialised()) NO_GTK_STYLE_ENGINE;
-    NULL_PROXY_WIDGET(TileGtk_GTKabBar_Widget);
-    Tcl_MutexLock(&tilegtkMutex);
-#ifdef TILEGTK_GTK_VERSION_4
-    QStyleOptionTab option;
-    option.initFrom(wc->TileGtk_GTKabBar_Widget);
-#endif /* TILEGTK_GTK_VERSION_4 */
-    int PM_TabBarTabVSpace          = PM(PM_TabBarTabVSpace),
-        PM_TabBarTabHSpace          = PM(PM_TabBarTabHSpace);
-    Tcl_MutexUnlock(&tilegtkMutex);
-    *paddingPtr = Ttk_MakePadding(
-           PM_TabBarTabHSpace/2,
-#ifdef TILEGTK_GTK_VERSION_3
-           PM_TabBarTabVSpace/2,
-           PM_TabBarTabHSpace/2,
-           PM_TabBarTabVSpace/2
-#endif /* TILEGTK_GTK_VERSION_3 */
-#ifdef TILEGTK_GTK_VERSION_4
-           PM_TabBarTabVSpace,
-           PM_TabBarTabHSpace/2,
-           0
-#endif /* TILEGTK_GTK_VERSION_4 */
-           );
+    TILEGTK_WIDGET_CACHE_DEFINITION;
+    TILEGTK_ENSURE_GTK_STYLE_ENGINE_ACTIVE;
+    GtkWidget *widget = TileGtk_GetNotebook(wc);
+    gint focus_width = 1, tab_curvature = 1;
+    TILEGTK_ENSURE_WIDGET_OK;
+    gtk_widget_style_get (widget, "focus-line-width", &focus_width,
+                                  "tab-curvature",    &tab_curvature, NULL);
+    *paddingPtr = Ttk_UniformPadding(tab_curvature + focus_width +
+                                     ((GtkNotebook *)widget)->tab_hborder);
+    // *paddingPtr = Ttk_MakePadding(7, 6, 7, 6);
 }
 
+#define TAB_BASE_OVERLAP_MAX 10
 static void NotebookTabElementDraw(
     void *clientData, void *elementRecord, Tk_Window tkwin,
     Drawable d, Ttk_Box b, unsigned state)
 {
-    if (!TileGtk_GtkInitialised()) NO_GTK_STYLE_ENGINE;
-    NULL_PROXY_WIDGET(TileGtk_GTKabBar_Widget);
-    int width = b.width, height = b.height;
-    Tcl_MutexLock(&tilegtkMutex);
-    int PM_DefaultFrameWidth = 0, PM_TabBarBaseOverlap = 0;
+    TILEGTK_GTK_DRAWABLE_DEFINITIONS;
+    TILEGTK_ENSURE_GTK_STYLE_ENGINE_ACTIVE;
+    int height_with_overlap = b.height + TAB_BASE_OVERLAP_MAX;
+    int dh = 0;
+    TILEGTK_SETUP_GTK_DRAWABLE_PIXMAP_SIZE(b.width, height_with_overlap);
+    GtkWidget *widget = TileGtk_GetNotebook(wc);
+    TILEGTK_ENSURE_WIDGET_OK;
+    gtk_style_apply_default_background(style, pixmap, TRUE, gtkState, \
+                            NULL, 0, 0, b.width, height_with_overlap);
 
-    // TileGtk_StateInfo(state, tkwin);
-#ifdef TILEGTK_GTK_VERSION_3
-    GTKab* tab = new GTKab;
-    GTKab* tab1 = NULL, *tab2 = NULL;
-#endif /* TILEGTK_GTK_VERSION_3 */
-#ifdef TILEGTK_GTK_VERSION_4
-    QStyleOptionTab::TabPosition position;
-    int position_int;
-    QStyleOptionTabV2 option;
-    option.initFrom(wc->TileGtk_GTKabBar_Widget); option.state |= 
-      (QStyle::StateFlag) TileGtk_StateTableLookup(notebook_statemap, state);
-#endif /* TILEGTK_GTK_VERSION_4 */
-
-    PM_DefaultFrameWidth = PM(PM_DefaultFrameWidth);
-
-    if (TileGtk_ThemeIs(wc, "bluecurve")) {
-      PM_DefaultFrameWidth = 2;
+    if (state & TTK_STATE_SELECTED) {
+      dh = 1 /*widget->style->ythickness - 1*/;
     }
 
-    PM_TabBarBaseOverlap = PM(PM_TabBarBaseOverlap);
-    height += PM_TabBarBaseOverlap;
-
-    if ((state & TTK_STATE_USER1) && (state & TTK_STATE_USER2)) {
-      /* Only tab */
-#ifdef TILEGTK_GTK_VERSION_3
-      wc->TileGtk_GTKabBar_Widget->addTab(tab);
-#endif /* TILEGTK_GTK_VERSION_3 */
-#ifdef TILEGTK_GTK_VERSION_4
-      wc->TileGtk_GTKabBar_Widget->addTab("");
-      position = QStyleOptionTab::OnlyOneTab;
-      position_int = 0;
-#endif /* TILEGTK_GTK_VERSION_4 */
+    if (state & TTK_STATE_USER1 && state & TTK_STATE_USER2) {
+      /* This is the only tab in the widget! */
     } else if (state & TTK_STATE_USER1) {
-      /* Left-most tab */
-#ifdef TILEGTK_GTK_VERSION_3
-      wc->TileGtk_GTKabBar_Widget->addTab(tab);
-      tab1 = new GTKab;
-      wc->TileGtk_GTKabBar_Widget->addTab(tab1);
-#endif /* TILEGTK_GTK_VERSION_3 */
-#ifdef TILEGTK_GTK_VERSION_4
-      wc->TileGtk_GTKabBar_Widget->addTab("");
-      wc->TileGtk_GTKabBar_Widget->addTab("");
-      position = QStyleOptionTab::Beginning;
-      position_int = 0;
-#endif /* TILEGTK_GTK_VERSION_4 */
+      /* This is the first tab! */
     } else if (state & TTK_STATE_USER2) {
-      /* Right-most tab */
-#ifdef TILEGTK_GTK_VERSION_3
-      tab1 = new GTKab;
-      wc->TileGtk_GTKabBar_Widget->addTab(tab1);
-      wc->TileGtk_GTKabBar_Widget->addTab(tab);
-#endif /* TILEGTK_GTK_VERSION_3 */
-#ifdef TILEGTK_GTK_VERSION_4
-      wc->TileGtk_GTKabBar_Widget->addTab("");
-      wc->TileGtk_GTKabBar_Widget->addTab("");
-      position = QStyleOptionTab::End;
-      position_int = 1;
-#endif /* TILEGTK_GTK_VERSION_4 */
-    } else {
-      /* A regular tab, in the middle of tab bar */
-#ifdef TILEGTK_GTK_VERSION_3
-      tab1 = new GTKab;
-      wc->TileGtk_GTKabBar_Widget->addTab(tab1);
-      wc->TileGtk_GTKabBar_Widget->addTab(tab);
-      tab2 = new GTKab;
-      wc->TileGtk_GTKabBar_Widget->addTab(tab2);
-#endif /* TILEGTK_GTK_VERSION_3 */
-#ifdef TILEGTK_GTK_VERSION_4
-      wc->TileGtk_GTKabBar_Widget->addTab("");
-      wc->TileGtk_GTKabBar_Widget->addTab("");
-      wc->TileGtk_GTKabBar_Widget->addTab("");
-      position = QStyleOptionTab::Middle;
-      position_int = 1;
-#endif /* TILEGTK_GTK_VERSION_4 */
+      /* This is the last tab! */
     }
-#ifdef TILEGTK_GTK_VERSION_3
-    if (state & TTK_STATE_DISABLED) tab->setEnabled(false);
-    else tab->setEnabled(true);
-#endif /* TILEGTK_GTK_VERSION_3 */
-#ifdef TILEGTK_GTK_VERSION_4
-    if (state & TTK_STATE_DISABLED) {
-      wc->TileGtk_GTKabBar_Widget->setTabEnabled(position_int, false);
-    } else wc->TileGtk_GTKabBar_Widget->setTabEnabled(position_int, true);
-#endif /* TILEGTK_GTK_VERSION_4 */
-
-    QPixmap      pixmap(width, height);
-    QPainter     painter(&pixmap);
-    TILEGTK_PAINT_BACKGROUND(width, height);
-    TILEGTK_SET_FOCUS(state);
-#ifdef TILEGTK_GTK_VERSION_3
-    QStyle::SFlags sflags = TileGtk_StateTableLookup(notebook_statemap, state);
-    wc->TileGtk_Style->drawControl(QStyle::CE_TabBarTab, &painter,
-          wc->TileGtk_GTKabBar_Widget, QRect(0, 0, width, height),
-          qApp->palette().active(), sflags, QStyleOption(tab));
-#endif /* TILEGTK_GTK_VERSION_3 */
-#ifdef TILEGTK_GTK_VERSION_4
-    option.rect = QRect(0, 0, width, height);
-    option.position = position;
-    option.selectedPosition = QStyleOptionTab::NotAdjacent;
-    wc->TileGtk_Style->drawControl(QStyle::CE_TabBarTabShape, &option,
-                                  &painter, wc->TileGtk_GTKabBar_Widget);
-#endif /* TILEGTK_GTK_VERSION_4 */
-    TILEGTK_CLEAR_FOCUS(state);
+    TILEGTK_DEFAULT_BACKGROUND;
+    TileGtk_StateShadowTableLookup(NULL, state, gtkState, gtkShadow,
+            TILEGTK_SECTION_TABS|TILEGTK_SECTION_ALL);
+    // TileGtk_StateInfo(state, gtkState, gtkShadow, tkwin, widget);
+    gtk_paint_extension(style, pixmap, gtkState, gtkShadow, NULL, widget,
+             (char *) "tab", 0, 0, b.width, b.height + dh, GTK_POS_BOTTOM);
     TileGtk_CopyGtkPixmapOnToDrawable(pixmap, d, tkwin,
-           0, 0, width, height, b.x, b.y + PM_DefaultFrameWidth);
-#ifdef TILEGTK_GTK_VERSION_3
-    if ((state & TTK_STATE_USER1) && (state & TTK_STATE_USER2)) {
-      wc->TileGtk_GTKabBar_Widget->removeTab(tab);
-    } else if (state & TTK_STATE_USER1) {
-      wc->TileGtk_GTKabBar_Widget->removeTab(tab);
-      wc->TileGtk_GTKabBar_Widget->removeTab(tab1);
-    } else if (state & TTK_STATE_USER2) {
-      wc->TileGtk_GTKabBar_Widget->removeTab(tab1);
-      wc->TileGtk_GTKabBar_Widget->removeTab(tab);
-    } else {
-      wc->TileGtk_GTKabBar_Widget->removeTab(tab1);
-      wc->TileGtk_GTKabBar_Widget->removeTab(tab);
-      wc->TileGtk_GTKabBar_Widget->removeTab(tab2);
-    }
-#endif /* TILEGTK_GTK_VERSION_3 */
-#ifdef TILEGTK_GTK_VERSION_4
-    for (int i = 0; i < wc->TileGtk_GTKabBar_Widget->count(); ++i) {
-      wc->TileGtk_GTKabBar_Widget->removeTab(i);
-    }
-#endif /* TILEGTK_GTK_VERSION_4 */
-    Tcl_MutexUnlock(&tilegtkMutex);
+                   0, 0, b.width, b.height + dh, b.x, b.y);
+    TILEGTK_CLEANUP_GTK_DRAWABLE;
 }
 
 static Ttk_ElementSpec NotebookTabElementSpec = {
@@ -245,14 +107,7 @@ static void NotebookClientElementGeometry(
     void *clientData, void *elementRecord, Tk_Window tkwin,
     int *widthPtr, int *heightPtr, Ttk_Padding *paddingPtr)
 {
-    if (!TileGtk_GtkInitialised()) NO_GTK_STYLE_ENGINE;
-    NULL_PROXY_WIDGET(TileGtk_GTKabWidget_Widget);
-    int tabBarBaseHeight =
-        wc->TileGtk_Style->pixelMetric(QStyle::PM_TabBarBaseHeight,
-#ifdef TILEGTK_GTK_VERSION_4
-                                      0,
-#endif /* TILEGTK_GTK_VERSION_4 */
-                                      wc->TileGtk_GTKabWidget_Widget);
+    int tabBarBaseHeight = 0;
     *paddingPtr = Ttk_MakePadding(NotebookClientUniformPadding,
            NotebookClientUniformPadding + tabBarBaseHeight,
            NotebookClientUniformPadding, NotebookClientUniformPadding);
@@ -262,51 +117,19 @@ static void NotebookClientElementDraw(
     void *clientData, void *elementRecord, Tk_Window tkwin,
     Drawable d, Ttk_Box b, unsigned state)
 {
-    if (!TileGtk_GtkInitialised()) NO_GTK_STYLE_ENGINE;
-    NULL_PROXY_WIDGET(TileGtk_GTKabBar_Widget);
-    Tcl_MutexLock(&tilegtkMutex);
-    QPixmap      pixmap(b.width, b.height);
-    QPainter     painter(&pixmap);
-    TILEGTK_PAINT_BACKGROUND(b.width, b.height);
-#ifdef TILEGTK_GTK_VERSION_3
-    QStyle::SFlags sflags = TileGtk_StateTableLookup(notebook_statemap, state);
-    wc->TileGtk_Style->drawPrimitive(QStyle::PE_PanelTabWidget, &painter,
-            QRect(0, 0, b.width, b.height),
-            qApp->palette().active(), sflags);
-#endif /* TILEGTK_GTK_VERSION_3 */
-#ifdef TILEGTK_GTK_VERSION_4
-    QStyleOptionTabWidgetFrame option;
-    option.initFrom(wc->TileGtk_GTKabBar_Widget);
-    option.rect = QRect(0, 0, b.width, b.height);
-    option.state |= 
-      (QStyle::StateFlag) TileGtk_StateTableLookup(notebook_statemap, state);
-    wc->TileGtk_Style->drawPrimitive(QStyle::PE_FrameTabWidget, &option,
-                                    &painter);
-#endif /* TILEGTK_GTK_VERSION_4 */
-    int tabBarBaseHeight =
-        wc->TileGtk_Style->pixelMetric(QStyle::PM_TabBarBaseHeight,
-#ifdef TILEGTK_GTK_VERSION_4
-                                      0,
-#endif /* TILEGTK_GTK_VERSION_4 */
-                                      wc->TileGtk_GTKabWidget_Widget);
-    if (tabBarBaseHeight) {
-      TILEGTK_PAINT_BACKGROUND(b.width, tabBarBaseHeight);
-#ifdef TILEGTK_GTK_VERSION_3
-      wc->TileGtk_Style->drawPrimitive(QStyle::PE_TabBarBase, &painter,
-              QRect(0, 0, b.width, tabBarBaseHeight),
-              qApp->palette().active(), sflags);
-#endif /* TILEGTK_GTK_VERSION_3 */
-#ifdef TILEGTK_GTK_VERSION_4
-      QStyleOptionTabBarBase optTabBase;
-      optTabBase.initFrom(wc->TileGtk_GTKabBar_Widget);
-      optTabBase.rect = QRect(0, 0, b.width, tabBarBaseHeight);
-      wc->TileGtk_Style->drawPrimitive(QStyle::PE_FrameTabBarBase, &optTabBase,
-                                      &painter);
-#endif /* TILEGTK_GTK_VERSION_4 */
-    }
+    TILEGTK_GTK_DRAWABLE_DEFINITIONS;
+    TILEGTK_ENSURE_GTK_STYLE_ENGINE_ACTIVE;
+    TILEGTK_SETUP_GTK_DRAWABLE;
+    GtkWidget *widget = TileGtk_GetNotebook(wc);
+    TILEGTK_ENSURE_WIDGET_OK;
+    // gtk_paint_box_gap(style, pixmap, GTK_STATE_NORMAL, GTK_SHADOW_OUT,
+    //      NULL, widget, (char *) "notebook", 0, 0, b.width, b.height,
+    //      GTK_POS_TOP, 0, 0);
+    gtk_paint_box(style, pixmap, GTK_STATE_NORMAL, GTK_SHADOW_OUT,
+         NULL, widget, (char *) "notebook", 0, 0, b.width, b.height);
     TileGtk_CopyGtkPixmapOnToDrawable(pixmap, d, tkwin,
-                               0, 0, b.width, b.height, b.x, b.y);
-    Tcl_MutexUnlock(&tilegtkMutex);
+                   0, 0, b.width, b.height, b.x, b.y);
+    TILEGTK_CLEANUP_GTK_DRAWABLE;
 }
 
 static Ttk_ElementSpec NotebookClientElementSpec = {

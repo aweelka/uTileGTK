@@ -43,13 +43,16 @@
   GtkShadowType gtkShadow = GTK_SHADOW_NONE;
 
 #define TILEGTK_SETUP_GTK_DRAWABLE \
+  TILEGTK_SETUP_GTK_DRAWABLE_PIXMAP_SIZE(b.width, b.height)
+
+#define TILEGTK_SETUP_GTK_DRAWABLE_PIXMAP_SIZE(pw, ph) \
   if (!wc) return; \
   gdkWindow = wc->gtkWindow->window; \
   if (!gdkWindow) return; \
   style = wc->gtkStyle; \
   if (!style) return; \
   pixmap = gdk_pixmap_new(GDK_DRAWABLE(gdkWindow), \
-                          b.width, b.height, -1); \
+                          pw, ph, -1); \
   style = gtk_style_attach(style, gdkWindow); \
   /*gdk_draw_rectangle(pixmap, *style->bg_gc, TRUE, 0, 0, b.width, b.height);*/
 
@@ -124,10 +127,11 @@ extern void TileGtk_StateInfo(int, GtkStateType,
 extern GtkWidget *TileGtk_GetButton(TileGtk_WidgetCache* wc);
 extern GtkWidget *TileGtk_GetCheckButton(TileGtk_WidgetCache* wc);
 extern GtkWidget *TileGtk_GetRadioButton(TileGtk_WidgetCache* wc);
+extern GtkWidget *TileGtk_GetToolButton(TileGtk_WidgetCache* wc);
 extern GtkWidget *TileGtk_GetFrame(TileGtk_WidgetCache* wc);
 extern GtkWidget *TileGtk_GetEntry(TileGtk_WidgetCache* wc);
+extern GtkWidget *TileGtk_GetCombobox(TileGtk_WidgetCache* wc);
 extern GtkWidget *TileGtk_GetComboboxEntry(TileGtk_WidgetCache* wc);
-extern GtkWidget *TileGtk_GetComboboxEntryButton(TileGtk_WidgetCache* wc);
 extern GtkWidget *TileGtk_GetHScrollBar(TileGtk_WidgetCache* wc);
 extern GtkWidget *TileGtk_GetVScrollBar(TileGtk_WidgetCache* wc);
 extern GtkWidget *TileGtk_GetScrollBar(TileGtk_WidgetCache* wc);
@@ -137,6 +141,9 @@ extern GtkWidget *TileGtk_GetScale(TileGtk_WidgetCache* wc);
 extern GtkWidget *TileGtk_GetHProgressBar(TileGtk_WidgetCache* wc);
 extern GtkWidget *TileGtk_GetVProgressBar(TileGtk_WidgetCache* wc);
 extern GtkWidget *TileGtk_GetProgressBar(TileGtk_WidgetCache* wc);
+extern GtkWidget *TileGtk_GetStatusBar(TileGtk_WidgetCache* wc);
+extern GtkWidget *TileGtk_GetPaned(TileGtk_WidgetCache* wc);
+extern GtkWidget *TileGtk_GetNotebook(TileGtk_WidgetCache* wc);
 #if 0
 extern void TileGtk_StoreStyleNameLowers(TileGtk_WidgetCache *wc);
 extern bool TileGtk_ThemeIs(TileGtk_WidgetCache *wc, const char* name);

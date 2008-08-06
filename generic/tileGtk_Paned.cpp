@@ -17,26 +17,14 @@
 #include "tileGtk_TkHeaders.h"
 #include "tileGtk_WidgetDefaults.h"
 
+#if 0
 /*
  * Map between Tk/Tile & Gtk/GNOME state flags.
  */
 static Ttk_StateTable paned_statemap[] =
 {
-#ifdef TILEGTK_GTK_VERSION_3
-    {QStyle::Style_Default,                         TTK_STATE_DISABLED, 0},
-    {QStyle::Style_Enabled|QStyle::Style_Down,      TTK_STATE_PRESSED, 0},
-    {QStyle::Style_Enabled|QStyle::Style_HasFocus,  TTK_STATE_FOCUS, 0},
-    {QStyle::Style_Enabled|QStyle::Style_MouseOver, TK_STATE_ACTIVE, 0},
-    {QStyle::Style_Enabled,                         0, 0}
-#endif /* TILEGTK_GTK_VERSION_3 */
-#ifdef TILEGTK_GTK_VERSION_4
-    {QStyle::State_None,                            TTK_STATE_DISABLED, 0},
-    {QStyle::State_Enabled|QStyle::State_Sunken,    TTK_STATE_PRESSED, 0},
-    {QStyle::State_Enabled|QStyle::State_HasFocus,  TTK_STATE_FOCUS, 0},
-    {QStyle::State_Enabled|QStyle::State_MouseOver, TK_STATE_ACTIVE, 0},
-    {QStyle::State_Enabled,                         0, 0}
-#endif /* TILEGTK_GTK_VERSION_4 */
 };
+#endif
 
 typedef struct {
 } PanedSashGripElement;
@@ -49,12 +37,16 @@ static void PanedSashGripElementGeometry(
     void *clientData, void *elementRecord, Tk_Window tkwin,
     int *widthPtr, int *heightPtr, Ttk_Padding *paddingPtr)
 {
-    if (!TileGtk_GtkInitialised()) NO_GTK_STYLE_ENGINE;
-    NULL_PROXY_ORIENTED_WIDGET(TileGtk_QWidget_Widget);
-    if (orient == TTK_ORIENT_HORIZONTAL) {
-      *widthPtr = PMW(PM_SplitterWidth, 0);
+    TILEGTK_WIDGET_CACHE_DEFINITION;
+    GtkWidget *widget = TileGtk_GetPaned(wc);
+    gint size = 5;
+    TILEGTK_ENSURE_GTK_STYLE_ENGINE_ACTIVE;
+    TILEGTK_ENSURE_WIDGET_OK;
+    gtk_widget_style_get (widget, "handle-size", &size, NULL);
+    if (wc->orientation == TTK_ORIENT_HORIZONTAL) {
+      *widthPtr  = size;
     } else {
-      *heightPtr = PMW(PM_SplitterWidth, 0);
+      *heightPtr = size;
     }
     *paddingPtr = Ttk_UniformPadding(PanedUniformPadding);
 }
@@ -63,33 +55,20 @@ static void PanedSashGripElementDraw(
     void *clientData, void *elementRecord, Tk_Window tkwin,
     Drawable d, Ttk_Box b, unsigned state)
 {
-    if (!TileGtk_GtkInitialised()) NO_GTK_STYLE_ENGINE;
-    NULL_PROXY_ORIENTED_WIDGET(TileGtk_QWidget_Widget);
-    Tcl_MutexLock(&tilegtkMutex);
-    QPixmap      pixmap(b.width, b.height);
-    QPainter     painter(&pixmap);
-    TILEGTK_PAINT_BACKGROUND(b.width, b.height);
-    TILEGTK_SET_FOCUS(state);
-#ifdef TILEGTK_GTK_VERSION_3
-    QStyle::SFlags sflags = TileGtk_StateTableLookup(paned_statemap, state);
-    if (orient == TTK_ORIENT_HORIZONTAL) {
-    } else {
-      sflags |= QStyle::Style_Horizontal;
-    }
-    wc->TileGtk_Style->drawPrimitive(QStyle::PE_Splitter, &painter,
-          QRect(0, 0, b.width, b.height), qApp->palette().active(), sflags);
-#endif /* TILEGTK_GTK_VERSION_3 */
-#ifdef TILEGTK_GTK_VERSION_4
-    QStyleOption option;
-    option.state |= 
-      (QStyle::StateFlag) TileGtk_StateTableLookup(paned_statemap, state);
-    wc->TileGtk_Style->drawControl(QStyle::CE_Splitter, &option,
-                                    &painter);
-#endif /* TILEGTK_GTK_VERSION_4 */
-    TILEGTK_CLEAR_FOCUS(state);
+    TILEGTK_GTK_DRAWABLE_DEFINITIONS;
+    TILEGTK_ENSURE_GTK_STYLE_ENGINE_ACTIVE;
+    TILEGTK_SETUP_GTK_DRAWABLE;
+    GtkWidget *widget = TileGtk_GetPaned(wc);
+    TILEGTK_ENSURE_WIDGET_OK;
+    TileGtk_StateShadowTableLookup(NULL, state, gtkState, gtkShadow,
+            TILEGTK_SECTION_SASH|TILEGTK_SECTION_ALL);
+    TILEGTK_DEFAULT_BACKGROUND;
+    gtk_paint_handle (style, pixmap, gtkState, GTK_SHADOW_NONE,
+            NULL, widget, "paned", 0, 0, b.width, b.height,
+            wc->gtkOrientation);
     TileGtk_CopyGtkPixmapOnToDrawable(pixmap, d, tkwin,
-                                    0, 0, b.width, b.height, b.x, b.y);
-    Tcl_MutexUnlock(&tilegtkMutex);
+                   0, 0, b.width, b.height, b.x, b.y);
+    TILEGTK_CLEANUP_GTK_DRAWABLE;
 }; /* PanedSashGripElementDraw */
 
 static Ttk_ElementSpec PanedSashGripElementSpec = {
@@ -106,12 +85,12 @@ static Ttk_ElementSpec PanedSashGripElementSpec = {
 
 TTK_BEGIN_LAYOUT(HorizontalSashLayout)
     TTK_GROUP("Sash.hsash", TTK_FILL_BOTH,
-	TTK_NODE("Sash.hgrip", TTK_FILL_BOTH))
+        TTK_NODE("Sash.hgrip", TTK_FILL_BOTH))
 TTK_END_LAYOUT
 
 TTK_BEGIN_LAYOUT(VerticalSashLayout)
     TTK_GROUP("Sash.vsash", TTK_FILL_BOTH,
-	TTK_NODE("Sash.vgrip", TTK_FILL_BOTH))
+        TTK_NODE("Sash.vgrip", TTK_FILL_BOTH))
 TTK_END_LAYOUT
 
 int TileGtk_Init_Paned(Tcl_Interp *interp,
@@ -121,9 +100,9 @@ int TileGtk_Init_Paned(Tcl_Interp *interp,
      * Register elements:
      */
     Ttk_RegisterElement(interp, themePtr, "hgrip",
-	    &PanedSashGripElementSpec,  (void *) wc[0]);
+            &PanedSashGripElementSpec,  (void *) wc[0]);
     Ttk_RegisterElement(interp, themePtr, "vgrip",
-	    &PanedSashGripElementSpec,  (void *) wc[1]);
+            &PanedSashGripElementSpec,  (void *) wc[1]);
     
     /*
      * Register layouts:

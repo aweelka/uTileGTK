@@ -61,8 +61,8 @@ namespace eval ttk::theme::tilegtk {
     variable GtkVScrollbar
     if {![info exists theme]} {return}
     ttk::style theme use tilegtk
-    puts "============================================================"
-    puts "Current Gtk Theme: [currentThemeName] ($theme)"
+    # puts "============================================================"
+    # puts "Current Gtk Theme: [currentThemeName] ($theme)"
     # puts "Tab alignment:    [getStyleHint   -SH_TabBar_Alignment]"
     # puts "Tab base overlap: [getPixelMetric -PM_TabBarBaseOverlap]"
     # puts "Tab overlap:      [getPixelMetric -PM_TabBarTabOverlap]"
@@ -96,8 +96,8 @@ namespace eval ttk::theme::tilegtk {
         set ${widget}($p) [widgetStyleProperty $widget $p integer]
       }
     }
-    parray GtkHScrollbar
-    puts "============================================================"
+    # parray GtkHScrollbar
+    # puts "============================================================"
 
     ##
     ## Dynamically create the scrollbars layouts...
@@ -148,196 +148,112 @@ namespace eval ttk::theme::tilegtk {
   }; # updateLayouts
 
   proc updateStyles {} {
-    array set C [getStyleColourInformation]
-    parray C
-    return
+    # puts [currentThemeColourKeys]
     ttk::style theme settings tilegtk {
       ttk::style configure . \
-         -background [currentThemeColour -bg(NORMAL)] \
-         -foreground [currentThemeColour -fg(NORMAL)] \
-         -selectforeground [currentThemeColour -fg(SELECTED)] \
-         -selectbackground [currentThemeColour -bg(SELECTED)] \
+         -background       [currentThemeColour bg_color] \
+         -foreground       [currentThemeColour fg_color] \
+         -selectforeground [currentThemeColour selected_fg_color] \
+         -selectbackground [currentThemeColour selected_bg_color] \
          ;
-      ttk::style map . -foreground [list \
-         active          [currentThemeColour -fg(ACTIVE)]      \
-         disabled        [currentThemeColour -fg(INSENSITIVE)] \
-         focus           [currentThemeColour -fg(PRELIGHT)]    \
-         pressed         [currentThemeColour -fg(ACTIVE)]      \
-         selected        [currentThemeColour -fg(SELECTED)]    \
-      ] -background [list \
-         active          [currentThemeColour -bg(ACTIVE)]      \
-         disabled        [currentThemeColour -bg(INSENSITIVE)] \
-         pressed         [currentThemeColour -bg(PRELIGHT)]    \
-         pressed         [currentThemeColour -bg(ACTIVE)]      \
-         selected        [currentThemeColour -bg(SELECTED)]    \
-      ] -selectforeground [list \
-         active          [currentThemeColour -text(ACTIVE)]      \
-         disabled        [currentThemeColour -text(INSENSITIVE)] \
-         focus           [currentThemeColour -text(PRELIGHT)]    \
-         pressed         [currentThemeColour -text(ACTIVE)]      \
-         selected        [currentThemeColour -text(SELECTED)]    \
-      ] -selectbackground [list \
-         active          [currentThemeColour -base(ACTIVE)]      \
-         disabled        [currentThemeColour -base(INSENSITIVE)] \
-         focus           [currentThemeColour -base(PRELIGHT)]    \
-         pressed         [currentThemeColour -base(ACTIVE)]      \
-         selected        [currentThemeColour -base(SELECTED)]    \
-      ]
+      # ttk::style map . -foreground [list \
+      #    active          [currentThemeColour fg(ACTIVE)]      \
+      #    disabled        [currentThemeColour fg(INSENSITIVE)] \
+      #    focus           [currentThemeColour fg(PRELIGHT)]    \
+      #    pressed         [currentThemeColour fg(ACTIVE)]      \
+      #    selected        [currentThemeColour fg(SELECTED)]    \
+      # ] -background [list \
+      #    active          [currentThemeColour bg(ACTIVE)]      \
+      #    disabled        [currentThemeColour bg(INSENSITIVE)] \
+      #    pressed         [currentThemeColour bg(PRELIGHT)]    \
+      #    pressed         [currentThemeColour bg(ACTIVE)]      \
+      #    selected        [currentThemeColour bg(SELECTED)]    \
+      # ]
 
       # ttk::style map TButton -foreground [list \
-      #    active          [currentThemeColour -active   -buttonText] \
-      #    disabled        [currentThemeColour -disabled -buttonText] \
-      #    focus           [currentThemeColour -active   -buttonText] \
-      #    pressed         [currentThemeColour -active   -buttonText] \
-      #    selected        [currentThemeColour -active   -buttonText] \
       # ] -background [list \
-      #    active          [currentThemeColour -active   -button] \
-      #    disabled        [currentThemeColour -disabled -button] \
-      #    focus           [currentThemeColour -active   -button] \
-      #    pressed         [currentThemeColour -active   -button] \
-      #    selected        [currentThemeColour -active   -button] \
       # ]
       ttk::style configure TButton -anchor center -width -11 -padding {2}
 
       # ttk::style map TCheckbutton -foreground [list \
-      #    active          [currentThemeColour -active   -buttonText] \
-      #    disabled        [currentThemeColour -disabled -buttonText] \
-      #    focus           [currentThemeColour -active   -buttonText] \
-      #    pressed         [currentThemeColour -active   -buttonText] \
-      #    selected        [currentThemeColour -active   -buttonText] \
       # ] -background [list \
-      #    active          [currentThemeColour -active   -button] \
-      #    disabled        [currentThemeColour -disabled -button] \
-      #    focus           [currentThemeColour -active   -button] \
-      #    pressed         [currentThemeColour -active   -button] \
-      #    selected        [currentThemeColour -active   -button] \
       # ]
       ttk::style configure TCheckbutton -padding {0 1 0 1}
       
       # ttk::style map TCombobox -foreground [list \
-      #    active          [currentThemeColour -active   -buttonText] \
-      #    disabled        [currentThemeColour -disabled -buttonText] \
-      #    focus           [currentThemeColour -active   -buttonText] \
-      #    pressed         [currentThemeColour -active   -buttonText] \
-      #    selected        [currentThemeColour -active   -buttonText] \
       # ] -background [list \
-      #    active          [currentThemeColour -active   -button] \
-      #    disabled        [currentThemeColour -disabled -button] \
-      #    focus           [currentThemeColour -active   -button] \
-      #    pressed         [currentThemeColour -active   -button] \
-      #    selected        [currentThemeColour -active   -button] \
       # ]
       ttk::style configure TCombobox    -padding {1 2 1 1}
       
       # ttk::style map TEntry -foreground [list \
-      #    active          [currentThemeColour -active   -text] \
-      #    disabled        [currentThemeColour -disabled -text] \
-      #    focus           [currentThemeColour -active   -text] \
-      #    pressed         [currentThemeColour -active   -text] \
-      #    selected        [currentThemeColour -active   -text] \
       # ] -background [list \
-      #    active          [currentThemeColour -active   -base] \
-      #    disabled        [currentThemeColour -disabled -base] \
-      #    focus           [currentThemeColour -active   -base] \
-      #    pressed         [currentThemeColour -active   -base] \
-      #    selected        [currentThemeColour -active   -base] \
       # ] -selectforeground [list \
-      #    active          [currentThemeColour -active   -highlightedText] \
-      #    disabled        [currentThemeColour -disabled -highlightedText] \
-      #    focus           [currentThemeColour -active   -highlightedText] \
-      #    pressed         [currentThemeColour -active   -highlightedText] \
-      #    selected        [currentThemeColour -active   -highlightedText] \
       # ] -selectbackground [list \
-      #    active          [currentThemeColour -active   -highlight] \
-      #    disabled        [currentThemeColour -disabled -highlight] \
-      #    focus           [currentThemeColour -active   -highlight] \
-      #    pressed         [currentThemeColour -active   -highlight] \
-      #    selected        [currentThemeColour -active   -highlight] \
       # ]
-      ttk::style configure TEntry       -padding {3 4 3 3}
+      # ttk::style configure TEntry       -padding {3 4 3 3}
       
       ttk::style configure TLabelframe  -background [currentThemeColour \
-                         -bg(NORMAL)] -labeloutside false -padding 0
+                            bg(NORMAL)] -labeloutside false -padding 0
       
       # ttk::style map TMenubutton -foreground [list \
-      #    active          [currentThemeColour -active   -buttonText] \
-      #    disabled        [currentThemeColour -disabled -buttonText] \
-      #    focus           [currentThemeColour -active   -buttonText] \
-      #    pressed         [currentThemeColour -active   -buttonText] \
-      #    selected        [currentThemeColour -active   -buttonText] \
       # ] -background [list \
-      #    active          [currentThemeColour -active   -button] \
-      #    disabled        [currentThemeColour -disabled -button] \
-      #    focus           [currentThemeColour -active   -button] \
-      #    pressed         [currentThemeColour -active   -button] \
-      #    selected        [currentThemeColour -active   -button] \
       # ] -selectforeground [list \
-      #    active          [currentThemeColour -active   -highlightedText] \
-      #    disabled        [currentThemeColour -disabled -highlightedText] \
-      #    focus           [currentThemeColour -active   -highlightedText] \
-      #    pressed         [currentThemeColour -active   -highlightedText] \
-      #    selected        [currentThemeColour -active   -highlightedText] \
       # ] -selectbackground [list \
-      #    active          [currentThemeColour -active   -highlight] \
-      #    disabled        [currentThemeColour -disabled -highlight] \
-      #    focus           [currentThemeColour -active   -highlight] \
-      #    pressed         [currentThemeColour -active   -highlight] \
-      #    selected        [currentThemeColour -active   -highlight] \
       # ]
       ttk::style configure TMenubutton  -width -11 -padding {3 2 3 2}
 
-      # set tab_overlap      [getPixelMetric -PM_TabBarTabOverlap]
-      # set tab_base_overlap [getPixelMetric -PM_TabBarBaseOverlap]
+      ##
+      ## Notebook widget properties:
+      ## tab-pos:       Which side of the notebook holds the tabs
+      ## tab-border:    Width of the border around the tab labels
+      ## tab-hborder:   Width of the horizontal border of tab labels
+      ## tab-vborder:   Width of the vertical border of tab labels
+      ## homogeneous:   Whether tabs should have homogeneous sizes
+      ## tab-overlap:   Size of tab overlap area
+      ## tab-curvature: Size of tab curvature
+      ## arrow-spacing: Scroll arrow spacing
+      ##
+      set tab_overlap   [widgetStyleProperty GtkNotebook tab-overlap   integer]
+      set tab_curvature [widgetStyleProperty GtkNotebook tab-curvature integer]
+      set homogeneous   [widgetProperty      GtkNotebook homogeneous   boolean]
+      set tab_pos       [gtkEnum GtkPositionType \
+                          [widgetProperty    GtkNotebook tab-pos       integer]]
+      set tab_base_overlap 0
+      # incr tab_overlap $tab_curvature
+      # puts "tab_overlap   -> $tab_overlap"
+      # puts "tab_curvature -> $tab_curvature"
+      # puts "homogeneous   -> $homogeneous"
+      # puts "tab_pos       -> $tab_pos"
       # # puts "tab_overlap=$tab_overlap, tab_base_overlap=$tab_base_overlap"
-      # switch -exact [getStyleHint -SH_TabBar_Alignment] {
-      #   Qt::AlignLeft   {set tabposition nw}
-      #   Qt::AlignHCenter - Qt::AlignVCenter -
-      #   Qt::AlignCenter {set tabposition n}
-      #   Qt::AlignRight  {set tabposition ne}
-      #   default         {set tabposition nw}
-      # }
-      # # tabmargins {left top right bottom}
-      # ttk::style configure TNotebook -tabmargins \
-      #   [list $tab_overlap 0 $tab_overlap $tab_base_overlap] \
-      #   -tabposition $tabposition
-      # ttk::style map TNotebook.Tab -expand [list selected \
-      #   [list $tab_overlap 0 $tab_overlap $tab_base_overlap]]
+      switch -exact $tab_pos {
+        GTK_POS_TOP    {set tabposition nw}
+        GTK_POS_BOTTOM {set tabposition sw}
+        GTK_POS_LEFT   {set tabposition nw}
+        GTK_POS_RIGHT  {set tabposition ne}
+        default        {set tabposition nw}
+      }
+      # tabmargins {left top right bottom}
+      ttk::style configure TNotebook -tabmargins \
+        [list $tab_overlap 0 $tab_overlap $tab_base_overlap] \
+        -tabposition $tabposition
+      ttk::style map TNotebook.Tab -expand [list selected \
+        [list $tab_overlap 0 $tab_overlap $tab_base_overlap]]
 
       # ttk::style map TRadiobutton -foreground [list \
-      #    active          [currentThemeColour -active   -buttonText] \
-      #    disabled        [currentThemeColour -disabled -buttonText] \
-      #    focus           [currentThemeColour -active   -buttonText] \
-      #    pressed         [currentThemeColour -active   -buttonText] \
-      #    selected        [currentThemeColour -active   -buttonText] \
       # ] -background [list \
-      #    active          [currentThemeColour -active   -button] \
-      #    disabled        [currentThemeColour -disabled -button] \
-      #    focus           [currentThemeColour -active   -button] \
-      #    pressed         [currentThemeColour -active   -button] \
-      #    selected        [currentThemeColour -active   -button] \
       # ]
       ttk::style configure TRadiobutton -padding {0 1 0 1}
 
       # ttk::style map Toolbutton -foreground [list \
-      #    active          [currentThemeColour -active   -buttonText] \
-      #    disabled        [currentThemeColour -disabled -buttonText] \
-      #    focus           [currentThemeColour -active   -buttonText] \
-      #    pressed         [currentThemeColour -active   -buttonText] \
-      #    selected        [currentThemeColour -active   -buttonText] \
       # ] -background [list \
-      #    active          [currentThemeColour -active   -button] \
-      #    disabled        [currentThemeColour -disabled -button] \
-      #    focus           [currentThemeColour -active   -button] \
-      #    pressed         [currentThemeColour -active   -button] \
-      #    selected        [currentThemeColour -active   -button] \
       # ]
       ttk::style configure Toolbutton -anchor center -padding {2 2 2 2}
 
-      # ttk::style configure TPaned -background [currentThemeColour -background]
-      # ttk::style configure Horizontal.Sash -background [currentThemeColour \
-      #     -background]
-      # ttk::style configure Vertical.Sash -background [currentThemeColour \
-      #     -background]
+      ttk::style configure TPaned -background [currentThemeColour bg_color]
+      ttk::style configure Horizontal.Sash -background [currentThemeColour \
+          bg_color]
+      ttk::style configure Vertical.Sash -background [currentThemeColour \
+          bg_color]
     };# ttk::style theme settings tilegtk
 
     # puts "\nPixel Metric Information:"
@@ -703,17 +619,19 @@ namespace eval ttk::theme::tilegtk {
   }
 
   proc getStyleColourInformation {} {
+    foreach colour {fg_color bg_color  base_color text_color
+                    selected_bg_color  selected_fg_color
+                    tooltip_bg_color   tooltip_fg_color} {
+      catch {set C($colour) [currentThemeColour $colour]} e
+    }
     foreach prefix {fg bg base text} {
       foreach state {NORMAL PRELIGHT ACTIVE SELECTED INSENSITIVE} {
-        set colour ${prefix}\[$state\]
+        set colour ${prefix}($state)
         catch {set C($colour) [currentThemeColour $colour]} e
-        puts $e
       }
     }
     return [array get C]
   };# getStyleColourInformation
-  # array set C [getStyleColourInformation]
-  # parray C
 
   ## Update layouts on load...
   getSystemInfo

@@ -17,15 +17,6 @@
 #include "tileGtk_TkHeaders.h"
 #include "tileGtk_WidgetDefaults.h"
 
-#if 0
-/*
- * Map between Tk/Tile & Gtk/GNOME state flags.
- */
-static Ttk_StateTable combotext_statemap[] =
-{
-};
-#endif
-
 typedef struct {
 } ComboboxFieldElement;
 
@@ -38,72 +29,46 @@ static void ComboboxFieldElementGeometry(
     void *clientData, void *elementRecord, Tk_Window tkwin,
     int *widthPtr, int *heightPtr, Ttk_Padding *paddingPtr)
 {
-#endif /* TILEGTK_GTK_VERSION_4 */
-    Tcl_MutexUnlock(&tilegtkMutex);
-    *widthPtr  = wc->TileGtk_QComboBox_RO_Widget->minimumWidth();
-    *heightPtr = wc->TileGtk_QComboBox_RO_Widget->minimumHeight();
-#if 0
-    printf("left=%d, top=%d, right=%d, bottom=%d\n",
-            ef_rc.x() - fr_rc.x(), ef_rc.y() - fr_rc.y(),
-            fr_rc.width()  - ef_rc.width()  - ef_rc.x(),
-            fr_rc.height() - ef_rc.height() - ef_rc.y());
-#endif
-    *paddingPtr = Ttk_MakePadding(ef_rc.x() - fr_rc.x()           /* left   */,
-                                  ef_rc.y() - fr_rc.y()           /* top    */,
-#if 0
-                     fr_rc.width()  - ef_rc.width()  - ef_rc.x()  /* right  */,
-#else
-                     ef_rc.x() - fr_rc.x()                        /* right  */,
-#endif
-                     fr_rc.height() - ef_rc.height() - ef_rc.y()  /* bottom */);
+    TILEGTK_WIDGET_CACHE_DEFINITION;
+    TILEGTK_ENSURE_GTK_STYLE_ENGINE_ACTIVE;
+    GtkWidget *widget = TileGtk_GetComboboxEntry(wc);
+    TILEGTK_ENSURE_WIDGET_OK;
+    int xt = widget->style->xthickness;
+    int yt = widget->style->ythickness;
+    *paddingPtr = Ttk_MakePadding(xt + EntryUniformPadding,
+                                  yt + EntryUniformPadding,
+                                  xt + EntryUniformPadding,
+                                  yt + EntryUniformPadding);
 }
 
 static void ComboboxFieldElementDraw(
     void *clientData, void *elementRecord, Tk_Window tkwin,
     Drawable d, Ttk_Box b, unsigned state)
 {
-    if (!TileGtk_GtkInitialised()) NO_GTK_STYLE_ENGINE;
-    QPixmap      pixmap(b.width, b.height);
-    QPainter     painter(&pixmap);
-    QComboBox*   widget;
-    /* According to the state, select either the read-only or the read-write
-     * widget. */
-    NULL_PROXY_WIDGET(TileGtk_QComboBox_RO_Widget);
+    TILEGTK_GTK_DRAWABLE_DEFINITIONS;
+    TILEGTK_ENSURE_GTK_STYLE_ENGINE_ACTIVE;
+    TILEGTK_SETUP_GTK_DRAWABLE;
+    GtkWidget *widget = NULL;
     if (state & (TTK_STATE_DISABLED|TTK_STATE_READONLY)) {
-      widget = wc->TileGtk_QComboBox_RO_Widget;
+      widget = TileGtk_GetCombobox(wc);
+      TILEGTK_ENSURE_WIDGET_OK;
+      TileGtk_StateShadowTableLookup(NULL, state, gtkState, gtkShadow,
+              TILEGTK_SECTION_BUTTONS|TILEGTK_SECTION_ALL);
+      TILEGTK_WIDGET_SET_FOCUS(widget);
+      gtk_paint_box(style, pixmap, gtkState, gtkShadow, NULL, widget,
+                   "button", 0, 0, b.width, b.height);
     } else {
-      if (wc->TileGtk_QComboBox_RW_Widget) {
-        widget = wc->TileGtk_QComboBox_RW_Widget;
-      } else {
-        widget = wc->TileGtk_QComboBox_RO_Widget;
-      }
+      widget = TileGtk_GetComboboxEntry(wc);
+      TILEGTK_ENSURE_WIDGET_OK;
+      TileGtk_StateShadowTableLookup(NULL, state, gtkState, gtkShadow,
+              TILEGTK_SECTION_ENTRY|TILEGTK_SECTION_ALL);
+      TILEGTK_WIDGET_SET_FOCUS(widget);
+      gtk_paint_shadow(style, pixmap, gtkState, gtkShadow, NULL, widget,
+                       "combobox", 0, 0, b.width, b.height);
     }
-    Tcl_MutexLock(&tilegtkMutex);
-    widget->resize(b.width, b.height);
-    TILEGTK_PAINT_BACKGROUND(b.width, b.height);
-    TILEGTK_SET_FOCUS(state);
-#ifdef TILEGTK_GTK_VERSION_3
-    widget->setBackgroundOrigin(QWidget::ParentOrigin);
-    QStyle::SFlags sflags = TileGtk_StateTableLookup(combotext_statemap, state);
-    QStyle::SCFlags scflags = QStyle::SC_ComboBoxFrame|QStyle::SC_ComboBoxArrow|
-                              QStyle::SC_ComboBoxEditField;
-    QStyle::SCFlags activeflags = QStyle::SC_ComboBoxFrame;
-    wc->TileGtk_Style->drawComplexControl(QStyle::CC_ComboBox, &painter, widget,
-          QRect(0, 0, b.width, b.height), qApp->palette().active(), sflags,
-          scflags, activeflags);
-#endif /* TILEGTK_GTK_VERSION_3 */
-#ifdef TILEGTK_GTK_VERSION_4
-    QStyleOptionComboBox option;
-    option.initFrom(widget); option.state |= 
-      (QStyle::StateFlag) TileGtk_StateTableLookup(combotext_statemap, state);
-    wc->TileGtk_Style->drawComplexControl(QStyle::CC_ComboBox, &option,
-                                         &painter, widget);
-#endif /* TILEGTK_GTK_VERSION_4 */
-    TILEGTK_CLEAR_FOCUS(state);
-    // printf("x=%d, y=%d, w=%d, h=%d\n", b.x, b.y, b.width, b.height);
     TileGtk_CopyGtkPixmapOnToDrawable(pixmap, d, tkwin,
-                                    0, 0, b.width, b.height, b.x, b.y);
-    Tcl_MutexUnlock(&tilegtkMutex);
+                   0, 0, b.width, b.height, b.x, b.y);
+    TILEGTK_CLEANUP_GTK_DRAWABLE;
 }
 
 static Ttk_ElementSpec ComboboxFieldElementSpec = {
@@ -113,19 +78,6 @@ static Ttk_ElementSpec ComboboxFieldElementSpec = {
     ComboboxFieldElementGeometry,
     ComboboxFieldElementDraw
 };
-
-/*
- * Map between Tk/Tile & Gtk/GNOME state flags.
- */
-#if 0
-static Ttk_StateTable combobox_statemap[] =
-{
-    {QStyle::Style_Default,                         TTK_STATE_DISABLED, 0 },
-    {QStyle::Style_Enabled|QStyle::Style_MouseOver, TTK_STATE_PRESSED, 0 },
-    {QStyle::Style_Enabled|QStyle::Style_MouseOver, TTK_STATE_ACTIVE, 0 },
-    {QStyle::Style_Enabled,                         0, 0 }
-};
-#endif
 
 typedef struct {
 } ComboboxArrowElement;
@@ -139,49 +91,46 @@ static void ComboboxArrowElementGeometry(
     void *clientData, void *elementRecord, Tk_Window tkwin,
     int *widthPtr, int *heightPtr, Ttk_Padding *paddingPtr)
 {
-    if (!TileGtk_GtkInitialised()) NO_GTK_STYLE_ENGINE;
-    NULL_PROXY_WIDGET(TileGtk_QComboBox_RO_Widget);
-    Tcl_MutexLock(&tilegtkMutex);
-#ifdef TILEGTK_GTK_VERSION_3
-    QRect rc = wc->TileGtk_Style->querySubControlMetrics(QStyle::CC_ComboBox,
-                   wc->TileGtk_QComboBox_RO_Widget, QStyle::SC_ComboBoxArrow);
-#endif /* TILEGTK_GTK_VERSION_3 */
-#ifdef TILEGTK_GTK_VERSION_4
-    QStyleOptionComboBox option;
-    option.initFrom(wc->TileGtk_QComboBox_RO_Widget);
-    option.subControls = QStyle::SC_ComboBoxFrame;
-    QRect rc = wc->TileGtk_Style->subControlRect(QStyle::CC_ComboBox,
-         &option, QStyle::SC_ComboBoxArrow, wc->TileGtk_QComboBox_RO_Widget);
-#endif /* TILEGTK_GTK_VERSION_4 */
-    *widthPtr = rc.width();
-    Tcl_MutexUnlock(&tilegtkMutex);
-    *paddingPtr = Ttk_UniformPadding(0);
+    TILEGTK_WIDGET_CACHE_DEFINITION;
+    gint size = 15;
+    GtkWidget *widget = TileGtk_GetComboboxEntry(wc);
+    TILEGTK_ENSURE_WIDGET_OK;
+    gtk_widget_style_get(widget, "arrow-size", &size, NULL);
+
+    *widthPtr = *heightPtr = size;
+    *paddingPtr = Ttk_UniformPadding(3);
 }
 
 static void ComboboxArrowElementDraw(
     void *clientData, void *elementRecord, Tk_Window tkwin,
     Drawable d, Ttk_Box b, unsigned state)
 {
-    if (!TileGtk_GtkInitialised()) NO_GTK_STYLE_ENGINE;
-    // There is no need to re-paint the button. It has been paint along with the
-    // field element (ComboboxFieldElementDraw). This is because Gtk's Combobox
-    // is a complex widget.
-    // QPixmap      pixmap(b.x+b.width, b.y+b.height);
-    // QPainter     painter(&pixmap);
-    // QComboBox& widget = *TileGtk_QComboBox_RO_Widget;
-    // widget.resize(b.x+b.width, b.y+b.height);
-    // QStyle::SFlags sflags = TileGtk_StateTableLookup(combobox_statemap, state);
-    // QStyle::SCFlags scflags = QStyle::SC_ComboBoxArrow;
-    // QStyle::SCFlags activeflags = QStyle::SC_None;
-    // 
-    // painter.fillRect(0, 0, b.width, b.height,
-    //                 qApp->palette().active().brush(QColorGroup::Background));
-    // // printf("x=%d, y=%d, w=%d, h=%d\n", b.x, b.y, b.width, b.height);
-    // qApp->style().drawComplexControl(QStyle::CC_ComboBox, &painter, &widget,
-    //       QRect(0, 0, b.x+b.width, b.y+b.height),
-    //       qApp->palette().active(), sflags, scflags, activeflags);
-    // TileGtk_CopyGtkPixmapOnToDrawable(pixmap, d, tkwin,
-    //                                 b.x, b.y, b.width, b.height, b.x, b.y);
+    TILEGTK_GTK_DRAWABLE_DEFINITIONS;
+    TILEGTK_ENSURE_GTK_STYLE_ENGINE_ACTIVE;
+    TILEGTK_SETUP_GTK_DRAWABLE;
+    GtkWidget *widget = NULL;
+    if (state & (TTK_STATE_DISABLED|TTK_STATE_READONLY)) {
+      widget = TileGtk_GetCombobox(wc);
+      TILEGTK_ENSURE_WIDGET_OK;
+      TileGtk_StateShadowTableLookup(NULL, state, gtkState, gtkShadow,
+              TILEGTK_SECTION_BUTTONS|TILEGTK_SECTION_ALL);
+      TILEGTK_WIDGET_SET_FOCUS(widget);
+      gtk_paint_flat_box(style, pixmap, gtkState, gtkShadow, NULL, widget,
+                        "button", 0, 0, b.width, b.height);
+    } else {
+      widget = TileGtk_GetComboboxEntry(wc);
+      TILEGTK_ENSURE_WIDGET_OK;
+      TileGtk_StateShadowTableLookup(NULL, state, gtkState, gtkShadow,
+              TILEGTK_SECTION_ENTRY|TILEGTK_SECTION_ALL);
+      TILEGTK_WIDGET_SET_FOCUS(widget);
+      gtk_paint_flat_box(style, pixmap, gtkState, gtkShadow, NULL, widget,
+                        "combobox", 0, 0, b.width, b.height);
+    }
+    gtk_paint_arrow(style, pixmap, gtkState, GTK_SHADOW_NONE, NULL, widget,
+        "combo", GTK_ARROW_DOWN, FALSE, 0, 0, b.width, b.height);
+    TileGtk_CopyGtkPixmapOnToDrawable(pixmap, d, tkwin,
+                   0, 0, b.width, b.height, b.x, b.y);
+    TILEGTK_CLEANUP_GTK_DRAWABLE;
 }
 
 static Ttk_ElementSpec ComboboxArrowElementSpec = {

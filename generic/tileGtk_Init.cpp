@@ -128,8 +128,10 @@ int Tileqt_SettingsProperty(ClientData clientData, Tcl_Interp *interp,
   return TCL_OK;
 }; /* Tileqt_SettingsProperty */
 
-int Tileqt_WidgetStyleProperty(ClientData clientData, Tcl_Interp *interp,
-                                 int objc, Tcl_Obj *const objv[]) {
+#define GETPROPERTY_GTK_WIDGET_GET       0
+#define GETPROPERTY_GTK_WIDGET_STYLE_GET 1
+int Tileqt_GetProperty(ClientData clientData, Tcl_Interp *interp,
+                                 int objc, Tcl_Obj *const objv[], int gtkMethod) {
   static const char *Methods[] = {
     "integer", "boolean", "string", (char *) NULL
   };
@@ -137,10 +139,10 @@ int Tileqt_WidgetStyleProperty(ClientData clientData, Tcl_Interp *interp,
     INTEGER, BOOLEAN, STRING
   };
   static const char *Widgets[] = {
-    "GtkHScrollbar" , "GtkVScrollbar", (char *) NULL
+    "GtkHScrollbar" , "GtkVScrollbar", "GtkNotebook", (char *) NULL
   };
   enum widgets {
-    W_HSCROLLBAR, W_VSCROLLBAR
+    W_HSCROLLBAR, W_VSCROLLBAR, W_NOTEBOOK
   };
   int          type  = STRING;
   gchar       *s_val = NULL;
@@ -167,6 +169,7 @@ int Tileqt_WidgetStyleProperty(ClientData clientData, Tcl_Interp *interp,
   switch ((enum widgets) type) {
     case W_HSCROLLBAR: {widget = TileGtk_GetHScrollBar(wc); break;}
     case W_VSCROLLBAR: {widget = TileGtk_GetVScrollBar(wc); break;}
+    case W_NOTEBOOK:   {widget = TileGtk_GetNotebook(wc); break;}
   }
   /* Get property type, which defaults to "string"... */
   if (objc == 4) {
@@ -180,16 +183,37 @@ int Tileqt_WidgetStyleProperty(ClientData clientData, Tcl_Interp *interp,
   if (widget) {
     switch ((enum methods) type) {
       case INTEGER:
-        gtk_widget_style_get(widget, Tcl_GetString(objv[2]), &i_val, NULL);
+        switch (gtkMethod) {
+          case GETPROPERTY_GTK_WIDGET_GET:
+            gtk_object_get((GtkObject *) widget, Tcl_GetString(objv[2]), &i_val, NULL);
+          break;
+          case GETPROPERTY_GTK_WIDGET_STYLE_GET:
+            gtk_widget_style_get(widget, Tcl_GetString(objv[2]), &i_val, NULL);
+            break;
+        }
         Tcl_SetObjResult(interp, Tcl_NewIntObj(i_val));
         break;
       case BOOLEAN:
-        gtk_widget_style_get(widget, Tcl_GetString(objv[2]), &b_val, NULL);
+        switch (gtkMethod) {
+          case GETPROPERTY_GTK_WIDGET_GET:
+            gtk_object_get((GtkObject *) widget, Tcl_GetString(objv[2]), &b_val, NULL);
+            break;
+          case GETPROPERTY_GTK_WIDGET_STYLE_GET:
+            gtk_widget_style_get(widget, Tcl_GetString(objv[2]), &b_val, NULL);
+            break;
+        }
         if (b_val) Tcl_SetObjResult(interp, Tcl_NewBooleanObj(1));
         else Tcl_SetObjResult(interp, Tcl_NewBooleanObj(0));
         break;
       case STRING:
-        gtk_widget_style_get(widget, Tcl_GetString(objv[2]), &s_val, NULL);
+        switch (gtkMethod) {
+          case GETPROPERTY_GTK_WIDGET_GET:
+            gtk_object_get((GtkObject *) widget, Tcl_GetString(objv[2]), &s_val, NULL);
+            break;
+          case GETPROPERTY_GTK_WIDGET_STYLE_GET:
+            gtk_widget_style_get(widget, Tcl_GetString(objv[2]), &s_val, NULL);
+            break;
+        }
         if (s_val) {
           Tcl_SetResult(interp, (char *) s_val, TCL_VOLATILE);
           g_free (s_val);
@@ -199,7 +223,58 @@ int Tileqt_WidgetStyleProperty(ClientData clientData, Tcl_Interp *interp,
   }
   Tcl_MutexUnlock(&tilegtkMutex);
   return TCL_OK;
+}; /* Tileqt_GetProperty */
+
+int Tileqt_WidgetProperty(ClientData clientData, Tcl_Interp *interp,
+                          int objc, Tcl_Obj *const objv[]) {
+  return Tileqt_GetProperty(clientData, interp, objc, objv,
+                            GETPROPERTY_GTK_WIDGET_GET);
+}; /* Tileqt_WidgetProperty */
+
+int Tileqt_WidgetStyleProperty(ClientData clientData, Tcl_Interp *interp,
+                                 int objc, Tcl_Obj *const objv[]) {
+  return Tileqt_GetProperty(clientData, interp, objc, objv,
+                            GETPROPERTY_GTK_WIDGET_STYLE_GET);
 }; /* Tileqt_WidgetStyleProperty */
+
+int Tileqt_GtkEnum(ClientData clientData, Tcl_Interp *interp,
+                                 int objc, Tcl_Obj *const objv[]) {
+  static const char *Methods[] = {
+    "GtkPositionType", (char *) NULL
+  };
+  enum methods {
+    GTKPOSITIONTYPE,
+  };
+  int index, v;
+  const char *n = NULL;
+  if (objc != 3) {
+    Tcl_WrongNumArgs(interp, 1, objv, "gtk_enum_type value");
+    return TCL_ERROR;
+  }
+  /* Get widget... */
+  if (Tcl_GetIndexFromObj(interp, objv[1], (const char **) Methods,
+                                 "gtk_enum_type", 0, &index) != TCL_OK) {
+    return TCL_ERROR;
+  }
+  if (Tcl_GetIntFromObj(interp, objv[2], &v) != TCL_OK) {
+    return TCL_ERROR;
+  }
+  switch ((enum methods) index) {
+    case GTKPOSITIONTYPE: {
+      if      (v == GTK_POS_LEFT)   n = "GTK_POS_LEFT";
+      else if (v == GTK_POS_RIGHT)  n = "GTK_POS_RIGHT";
+      else if (v == GTK_POS_TOP)    n = "GTK_POS_TOP";
+      else if (v == GTK_POS_BOTTOM) n = "GTK_POS_BOTTOM";
+      break;
+    }
+  }
+  if (!n) {
+    Tcl_SetResult(interp, (char *) "value out of range", TCL_STATIC);
+    return TCL_ERROR;
+  }
+  Tcl_SetResult(interp, (char *) n, TCL_STATIC);
+  return TCL_OK;
+}; /* Tileqt_GtkEnum */
 
 int Tileqt_GtkDirectory(ClientData clientData, Tcl_Interp *interp,
                                  int objc, Tcl_Obj *const objv[]) {
@@ -292,9 +367,48 @@ int Tileqt_gtk_method(ClientData clientData, Tcl_Interp *interp,
 
 int Tileqt_ThemeColour(ClientData clientData, Tcl_Interp *interp,
                                  int objc, Tcl_Obj *const objv[]) {
+  static const char *Methods[] = {
+    "fg(NORMAL)",           "fg(PRELIGHT)",           "fg(ACTIVE)",
+    "fg(SELECTED)",         "fg(INSENSITIVE)",
+    "bg(NORMAL)",           "bg(PRELIGHT)",           "bg(ACTIVE)",
+    "bg(SELECTED)",         "bg(INSENSITIVE)",
+    "base(NORMAL)",         "base(PRELIGHT)",         "base(ACTIVE)",
+    "base(SELECTED)",       "base(INSENSITIVE)",
+    "text(NORMAL)",         "text(PRELIGHT)",         "text(ACTIVE)",
+    "text(SELECTED)",       "text(INSENSITIVE)",
+    "light(NORMAL)",        "light(PRELIGHT)",        "light(ACTIVE)",
+    "light(SELECTED)",      "light(INSENSITIVE)",
+    "mid(NORMAL)",          "mid(PRELIGHT)",          "mid(ACTIVE)",
+    "mid(SELECTED)",        "mid(INSENSITIVE)",
+    "dark(NORMAL)",         "dark(PRELIGHT)",         "dark(ACTIVE)",
+    "dark(SELECTED)",       "dark(INSENSITIVE)",
+    "text_aa(NORMAL)",      "text_aa(PRELIGHT)",      "text_aa(ACTIVE)",
+    "text_aa(SELECTED)",    "text_aa(INSENSITIVE)",
+    (char *) NULL
+  };
+  enum methods {
+    FG_NORMAL,        FG_PRELIGHT,        FG_ACTIVE,
+    FG_SELECTED,      FG_INSENSITIVE,
+    BG_NORMAL ,       BG_PRELIGHT,        BG_ACTIVE,
+    BG_SELECTED,      BG_INSENSITIVE,
+    BASE_NORMAL,      BASE_PRELIGHT,      BASE_ACTIVE,
+    BASE_SELECTED,    BASE_INSENSITIVE,
+    TEXT_NORMAL,      TEXT_PRELIGHT,      TEXT_ACTIVE,
+    TEXT_SELECTED,    TEXT_INSENSITIVE,
+    LIGHT_NORMAL,     LIGHT_PRELIGHT,     LIGHT_ACTIVE,
+    LIGHT_SELECTED,   LIGHT_INSENSITIVE,
+    MID_NORMAL,       MID_PRELIGHT,       MID_ACTIVE,
+    MID_SELECTED,     MID_INSENSITIVE,
+    DARK_NORMAL,      DARK_PRELIGHT,      DARK_ACTIVE,
+    DARK_SELECTED,    DARK_INSENSITIVE,
+    TAA_NORMAL,       TAA_PRELIGHT,       TAA_ACTIVE,
+    TAA_SELECTED,     TAA_INSENSITIVE
+  };
   TileGtk_WidgetCache **wc = (TileGtk_WidgetCache **) clientData;
   GdkColor colour;
-  gchar* colour_str;
+  gchar* colour_str = NULL;
+  GtkStyle *style;
+  int index;
   if (!wc) {
     Tcl_SetResult(interp, (char *) "empty wc!", TCL_STATIC);
     return TCL_ERROR;
@@ -307,10 +421,60 @@ int Tileqt_ThemeColour(ClientData clientData, Tcl_Interp *interp,
     Tcl_WrongNumArgs(interp, 1, objv, "colour");
     return TCL_ERROR;
   }
+  style = wc[0]->gtkStyle;
 
-  if (gtk_style_lookup_color(wc[0]->gtkStyle,
-                             Tcl_GetString(objv[1]), &colour)) {
+  if (Tcl_GetIndexFromObj(interp, objv[1], (const char **) Methods,
+                          "method", 0, &index) == TCL_OK) {
+  switch ((enum methods) index) {
+    case FG_NORMAL:         colour = style->fg[GTK_STATE_NORMAL];         break;
+    case FG_PRELIGHT:       colour = style->fg[GTK_STATE_PRELIGHT];       break;
+    case FG_ACTIVE:         colour = style->fg[GTK_STATE_ACTIVE];         break;
+    case FG_SELECTED:       colour = style->fg[GTK_STATE_SELECTED];       break;
+    case FG_INSENSITIVE:    colour = style->fg[GTK_STATE_INSENSITIVE];    break;
+    case BG_NORMAL:         colour = style->bg[GTK_STATE_NORMAL];         break;
+    case BG_PRELIGHT:       colour = style->bg[GTK_STATE_PRELIGHT];       break;
+    case BG_ACTIVE:         colour = style->bg[GTK_STATE_ACTIVE];         break;
+    case BG_SELECTED:       colour = style->bg[GTK_STATE_SELECTED];       break;
+    case BG_INSENSITIVE:    colour = style->bg[GTK_STATE_INSENSITIVE];    break;
+    case BASE_NORMAL:       colour = style->base[GTK_STATE_NORMAL];       break;
+    case BASE_PRELIGHT:     colour = style->base[GTK_STATE_PRELIGHT];     break;
+    case BASE_ACTIVE:       colour = style->base[GTK_STATE_ACTIVE];       break;
+    case BASE_SELECTED:     colour = style->base[GTK_STATE_SELECTED];     break;
+    case BASE_INSENSITIVE:  colour = style->base[GTK_STATE_INSENSITIVE];  break;
+    case TEXT_NORMAL:       colour = style->text[GTK_STATE_NORMAL];       break;
+    case TEXT_PRELIGHT:     colour = style->text[GTK_STATE_PRELIGHT];     break;
+    case TEXT_ACTIVE:       colour = style->text[GTK_STATE_ACTIVE];       break;
+    case TEXT_SELECTED:     colour = style->text[GTK_STATE_SELECTED];     break;
+    case TEXT_INSENSITIVE:  colour = style->text[GTK_STATE_INSENSITIVE];  break;
+    case LIGHT_NORMAL:      colour = style->light[GTK_STATE_NORMAL];      break;
+    case LIGHT_PRELIGHT:    colour = style->light[GTK_STATE_PRELIGHT];    break;
+    case LIGHT_ACTIVE:      colour = style->light[GTK_STATE_ACTIVE];      break;
+    case LIGHT_SELECTED:    colour = style->light[GTK_STATE_SELECTED];    break;
+    case LIGHT_INSENSITIVE: colour = style->light[GTK_STATE_INSENSITIVE]; break;
+    case DARK_NORMAL:       colour = style->dark[GTK_STATE_NORMAL];       break;
+    case DARK_PRELIGHT:     colour = style->dark[GTK_STATE_PRELIGHT];     break;
+    case DARK_ACTIVE:       colour = style->dark[GTK_STATE_ACTIVE];       break;
+    case DARK_SELECTED:     colour = style->dark[GTK_STATE_SELECTED];     break;
+    case DARK_INSENSITIVE:  colour = style->dark[GTK_STATE_INSENSITIVE];  break;
+    case MID_NORMAL:        colour = style->mid[GTK_STATE_NORMAL];        break;
+    case MID_PRELIGHT:      colour = style->mid[GTK_STATE_PRELIGHT];      break;
+    case MID_ACTIVE:        colour = style->mid[GTK_STATE_ACTIVE];        break;
+    case MID_SELECTED:      colour = style->mid[GTK_STATE_SELECTED];      break;
+    case MID_INSENSITIVE:   colour = style->mid[GTK_STATE_INSENSITIVE];   break;
+    case TAA_NORMAL:        colour = style->text_aa[GTK_STATE_NORMAL];    break;
+    case TAA_PRELIGHT:      colour = style->text_aa[GTK_STATE_PRELIGHT];  break;
+    case TAA_ACTIVE:        colour = style->text_aa[GTK_STATE_ACTIVE];    break;
+    case TAA_SELECTED:      colour = style->text_aa[GTK_STATE_SELECTED];  break;
+    case TAA_INSENSITIVE:   colour = style->text_aa[GTK_STATE_INSENSITIVE];
+  }
     colour_str = gdk_color_to_string(&colour);
+  } else {
+    if (gtk_style_lookup_color(style, Tcl_GetString(objv[1]), &colour)) {
+      colour_str = gdk_color_to_string(&colour);
+    }
+  }
+
+  if (colour_str) {
     Tcl_SetResult(interp, (char *) colour_str, TCL_VOLATILE);
     g_free(colour_str);
     return TCL_OK;
@@ -319,6 +483,42 @@ int Tileqt_ThemeColour(ClientData clientData, Tcl_Interp *interp,
   Tcl_AppendResult(interp, (char *) Tcl_GetString(objv[1]), NULL);
   return TCL_ERROR;
 }; /* Tileqt_ThemeColour */
+
+#ifndef GTK_STYLE_GET_PRIVATE
+struct _GtkStylePrivate {
+  GSList *color_hashes;
+};
+typedef struct _GtkStylePrivate GtkStylePrivate;
+#define GTK_STYLE_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), GTK_TYPE_STYLE, GtkStylePrivate))
+#endif
+
+int Tileqt_ColourKeys(ClientData clientData, Tcl_Interp *interp,
+                                 int objc, Tcl_Obj *const objv[]) {
+  TileGtk_WidgetCache **wc = (TileGtk_WidgetCache **) clientData;
+  GdkColor colour;
+  gchar* colour_str;
+  if (!wc) {
+    Tcl_SetResult(interp, (char *) "empty wc!", TCL_STATIC);
+    return TCL_ERROR;
+  }
+  if (!wc[0]->gtkStyle) {
+    Tcl_SetResult(interp, (char *) "empty wc[0]->gtkStyle!", TCL_STATIC);
+    return TCL_ERROR;
+  }
+  GtkStylePrivate *priv = GTK_STYLE_GET_PRIVATE (wc[0]->gtkStyle);
+  GSList *iter;
+  Tcl_Obj *list = Tcl_NewListObj(0, NULL);
+  for (iter = priv->color_hashes; iter != NULL; iter = iter->next) {
+    GHashTable *hash    = (GHashTable *) iter->data;
+    GList *keys = g_hash_table_get_keys(hash);
+    for (; keys != NULL; keys = keys->next) {
+      Tcl_ListObjAppendElement(NULL, list,
+                               Tcl_NewStringObj((char *) keys->data, -1));
+    }
+  }
+  Tcl_SetObjResult(interp, list);
+  return TCL_OK;
+}; /* Tileqt_ColourKeys */
 
 int Tileqt_SetPalette(ClientData clientData, Tcl_Interp *interp,
                                  int objc, Tcl_Obj *const objv[]) {
@@ -721,19 +921,19 @@ Tilegtk_Init(Tcl_Interp *interp)
     TileGtk_Init_Button(interp, wc, themePtr);
     TileGtk_Init_CheckButton(interp, wc, themePtr);
     TileGtk_Init_RadioButton(interp, wc, themePtr);
+    TileGtk_Init_ToolButton(interp, wc, themePtr);
     TileGtk_Init_Labelframe(interp, wc, themePtr);
     TileGtk_Init_Entry(interp, wc, themePtr);
     TileGtk_Init_Menubutton(interp, wc, themePtr);
     TileGtk_Init_Scrollbar(interp, wc, themePtr);
     TileGtk_Init_Scale(interp, wc, themePtr);
     TileGtk_Init_Progress(interp, wc, themePtr);
-#if 0
-    TileGtk_Init_ToolButton(interp, wc, themePtr);
-    TileGtk_Init_Combobox(interp, wc, themePtr);
-    TileGtk_Init_Notebook(interp, wc, themePtr);
-    TileGtk_Init_TreeView(interp, wc, themePtr);
-    TileGtk_Init_Paned(interp, wc, themePtr);
     TileGtk_Init_SizeGrip(interp, wc, themePtr);
+    TileGtk_Init_Paned(interp, wc, themePtr);
+    TileGtk_Init_Notebook(interp, wc, themePtr);
+    TileGtk_Init_Combobox(interp, wc, themePtr);
+#if 0
+    TileGtk_Init_TreeView(interp, wc, themePtr);
     //TileGtk_Init_Separator(interp, wc, themePtr);
     //TileGtk_Init_Arrows(interp, wc, themePtr);
 #endif
@@ -743,10 +943,14 @@ Tilegtk_Init(Tcl_Interp *interp)
     /*
      * Register the TileGtk package...
      */
+    Tcl_CreateObjCommand(interp, "ttk::theme::tilegtk::gtkEnum",
+                         Tileqt_GtkEnum, (ClientData) wc, NULL);
     Tcl_CreateObjCommand(interp, "ttk::theme::tilegtk::settingsProperty",
                          Tileqt_SettingsProperty, (ClientData) wc, NULL);
     Tcl_CreateObjCommand(interp, "ttk::theme::tilegtk::widgetStyleProperty",
                          Tileqt_WidgetStyleProperty, (ClientData) wc, NULL);
+    Tcl_CreateObjCommand(interp, "ttk::theme::tilegtk::widgetProperty",
+                         Tileqt_WidgetProperty, (ClientData) wc, NULL);
     Tcl_CreateObjCommand(interp, "ttk::theme::tilegtk::currentThemeName",
                          Tileqt_ThemeName, (ClientData) wc, NULL);
     Tcl_CreateObjCommand(interp, "ttk::theme::tilegtk::gtkDirectory",
@@ -758,6 +962,9 @@ Tilegtk_Init(Tcl_Interp *interp)
     Tcl_CreateObjCommand(interp,
                          "ttk::theme::tilegtk::currentThemeColour",
                          Tileqt_ThemeColour, (ClientData) wc, NULL);
+    Tcl_CreateObjCommand(interp,
+                         "ttk::theme::tilegtk::currentThemeColourKeys",
+                         Tileqt_ColourKeys, (ClientData) wc, NULL);
 #if 0
     Tcl_CreateObjCommand(interp,
                          "ttk::theme::tilegtk::setPalette",

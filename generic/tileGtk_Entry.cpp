@@ -39,7 +39,7 @@ static void EntryFieldElementGeometry(
     int *widthPtr, int *heightPtr, Ttk_Padding *paddingPtr)
 {
     TILEGTK_WIDGET_CACHE_DEFINITION;
-    GtkBorder border = {0, 0, 0, 0};
+    // GtkBorder border = {0, 0, 0, 0};
     TILEGTK_ENSURE_GTK_STYLE_ENGINE_ACTIVE;
     GtkWidget *widget = TileGtk_GetEntry(wc);
     TILEGTK_ENSURE_WIDGET_OK;
@@ -66,12 +66,12 @@ static void EntryFieldElementDraw(
     TILEGTK_ENSURE_WIDGET_OK;
     TileGtk_StateShadowTableLookup(NULL, state, gtkState, gtkShadow,
             TILEGTK_SECTION_ENTRY|TILEGTK_SECTION_ALL);
-    TILEGTK_SETUP_WIDGET_SIZE(b.width, b.height);
+    // TILEGTK_SETUP_WIDGET_SIZE(b.width, b.height);
     TILEGTK_WIDGET_SET_FOCUS(widget);
     // g_object_get(widget, "has-frame", &hasFrame, NULL);
     if (hasFrame) {
       gtk_paint_shadow(style, pixmap, gtkState, gtkShadow, NULL, widget,
-                    "entry", 0, 0, b.width, b.height);
+                      "entry", 0, 0, b.width, b.height);
     } else {
       TILEGTK_DEFAULT_BACKGROUND;
     }

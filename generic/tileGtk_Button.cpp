@@ -69,7 +69,7 @@ static void ButtonElementGeometry(
     // gtk_widget_style_get(widget, "default-border", &border, NULL);
     // printf("default-border left: %d, right: %d, top: %d, bottom: %d\n",
     //   border.left, border.right, border.top, border.bottom);
-    TILEGTK_GET_WIDGET_SIZE(*widthPtr, *heightPtr);
+    // TILEGTK_GET_WIDGET_SIZE(*widthPtr, *heightPtr);
     if (defaultState != TTK_BUTTON_DEFAULT_DISABLED) {
       *paddingPtr = Ttk_UniformPadding(PushButtonUniformPaddingDefaulted);
     } else {
@@ -90,7 +90,7 @@ static void ButtonElementDraw(
     // TILEGTK_SETUP_STATE_SHADOW(pushbutton_statemap, pushbutton_shadowmap);
     TileGtk_StateShadowTableLookup(NULL, state, gtkState, gtkShadow,
             TILEGTK_SECTION_BUTTONS|TILEGTK_SECTION_ALL);
-    TILEGTK_SETUP_WIDGET_SIZE(b.width, b.height);
+    // TILEGTK_SETUP_WIDGET_SIZE(b.width, b.height);
     TILEGTK_WIDGET_SET_FOCUS(widget);
     TILEGTK_WIDGET_SET_DEFAULT(widget, bd->defaultStateObj);
     TILEGTK_DEFAULT_BACKGROUND;

@@ -17,35 +17,22 @@
 #include "tileGtk_TkHeaders.h"
 #include "tileGtk_WidgetDefaults.h"
 
+#if 0
 /*
  * Toolbuttons (Tk: "Button")
  */
 static Ttk_StateTable toolbutton_statemap[] =
 {
-#ifdef TILEGTK_GTK_VERSION_3
-    {QStyle::Style_Default                          , TTK_STATE_DISABLED, 0},
-    {QStyle::Style_Enabled | QStyle::Style_Down     , TTK_STATE_SELECTED, 0},
-    {QStyle::Style_Enabled | QStyle::Style_Down     , TTK_STATE_PRESSED, 0},
-    {QStyle::Style_Enabled | QStyle::Style_Raised   , TTK_STATE_ACTIVE, 0},
-    {QStyle::Style_Enabled | QStyle::Style_HasFocus , TTK_STATE_FOCUS, 0},
-    {QStyle::Style_Enabled | QStyle::Style_Active   , TTK_STATE_ALTERNATE, 0},
-    {QStyle::Style_Enabled, 0, 0 }
-#endif /* TILEGTK_GTK_VERSION_3 */
-#ifdef TILEGTK_GTK_VERSION_4
-    {QStyle::State_None                             , TTK_STATE_DISABLED, 0},
-    {QStyle::State_Enabled | QStyle::State_Sunken   , TTK_STATE_SELECTED, 0},
-    {QStyle::State_Enabled | QStyle::State_Sunken   , TTK_STATE_PRESSED, 0},
-    {QStyle::State_Enabled | QStyle::State_Raised   , TTK_STATE_ACTIVE, 0},
-    {QStyle::State_Enabled | QStyle::State_HasFocus , TTK_STATE_FOCUS, 0},
-    {QStyle::State_Enabled | QStyle::State_Active   , TTK_STATE_ALTERNATE, 0},
-    {QStyle::State_Enabled, 0, 0 }
-#endif /* TILEGTK_GTK_VERSION_4 */
 };
+#endif
 
 typedef struct {
+    Tcl_Obj        *defaultStateObj;
 } ToolButtonElement;
 
 static Ttk_ElementOptionSpec ToolButtonElementOptions[] = {
+    { (char *) "-default", TK_OPTION_ANY, 
+        Tk_Offset(ToolButtonElement, defaultStateObj), (char *) "normal" },
     {NULL}
 };
 
@@ -53,63 +40,44 @@ static void ToolButtonElementGeometry(
     void *clientData, void *elementRecord, Tk_Window tkwin,
     int *widthPtr, int *heightPtr, Ttk_Padding *paddingPtr)
 {
-    if (!TileGtk_GtkInitialised()) NO_GTK_STYLE_ENGINE;
-    //GTKoolButton button(TileGtk_QWidget_Widget);
-    //*widthPtr   = button.width();
-    //*heightPtr  = button.height();
-    *paddingPtr = Ttk_UniformPadding(0);
+    TILEGTK_WIDGET_CACHE_DEFINITION;
+    TILEGTK_ENSURE_GTK_STYLE_ENGINE_ACTIVE;
+    GtkWidget *widget = TileGtk_GetToolButton(wc);
+    ToolButtonElement *bd = (ToolButtonElement *) elementRecord;
+    TILEGTK_ENSURE_WIDGET_OK;
+    TILEGTK_WIDGET_SETUP_DEFAULT(bd->defaultStateObj);
+    TILEGTK_GET_WIDGET_SIZE(*widthPtr, *heightPtr);
+    if (defaultState != TTK_BUTTON_DEFAULT_DISABLED) {
+      *paddingPtr = Ttk_UniformPadding(PushButtonUniformPaddingDefaulted);
+    } else {
+      *paddingPtr = Ttk_UniformPadding(PushButtonUniformPadding);
+    }
 }
 
 static void ToolButtonElementDraw(
     void *clientData, void *elementRecord, Tk_Window tkwin,
     Drawable d, Ttk_Box b, unsigned state)
 {
-    if (!TileGtk_GtkInitialised()) NO_GTK_STYLE_ENGINE;
-    NULL_PROXY_WIDGET(TileGtk_QWidget_Widget);
-    Tcl_MutexLock(&tilegtkMutex);
-    QPixmap     pixmap(b.width, b.height);
-    QPainter    painter(&pixmap);
-    GTKoolButton button(wc->TileGtk_QWidget_Widget);	
-#ifdef TILEGTK_GTK_VERSION_3
-    button.setBackgroundOrigin(QWidget::ParentOrigin);
-#endif /* TILEGTK_GTK_VERSION_3 */
-    button.setGeometry(b.x, b.y, b.width, b.height);
-    // TileGtk_StateInfo(state, tkwin);
-    /* Handle buggy styles, that do not check flags but check widget states. */
-    //if (state & TTK_STATE_ALTERNATE) {
-    //    button.setDefault(true);
-    //} else {
-    //    button.setDefault(false);
-    //}
-    if (state & TTK_STATE_PRESSED) {
-        button.setDown(true);
-    } else {
-        button.setDown(false);
-    }
-    TILEGTK_PAINT_BACKGROUND(b.width, b.height);
-    TILEGTK_SET_FOCUS(state);
-#ifdef TILEGTK_GTK_VERSION_3
-    QStyle::SFlags sflags = TileGtk_StateTableLookup(toolbutton_statemap, state);
-    QStyle::SCFlags scflags = QStyle::SC_ToolButton;
-    QStyle::SCFlags activeflags = QStyle::SC_None;
-    if (state & TTK_STATE_PRESSED) activeflags |= QStyle::SC_ToolButton;
-    wc->TileGtk_Style->drawComplexControl(QStyle::CC_ToolButton, &painter,
-          &button, QRect(0, 0, b.width, b.height), button.colorGroup(), sflags,
-          scflags, activeflags);
-#endif /* TILEGTK_GTK_VERSION_3 */
-#ifdef TILEGTK_GTK_VERSION_4
-    QStyleOptionToolButton option;
-    option.initFrom(&button); option.state |= 
-      (QStyle::StateFlag) TileGtk_StateTableLookup(toolbutton_statemap, state);
-    wc->TileGtk_Style->drawComplexControl(QStyle::CC_ToolButton, &option,
-                                  &painter, &button);
-#endif /* TILEGTK_GTK_VERSION_4 */
-    // printf("state=%d, qt style=%d\n", state,
-    //        TileGtk_StateTableLookup(toolbutton_statemap, state));
-    TILEGTK_CLEAR_FOCUS(state);
+    TILEGTK_GTK_DRAWABLE_DEFINITIONS;
+    TILEGTK_ENSURE_GTK_STYLE_ENGINE_ACTIVE;
+    TILEGTK_SETUP_GTK_DRAWABLE;
+    GtkWidget *widget = TileGtk_GetToolButton(wc);
+    ToolButtonElement *bd = (ToolButtonElement *) elementRecord;
+    TILEGTK_ENSURE_WIDGET_OK;
+    // TILEGTK_SETUP_STATE_SHADOW(pushbutton_statemap, pushbutton_shadowmap);
+    TileGtk_StateShadowTableLookup(NULL, state, gtkState, gtkShadow,
+            TILEGTK_SECTION_BUTTONS|TILEGTK_SECTION_ALL);
+    // TILEGTK_SETUP_WIDGET_SIZE(b.width, b.height);
+    TILEGTK_WIDGET_SET_FOCUS(widget);
+    TILEGTK_WIDGET_SET_DEFAULT(widget, bd->defaultStateObj);
+    TILEGTK_DEFAULT_BACKGROUND;
+    // TileGtk_StateInfo(state, gtkState, gtkShadow, tkwin, widget);
+    gtk_paint_box(style, pixmap, gtkState, gtkShadow, NULL, widget,
+                  GTK_WIDGET_HAS_DEFAULT(widget) ? "buttondefault" : "button",
+                  0, 0, b.width, b.height);
     TileGtk_CopyGtkPixmapOnToDrawable(pixmap, d, tkwin,
-                                    0, 0, b.width, b.height, b.x, b.y);
-    Tcl_MutexUnlock(&tilegtkMutex);
+                   0, 0, b.width, b.height, b.x, b.y);
+    TILEGTK_CLEANUP_GTK_DRAWABLE;
 }
 
 static Ttk_ElementSpec ToolButtonElementSpec = {

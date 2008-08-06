@@ -17,20 +17,14 @@
 #include "tileGtk_TkHeaders.h"
 #include "tileGtk_WidgetDefaults.h"
 
+#if 0
 /*
  * Map between Tk/Tile & Gtk/GNOME state flags.
  */
 static Ttk_StateTable size_grip_statemap[] =
 {
-#ifdef TILEGTK_GTK_VERSION_3
-    {QStyle::Style_Default,                         TTK_STATE_DISABLED, 0},
-    {QStyle::Style_Enabled,                         0, 0}
-#endif /* TILEGTK_GTK_VERSION_3 */
-#ifdef TILEGTK_GTK_VERSION_4
-    {QStyle::State_None,                            TTK_STATE_DISABLED, 0},
-    {QStyle::State_Enabled,                         0, 0}
-#endif /* TILEGTK_GTK_VERSION_4 */
 };
+#endif
 
 typedef struct {
 } SizeGripElement;
@@ -43,42 +37,34 @@ static void SizeGripElementGeometry(
     void *clientData, void *elementRecord, Tk_Window tkwin,
     int *widthPtr, int *heightPtr, Ttk_Padding *paddingPtr)
 {
-    if (!TileGtk_GtkInitialised()) NO_GTK_STYLE_ENGINE;
-    NULL_PROXY_WIDGET(TileGtk_QWidget_Widget);
-    QSizeGrip widget(wc->TileGtk_QWidget_Widget);
-    QSize size = widget.sizeHint();
-    *widthPtr = size.width();
-    *heightPtr = size.height();
-    *paddingPtr = Ttk_UniformPadding(0);
+    TILEGTK_WIDGET_CACHE_DEFINITION;
+    TILEGTK_ENSURE_GTK_STYLE_ENGINE_ACTIVE;
+    GtkWidget *widget = TileGtk_GetStatusBar(wc);
+    *widthPtr  = 18;
+    *heightPtr = 18;
+    TILEGTK_ENSURE_WIDGET_OK;
+    *paddingPtr = Ttk_MakePadding(0, 0, widget->style->xthickness,
+                                        widget->style->ythickness);
 }
 
 static void SizeGripElementDraw(
     void *clientData, void *elementRecord, Tk_Window tkwin,
     Drawable d, Ttk_Box b, unsigned state)
 {
-    if (!TileGtk_GtkInitialised()) NO_GTK_STYLE_ENGINE;
-    NULL_PROXY_WIDGET(TileGtk_QWidget_Widget);
-    Tcl_MutexLock(&tilegtkMutex);
-    QPixmap      pixmap(b.width, b.height);
-    QPainter     painter(&pixmap);
-    TILEGTK_PAINT_BACKGROUND(b.width, b.height);
-    TILEGTK_SET_FOCUS(state);
-#ifdef TILEGTK_GTK_VERSION_3
-    QStyle::SFlags sflags = TileGtk_StateTableLookup(size_grip_statemap, state);
-    wc->TileGtk_Style->drawPrimitive(QStyle::PE_SizeGrip, &painter,
-          QRect(0, 0, b.width, b.height), qApp->palette().active(), sflags);
-#endif /* TILEGTK_GTK_VERSION_3 */
-#ifdef TILEGTK_GTK_VERSION_4
-    QStyleOption option;
-    option.state |= 
-      (QStyle::StateFlag) TileGtk_StateTableLookup(size_grip_statemap, state);
-    wc->TileGtk_Style->drawControl(QStyle::CE_SizeGrip, &option,
-                                    &painter);
-#endif /* TILEGTK_GTK_VERSION_4 */
-    TILEGTK_CLEAR_FOCUS(state);
+    TILEGTK_GTK_DRAWABLE_DEFINITIONS;
+    TILEGTK_ENSURE_GTK_STYLE_ENGINE_ACTIVE;
+    TILEGTK_SETUP_GTK_DRAWABLE;
+    GtkWidget *widget = wc->gtkWindow;
+    TILEGTK_ENSURE_WIDGET_OK;
+    // TileGtk_StateShadowTableLookup(NULL, state, gtkState, gtkShadow,
+    //         TILEGTK_SECTION_ALL);
+    // TILEGTK_DEFAULT_BACKGROUND;
+    // TileGtk_StateInfo(state, gtkState, gtkShadow, tkwin, widget);
+    gtk_paint_resize_grip(style, pixmap, GTK_STATE_NORMAL, NULL, widget,
+       "window", GDK_WINDOW_EDGE_SOUTH_EAST, 0, 0, b.width, b.height);
     TileGtk_CopyGtkPixmapOnToDrawable(pixmap, d, tkwin,
-                                    0, 0, b.width, b.height, b.x, b.y);
-    Tcl_MutexUnlock(&tilegtkMutex);
+                   0, 0, b.width, b.height, b.x, b.y);
+    TILEGTK_CLEANUP_GTK_DRAWABLE;
 }; /* SizeGripElementDraw */
 
 static Ttk_ElementSpec SizeGripElementSpec = {
@@ -104,7 +90,7 @@ int TileGtk_Init_SizeGrip(Tcl_Interp *interp,
      * Register elements:
      */
     Ttk_RegisterElement(interp, themePtr, "sizegrip",
-	    &SizeGripElementSpec, (void *) wc[0]);
+            &SizeGripElementSpec, (void *) wc[0]);
     
     /*
      * Register layouts:

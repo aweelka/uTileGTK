@@ -69,6 +69,10 @@ GtkWidget *TileGtk_GetRadioButton(TileGtk_WidgetCache* wc) {
   return TileGtk_GetCheckButton(wc);
 }; /* TileGtk_GetRadioButton */
 
+GtkWidget *TileGtk_GetToolButton(TileGtk_WidgetCache* wc) {
+  TILEGTK_CHECK_WIDGET(gtkToolBar, gtk_toolbar_new());
+}; /* TileGtk_GetToolButton */
+
 GtkWidget *TileGtk_GetFrame(TileGtk_WidgetCache* wc) {
   TILEGTK_CHECK_WIDGET(gtkFrame, gtk_frame_new(NULL));
 }; /* TileGtk_GetFrame */
@@ -77,13 +81,13 @@ GtkWidget *TileGtk_GetEntry(TileGtk_WidgetCache* wc) {
   TILEGTK_CHECK_WIDGET(gtkEntry, gtk_entry_new());
 }; /* TileGtk_GetEntry */
 
+GtkWidget *TileGtk_GetCombobox(TileGtk_WidgetCache* wc) {
+  TILEGTK_CHECK_WIDGET(gtkCombobox, gtk_combo_box_new());
+}; /* TileGtk_GetComboboxEntry */
+
 GtkWidget *TileGtk_GetComboboxEntry(TileGtk_WidgetCache* wc) {
   TILEGTK_CHECK_WIDGET(gtkComboboxEntry, gtk_combo_box_entry_new());
 }; /* TileGtk_GetComboboxEntry */
-
-GtkWidget *TileGtk_GetComboboxEntryButton(TileGtk_WidgetCache* wc) {
-  return TileGtk_GetComboboxEntry(wc);
-}; /* TileGtk_GetComboboxEntryButton */
 
 GtkWidget *TileGtk_GetHScrollBar(TileGtk_WidgetCache* wc) {
   GtkAdjustment *adjustment = (GtkAdjustment *)
@@ -139,6 +143,29 @@ GtkWidget *TileGtk_GetProgressBar(TileGtk_WidgetCache* wc) {
   }
   return TileGtk_GetVProgressBar(wc);
 }; /* TileGtk_GetProgressBar */
+
+GtkWidget *TileGtk_GetStatusBar(TileGtk_WidgetCache* wc) {
+  TILEGTK_CHECK_WIDGET(gtkStatusBar, gtk_statusbar_new());
+}; /* TileGtk_GetStatusBar */
+
+GtkWidget *TileGtk_GetHPaned(TileGtk_WidgetCache* wc) {
+  TILEGTK_CHECK_WIDGET(gtkHPaned, gtk_hpaned_new());
+}; /* TileGtk_GetHPaned */
+
+GtkWidget *TileGtk_GetVPaned(TileGtk_WidgetCache* wc) {
+  TILEGTK_CHECK_WIDGET(gtkVPaned, gtk_vpaned_new());
+}; /* TileGtk_GetVPaned */
+
+GtkWidget *TileGtk_GetPaned(TileGtk_WidgetCache* wc) {
+  if (wc->orientation == TTK_ORIENT_HORIZONTAL) {
+    return TileGtk_GetHPaned(wc);
+  }
+  return TileGtk_GetVPaned(wc);
+}; /* TileGtk_GetPaned */
+
+GtkWidget *TileGtk_GetNotebook(TileGtk_WidgetCache* wc) {
+  TILEGTK_CHECK_WIDGET(gtkNotebook, gtk_notebook_new());
+}; /* TileGtk_GetNotebook */
 
 const char *TileGtk_GtkStateStr(GtkStateType gtkState) {
   switch ((GtkStateType) gtkState) {
@@ -388,6 +415,21 @@ unsigned int TileGtk_StateShadowTableLookup(TileGtk_StateTable *map,
         gtkState = GTK_STATE_INSENSITIVE;
       }
       gtkShadow = GTK_SHADOW_IN;
+      map = NULL; /* Do not search the table */
+    } else if (section & TILEGTK_SECTION_SASH) {
+      if (state & TTK_STATE_DISABLED || state & TTK_STATE_READONLY)
+                                         gtkState  = GTK_STATE_INSENSITIVE;
+      else if (state & TTK_STATE_FOCUS)  gtkState  = GTK_STATE_SELECTED;
+      else if (state & TTK_STATE_ACTIVE) gtkState  = GTK_STATE_PRELIGHT;
+      map = NULL; /* Do not search the table */
+    } else if (section & TILEGTK_SECTION_TABS) {
+      gtkState  = GTK_STATE_ACTIVE;
+      gtkShadow = GTK_SHADOW_OUT;
+      if (state & TTK_STATE_DISABLED || state & TTK_STATE_READONLY)
+                                            gtkState  = GTK_STATE_INSENSITIVE;
+      else if (state & TTK_STATE_SELECTED)  gtkState  = GTK_STATE_NORMAL;
+      else if (state & TTK_STATE_ACTIVE)    gtkState  = GTK_STATE_PRELIGHT;
+      else if (state & TTK_STATE_FOCUS)     gtkState  = GTK_STATE_ACTIVE;
       map = NULL; /* Do not search the table */
     }
   }
