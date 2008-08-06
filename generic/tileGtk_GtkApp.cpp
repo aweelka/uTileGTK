@@ -13,12 +13,19 @@
  * Aghia Paraskevi, 153 10, Athens, Greece.
  */
 
+#ifdef TILEGTK_ENABLE_GNOME
+#include <gnome.h>
+GnomeProgram *my_app = NULL;
+#endif /* TILEGTK_ENABLE_GNOME */
+
 #include "tileGtk_Utilities.h"
 #include "tileGtk_TkHeaders.h"
 #include <string.h>
 gboolean   TileGtk_GtkInitialisedFlag = FALSE;
 static int TileGtk_xlib_rgb_initialised = 0;
 GtkWidget *TileGtk_GtkWindow = NULL;
+
+
 
 /* In the following variable we store the XErrorHandler, before we install our
  * own, which filters out some XErrors... */
@@ -53,10 +60,38 @@ TileGtk_WidgetCache **TileGtk_CreateGtkApp(Tcl_Interp *interp) {
    */
   Tcl_MutexLock(&tilegtkMutex);
   if (!TileGtk_GtkInitialisedFlag) {
+#ifdef TILEGTK_ENABLE_GNOME
+    gchar **remaining_args = NULL;
+    GOptionEntry option_entries[] = {
+      {G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_FILENAME_ARRAY, &remaining_args,
+       "Special option that collects any remaining arguments for us"},
+      { NULL }
+    };
+    GOptionContext *option_context;
+#endif /* TILEGTK_ENABLE_GNOME */
     int argc = 1;
     char **argv = g_new0(char*, 2);
     argv[0] = (char *) Tcl_GetNameOfExecutable();
+
+#ifdef TILEGTK_ENABLE_GNOME
+    option_context = g_option_context_new("tile-gtk");
+    g_option_context_add_main_entries (option_context, option_entries, NULL);
+    /* We assume PACKAGE and VERSION are set to the program name and version
+     * number respectively. Also, assume that 'option_entries' is a global
+     * array of GOptionEntry structures.
+     */
+    my_app = gnome_program_init(PACKAGE_NAME, PACKAGE_VERSION,
+                                LIBGNOMEUI_MODULE, argc, argv,
+                                GNOME_PARAM_GOPTION_CONTEXT, option_context,
+                                GNOME_PARAM_NONE);
+    if (my_app) TileGtk_GtkInitialisedFlag = TRUE;
+    if (remaining_args != NULL) {
+      g_strfreev (remaining_args);
+      remaining_args = NULL;
+    }
+#else  /* TILEGTK_ENABLE_GNOME */
     TileGtk_GtkInitialisedFlag = gtk_init_check(&argc, &argv);
+#endif /* TILEGTK_ENABLE_GNOME */
     g_free(argv);
     if (!TileGtk_GtkInitialisedFlag) {
       Tcl_MutexUnlock(&tilegtkMutex);

@@ -111,17 +111,32 @@ INCLUDE_DIRECTORIES ( ${PROJECT_SOURCE_DIR}/generic )
 LINK_LIBRARIES      ( ${TCL_STUB_LIBRARY} )
 LINK_LIBRARIES      ( ${TK_STUB_LIBRARY} )
 IF ( UNIX )
-  LINK_LIBRARIES      ( gdk_pixbuf_xlib-2.0 )
+  LINK_LIBRARIES    ( gdk_pixbuf_xlib-2.0 )
 ENDIF ( UNIX )
+
+## ===========================================================================
+##  Locate GNOME2...
+## ===========================================================================
+MESSAGE ( STATUS "Searching for GNOME..." )
+INCLUDE ( cmake/Modules/FindGNOME2.cmake OPTIONAL )
+IF ( GNOME_FOUND )
+    MESSAGE ( STATUS "  GNOME Found!" )
+    # ADD_DEFINITIONS     ( -DTILEGTK_ENABLE_GNOME )
+    INCLUDE_DIRECTORIES ( ${GNOME_INCLUDE_DIR} )
+    LINK_LIBRARIES      ( ${GNOME_LIBRARIES} )
+ENDIF ( GNOME_FOUND )
+MESSAGE ( STATUS "  GNOME_INCLUDE_DIR:       " ${GNOME_INCLUDE_DIR} )
+MESSAGE ( STATUS "  GNOME_LIBRARIES:         " ${GNOME_LIBRARIES} )
 
 ## ===========================================================================
 ##  Locate GTK...
 ## ===========================================================================
 MESSAGE ( STATUS "Searching for GTK..." )
-FIND_PACKAGE ( GTK REQUIRED )
+# FIND_PACKAGE ( GTK REQUIRED )
+INCLUDE ( cmake/Modules/FindGTK2.cmake )
 
 IF ( GTK_FOUND )
-  MESSAGE ( STATUS "  GTK Found:" )
+  MESSAGE ( STATUS "  GTK Found!" )
   INCLUDE_DIRECTORIES ( ${GTK_INCLUDE_DIR} )
   LINK_LIBRARIES      ( ${GTK_LIBRARIES} )
 ENDIF ( GTK_FOUND )
