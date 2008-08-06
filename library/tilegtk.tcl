@@ -151,10 +151,10 @@ namespace eval ttk::theme::tilegtk {
     # puts [currentThemeColourKeys]
     ttk::style theme settings tilegtk {
       ttk::style configure . \
-         -background       [currentThemeColour bg_color] \
-         -foreground       [currentThemeColour fg_color] \
-         -selectforeground [currentThemeColour selected_fg_color] \
-         -selectbackground [currentThemeColour selected_bg_color] \
+         -background       [currentThemeColour bg(NORMAL)] \
+         -foreground       [currentThemeColour fg(NORMAL)] \
+         -selectforeground [currentThemeColour fg(SELECTED)] \
+         -selectbackground [currentThemeColour bg(SELECTED)] \
          ;
       # ttk::style map . -foreground [list \
       #    active          [currentThemeColour fg(ACTIVE)]      \
@@ -249,11 +249,11 @@ namespace eval ttk::theme::tilegtk {
       # ]
       ttk::style configure Toolbutton -anchor center -padding {2 2 2 2}
 
-      ttk::style configure TPaned -background [currentThemeColour bg_color]
+      ttk::style configure TPaned -background [currentThemeColour bg(NORMAL)]
       ttk::style configure Horizontal.Sash -background [currentThemeColour \
-          bg_color]
+          bg(NORMAL)]
       ttk::style configure Vertical.Sash -background [currentThemeColour \
-          bg_color]
+          bg(NORMAL)]
     };# ttk::style theme settings tilegtk
 
     # puts "\nPixel Metric Information:"
