@@ -245,10 +245,12 @@ void TileGtk_StateInfo(int state, GtkStateType gtkState,
     printf(" state=%d\n", state);
     printf("  GTK state: %s, shadow: %s",
       TileGtk_GtkStateStr(gtkState), TileGtk_GtkShadowStr(gtkShadow));
+#ifndef TILEGTK_LOAD_GTK_DYNAMICALLY
     if (widget) {
       printf(", focus: %d, default: %d", GTK_WIDGET_HAS_FOCUS(widget),
                                          GTK_WIDGET_HAS_DEFAULT(widget));
     }
+#endif /* TILEGTK_LOAD_GTK_DYNAMICALLY */
     printf("\n");
     fflush(0);
 }; /* TileGtk_StateInfo */

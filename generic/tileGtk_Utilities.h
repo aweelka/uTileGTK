@@ -80,6 +80,21 @@
     heightPtr = size.height; \
   }
 
+#define TILEGTK_WIDGET_SETUP_DEFAULT(obj) \
+  int defaultState  = TTK_BUTTON_DEFAULT_DISABLED; \
+  int has_default = (defaultState == TTK_BUTTON_DEFAULT_ACTIVE); \
+  /*Ttk_GetButtonDefaultStateFromObj(NULL, obj, &defaultState);*/
+
+#ifdef TILEGTK_LOAD_GTK_DYNAMICALLY
+
+#define TILEGTK_WIDGET_SET_FOCUS(widget)
+
+#define TILEGTK_WIDGET_SET_DEFAULT(widget, obj) \
+  int defaultState  = TTK_BUTTON_DEFAULT_DISABLED; \
+  int has_default = (defaultState == TTK_BUTTON_DEFAULT_ACTIVE);
+
+#else /* TILEGTK_LOAD_GTK_DYNAMICALLY */
+
 #define TILEGTK_WIDGET_SET_FOCUS(widget) \
   if (state & TTK_STATE_FOCUS) { \
     GTK_WIDGET_SET_FLAGS(widget,   GTK_HAS_FOCUS); \
@@ -87,19 +102,16 @@
     GTK_WIDGET_UNSET_FLAGS(widget, GTK_HAS_FOCUS); \
   }
 
-#define TILEGTK_WIDGET_SETUP_DEFAULT(obj) \
+#define TILEGTK_WIDGET_SET_DEFAULT(widget, obj) \
   int defaultState  = TTK_BUTTON_DEFAULT_DISABLED; \
-  /*Ttk_GetButtonDefaultStateFromObj(NULL, obj, &defaultState);*/
-
-#define TILEGTK_WIDGET_SET_DEFAULT(widget, obj) { \
-  int defaultState  = TTK_BUTTON_DEFAULT_DISABLED; \
+  int has_default = (defaultState == TTK_BUTTON_DEFAULT_ACTIVE); \
   /*Ttk_GetButtonDefaultStateFromObj(NULL, obj, &defaultState);*/ \
-  if (defaultState == TTK_BUTTON_DEFAULT_ACTIVE) { \
+  if (has_default) { \
     GTK_WIDGET_SET_FLAGS(widget,   GTK_HAS_DEFAULT); \
   } else { \
     GTK_WIDGET_UNSET_FLAGS(widget, GTK_HAS_DEFAULT); \
-  } \
-}
+  } 
+#endif /* TILEGTK_LOAD_GTK_DYNAMICALLY */
 
 #define TILEGTK_DEBUG_PRINT_BOX \
   printf("x=%d, y=%d, w=%d, h=%d\n", b.x, b.y, b.width, b.height); \
