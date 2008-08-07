@@ -150,7 +150,7 @@ static void ScrollbarThumbElementDraw(
             TILEGTK_SECTION_SCROLLBAR|TILEGTK_SECTION_ALL);
     // TileGtk_StateInfo(state, gtkState, gtkShadow, tkwin, widget);
     TileGtk_gtk_paint_slider(style, pixmap, gtkState, gtkShadow, NULL, widget,
-        GTK_RANGE_GET_CLASS(widget)->slider_detail, 0, 0, b.width, b.height,
+        "slider", 0, 0, b.width, b.height,
         wc->gtkOrientation);
     TileGtk_CopyGtkPixmapOnToDrawable(pixmap, d, tkwin,
                    0, 0, b.width, b.height, b.x, b.y);
@@ -216,9 +216,10 @@ static void ScrollbarUpArrowElementDraw(
     // TILEGTK_DEFAULT_BACKGROUND;
     // TileGtk_StateInfo(state, gtkState, gtkShadow, tkwin, widget);
     TileGtk_gtk_paint_box(style, pixmap, gtkState, GTK_SHADOW_IN, NULL, widget,
-        GTK_RANGE_GET_CLASS(widget)->stepper_detail, 0, 0, b.width, b.height);
+        horizontal ? "hscrollbar":"vscrollbar",
+        0, 0, b.width, b.height);
     TileGtk_gtk_paint_arrow(style, pixmap, gtkState, gtkShadow, NULL, widget,
-        GTK_RANGE_GET_CLASS(widget)->stepper_detail,
+        horizontal ? "hscrollbar":"vscrollbar",
         horizontal? GTK_ARROW_LEFT : GTK_ARROW_UP, FALSE,
         0, 0, b.width, b.height);
     TileGtk_CopyGtkPixmapOnToDrawable(pixmap, d, tkwin,
@@ -266,9 +267,9 @@ static void ScrollbarDownArrowElementDraw(
     // TILEGTK_DEFAULT_BACKGROUND;
     // TileGtk_StateInfo(state, gtkState, gtkShadow, tkwin, widget);
     TileGtk_gtk_paint_box(style, pixmap, gtkState, GTK_SHADOW_IN, NULL, widget,
-        GTK_RANGE_GET_CLASS(widget)->stepper_detail, 0, 0, b.width, b.height);
+        horizontal ? "hscrollbar":"vscrollbar", 0, 0, b.width, b.height);
     TileGtk_gtk_paint_arrow(style, pixmap, gtkState, gtkShadow, NULL, widget,
-        GTK_RANGE_GET_CLASS(widget)->stepper_detail,
+        horizontal ? "hscrollbar":"vscrollbar",
         horizontal? GTK_ARROW_RIGHT : GTK_ARROW_DOWN, FALSE,
         0, 0, b.width, b.height);
     TileGtk_CopyGtkPixmapOnToDrawable(pixmap, d, tkwin,

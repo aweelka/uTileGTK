@@ -153,7 +153,8 @@ static void ScaleSliderElementDraw(
             TILEGTK_SECTION_SCROLLBAR|TILEGTK_SECTION_ALL);
     // TileGtk_StateInfo(state, gtkState, gtkShadow, tkwin, widget);
     TileGtk_gtk_paint_slider(style, pixmap, gtkState, gtkShadow, NULL, widget,
-        GTK_RANGE_GET_CLASS(widget)->slider_detail, 0, 0, b.width, b.height,
+        (wc->orientation == TTK_ORIENT_HORIZONTAL) ? "hscale" : "vscale",
+        0, 0, b.width, b.height,
         wc->gtkOrientation);
     TileGtk_CopyGtkPixmapOnToDrawable(pixmap, d, tkwin,
                    0, 0, b.width, b.height, b.x, b.y);
