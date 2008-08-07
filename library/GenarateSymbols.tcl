@@ -73,14 +73,11 @@ proc get_function_spec {f} {
       set a {GdkDrawable *drawable, gint width, gint height, gint depth}
     }
     gdk_win32_hdc_get {
-      set t {}
-      set a {}
-      puts "FIXME: $f"
+      set t {HDC}
+      set a {GdkDrawable *drawable, GdkGC *gc, GdkGCValuesMask usage}
     }
     gdk_win32_hdc_release {
-      set t {}
-      set a {}
-      puts "FIXME: $f"
+      set a {GdkDrawable *drawable, GdkGC *gc, GdkGCValuesMask usage}
     }
     gdk_x11_lookup_xdisplay {
       set t {GdkDisplay*}
@@ -274,6 +271,21 @@ foreach file [lsort [glob -directory $sources -type f *]] {
 
 ## Remove definitions...
 foreach s {g_new0} {
+  unset -nocomplain Symbols(TileGtk_$s)
+}
+
+switch $::tcl_platform(platform) {
+  windows {
+    set not_native {gdk_pixbuf_xlib_render_to_drawable xlib_rgb_init
+                    gdk_x11_lookup_xdisplay}
+  }
+  unix {
+    set not_native {gdk_win32_hdc_get gdk_win32_hdc_release}
+  }
+  default {
+  }
+}
+foreach s $not_native {
   unset -nocomplain Symbols(TileGtk_$s)
 }
 
