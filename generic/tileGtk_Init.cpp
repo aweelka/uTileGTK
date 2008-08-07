@@ -484,6 +484,7 @@ int Tileqt_ThemeColour(ClientData clientData, Tcl_Interp *interp,
   return TCL_ERROR;
 }; /* Tileqt_ThemeColour */
 
+#ifndef TILEGTK_LOAD_GTK_DYNAMICALLY
 #ifndef GTK_STYLE_GET_PRIVATE
 struct _GtkStylePrivate {
   GSList *color_hashes;
@@ -491,6 +492,7 @@ struct _GtkStylePrivate {
 typedef struct _GtkStylePrivate GtkStylePrivate;
 #define GTK_STYLE_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), GTK_TYPE_STYLE, GtkStylePrivate))
 #endif
+#endif /* TILEGTK_LOAD_GTK_DYNAMICALLY */
 
 int Tileqt_ColourKeys(ClientData clientData, Tcl_Interp *interp,
                                  int objc, Tcl_Obj *const objv[]) {
@@ -503,6 +505,7 @@ int Tileqt_ColourKeys(ClientData clientData, Tcl_Interp *interp,
     Tcl_SetResult(interp, (char *) "empty wc[0]->gtkStyle!", TCL_STATIC);
     return TCL_ERROR;
   }
+#ifndef TILEGTK_LOAD_GTK_DYNAMICALLY
   GtkStylePrivate *priv = GTK_STYLE_GET_PRIVATE (wc[0]->gtkStyle);
   GSList *iter;
   Tcl_Obj *list = Tcl_NewListObj(0, NULL);
@@ -515,6 +518,7 @@ int Tileqt_ColourKeys(ClientData clientData, Tcl_Interp *interp,
     }
   }
   Tcl_SetObjResult(interp, list);
+#endif /* TILEGTK_LOAD_GTK_DYNAMICALLY */
   return TCL_OK;
 }; /* Tileqt_ColourKeys */
 
