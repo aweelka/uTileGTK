@@ -160,11 +160,6 @@ FOREACH ( path ${GTK_LIBRARIES} )
 ENDFOREACH ( path )
 
 ## ===========================================================================
-##  Locate X11...
-## ===========================================================================
-FIND_PACKAGE ( X11 )
-
-## ===========================================================================
 ##  Target: tileGtk_Symbols.[h|cpp]
 ## ===========================================================================
 ADD_CUSTOM_COMMAND ( OUTPUT ${PROJECT_SOURCE_DIR}/generic/tileGtk_Symbols.cpp
@@ -188,8 +183,6 @@ TARGET_LINK_LIBRARIES ( ${PKG_TARGET_LIB_NAME} ${TCL_STUB_LIBRARY} )
 TARGET_LINK_LIBRARIES ( ${PKG_TARGET_LIB_NAME} ${TCL_LIBRARY_STATIC} )
 IF ( NOT LOAD_GTK_DYNAMICALLY )
   TARGET_LINK_LIBRARIES ( ${PKG_TARGET_LIB_NAME} ${GTK_LIBRARIES} )
-  TARGET_LINK_LIBRARIES ( ${PKG_TARGET_LIB_NAME} ${X11_Xft_LIB} )
-  TARGET_LINK_LIBRARIES ( ${PKG_TARGET_LIB_NAME} ${X11_Xscreensaver_LIB} )
   IF ( UNIX )
     TARGET_LINK_LIBRARIES ( ${PKG_TARGET_LIB_NAME} gdk_pixbuf_xlib-2.0 )
   ENDIF ( UNIX )
