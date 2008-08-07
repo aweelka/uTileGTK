@@ -103,10 +103,10 @@ TileGtk_WidgetCache **TileGtk_CreateGtkApp(Tcl_Interp *interp) {
     TileGtk_GtkWindow = TileGtk_gtk_window_new(GTK_WINDOW_POPUP);
     TileGtk_gtk_widget_realize(TileGtk_GtkWindow);
     /* Set an error event handler that ignores QueryTree failures */
-    TileGtk_TkXErrorHandler = XSetErrorHandler(TileGtk_XErrorHandler);
+    // TileGtk_TkXErrorHandler = XSetErrorHandler(TileGtk_XErrorHandler);
     // XSynchronize(wc->TileGtk_MainDisplay, true);
     /* As Gtk registers also its own XError handler, reset our own... */
-    XSetErrorHandler(TileGtk_XErrorHandler);
+    // XSetErrorHandler(TileGtk_XErrorHandler);
   }
   Tcl_MutexUnlock(&tilegtkMutex);
 
@@ -172,7 +172,7 @@ TileGtk_WidgetCache **TileGtk_CreateGtkApp(Tcl_Interp *interp) {
 void TileGtk_DestroyGtkApp(void) {
   Tcl_MutexLock(&tilegtkMutex);
   if (TileGtk_GtkInitialisedFlag) {
-    XSetErrorHandler(TileGtk_TkXErrorHandler);
+    // XSetErrorHandler(TileGtk_TkXErrorHandler);
     TileGtk_GtkInitialisedFlag = FALSE;
   }
   Tcl_MutexUnlock(&tilegtkMutex);
@@ -188,8 +188,9 @@ static int TileGtk_XEventHandler(ClientData clientData, XEvent *eventPtr) {
   const char *tcl_callback;
   int status;
   if (eventPtr->type != ClientMessage) return 0;
-  Atom TileGtk_KIPC_COMM_ATOM = XInternAtom(eventPtr->xclient.display,
-                                           "KIPC_COMM_ATOM" , false);
+  // Atom TileGtk_KIPC_COMM_ATOM = XInternAtom(eventPtr->xclient.display,
+  //                                          "KIPC_COMM_ATOM" , false);
+  Atom TileGtk_KIPC_COMM_ATOM = None;
   if (eventPtr->xclient.message_type != TileGtk_KIPC_COMM_ATOM) return 0;
   /* The following data variable contains the type of the KIPC message,
    * As defined in gnomelibs/gnomecore/kipc.h:
