@@ -44,7 +44,7 @@ static void NotebookTabElementGeometry(
     gint focus_width = 1, tab_curvature = 1;
     TILEGTK_ENSURE_WIDGET_OK;
     TileGtk_gtk_widget_style_get(widget, "focus-line-width", &focus_width,
-                                  "tab-curvature",    &tab_curvature, NULL);
+                                 "tab-curvature",    &tab_curvature, NULL);
     *paddingPtr = Ttk_UniformPadding(tab_curvature + focus_width +
                                      ((GtkNotebook *)widget)->tab_hborder);
     // *paddingPtr = Ttk_MakePadding(7, 6, 7, 6);
@@ -80,8 +80,8 @@ static void NotebookTabElementDraw(
     TileGtk_StateShadowTableLookup(NULL, state, gtkState, gtkShadow,
             TILEGTK_SECTION_TABS|TILEGTK_SECTION_ALL);
     // TileGtk_StateInfo(state, gtkState, gtkShadow, tkwin, widget);
-    TileGtk_gtk_paint_extension(style, pixmap, gtkState, gtkShadow, NULL, widget,
-             (char *) "tab", 0, 0, b.width, b.height + dh, GTK_POS_BOTTOM);
+    TileGtk_gtk_paint_extension(style, pixmap, gtkState, gtkShadow, NULL,
+       widget, (char *) "tab", 0, 0, b.width, b.height + dh, GTK_POS_BOTTOM);
     TileGtk_CopyGtkPixmapOnToDrawable(pixmap, d, tkwin,
                    0, 0, b.width, b.height + dh, b.x, b.y);
     TILEGTK_CLEANUP_GTK_DRAWABLE;
@@ -122,7 +122,7 @@ static void NotebookClientElementDraw(
     TILEGTK_SETUP_GTK_DRAWABLE;
     GtkWidget *widget = TileGtk_GetNotebook(wc);
     TILEGTK_ENSURE_WIDGET_OK;
-    // TileGtk_gtk_paint_box_gap(style, pixmap, GTK_STATE_NORMAL, GTK_SHADOW_OUT,
+    // TileGtk_gtk_paint_box_gap(style, pixmap, GTK_STATE_NORMAL,GTK_SHADOW_OUT,
     //      NULL, widget, (char *) "notebook", 0, 0, b.width, b.height,
     //      GTK_POS_TOP, 0, 0);
     TileGtk_gtk_paint_box(style, pixmap, GTK_STATE_NORMAL, GTK_SHADOW_OUT,

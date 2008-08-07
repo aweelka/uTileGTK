@@ -185,10 +185,12 @@ int Tileqt_GetProperty(ClientData clientData, Tcl_Interp *interp,
       case INTEGER:
         switch (gtkMethod) {
           case GETPROPERTY_GTK_WIDGET_GET:
-            TileGtk_gtk_object_get((GtkObject *) widget, Tcl_GetString(objv[2]), &i_val, NULL);
+            TileGtk_gtk_object_get((GtkObject *) widget,
+                Tcl_GetString(objv[2]), &i_val, NULL);
           break;
           case GETPROPERTY_GTK_WIDGET_STYLE_GET:
-            TileGtk_gtk_widget_style_get(widget, Tcl_GetString(objv[2]), &i_val, NULL);
+            TileGtk_gtk_widget_style_get(widget, Tcl_GetString(objv[2]),
+                                         &i_val, NULL);
             break;
         }
         Tcl_SetObjResult(interp, Tcl_NewIntObj(i_val));
@@ -196,10 +198,12 @@ int Tileqt_GetProperty(ClientData clientData, Tcl_Interp *interp,
       case BOOLEAN:
         switch (gtkMethod) {
           case GETPROPERTY_GTK_WIDGET_GET:
-            TileGtk_gtk_object_get((GtkObject *) widget, Tcl_GetString(objv[2]), &b_val, NULL);
+            TileGtk_gtk_object_get((GtkObject *) widget,
+                Tcl_GetString(objv[2]), &b_val, NULL);
             break;
           case GETPROPERTY_GTK_WIDGET_STYLE_GET:
-            TileGtk_gtk_widget_style_get(widget, Tcl_GetString(objv[2]), &b_val, NULL);
+            TileGtk_gtk_widget_style_get(widget, Tcl_GetString(objv[2]),
+                                         &b_val, NULL);
             break;
         }
         if (b_val) Tcl_SetObjResult(interp, Tcl_NewBooleanObj(1));
@@ -208,10 +212,12 @@ int Tileqt_GetProperty(ClientData clientData, Tcl_Interp *interp,
       case STRING:
         switch (gtkMethod) {
           case GETPROPERTY_GTK_WIDGET_GET:
-            TileGtk_gtk_object_get((GtkObject *) widget, Tcl_GetString(objv[2]), &s_val, NULL);
+            TileGtk_gtk_object_get((GtkObject *) widget,
+                Tcl_GetString(objv[2]), &s_val, NULL);
             break;
           case GETPROPERTY_GTK_WIDGET_STYLE_GET:
-            TileGtk_gtk_widget_style_get(widget, Tcl_GetString(objv[2]), &s_val, NULL);
+            TileGtk_gtk_widget_style_get(widget, Tcl_GetString(objv[2]),
+                                         &s_val, NULL);
             break;
         }
         if (s_val) {
@@ -337,7 +343,7 @@ int Tileqt_GtkDirectory(ClientData clientData, Tcl_Interp *interp,
 int Tileqt_gtk_method(ClientData clientData, Tcl_Interp *interp,
                                  int objc, Tcl_Obj *const objv[]) {
   static const char *Methods[] = {
-    "TileGtk_gtk_rc_reparse_all_for_settings", "TileGtk_gtk_rc_reset_styles", (char *) NULL
+    "gtk_rc_reparse_all_for_settings", "gtk_rc_reset_styles", (char *) NULL
   };
   enum methods {
     GTK_RC_REPARSE_ALL_FOR_SETTINGS, GTK_RC_RESET_STYLES
@@ -355,7 +361,8 @@ int Tileqt_gtk_method(ClientData clientData, Tcl_Interp *interp,
   Tcl_MutexLock(&tilegtkMutex);
   switch ((enum methods) type) {
     case GTK_RC_REPARSE_ALL_FOR_SETTINGS:
-      TileGtk_gtk_rc_reparse_all_for_settings(TileGtk_gtk_settings_get_default(), TRUE);
+      TileGtk_gtk_rc_reparse_all_for_settings(
+              TileGtk_gtk_settings_get_default(), TRUE);
       break;
     case GTK_RC_RESET_STYLES:
       TileGtk_gtk_rc_reset_styles(TileGtk_gtk_settings_get_default());
@@ -989,7 +996,7 @@ Tilegtk_Init(Tcl_Interp *interp)
       strcat(tmpScript, "{");
       if (strval) {
         strcat(tmpScript, strval);
-        TileGtk_g_free (strval);
+        TileGtk_g_free(strval);
       }
       strcat(tmpScript, "}");
     } else {

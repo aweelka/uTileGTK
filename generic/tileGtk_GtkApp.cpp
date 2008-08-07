@@ -44,7 +44,8 @@ static void TileGtk_InterpDeleteProc(ClientData clientData, Tcl_Interp *interp) 
   TileGtk_WidgetCache **wc_array = (TileGtk_WidgetCache **) clientData;
   TileGtk_WidgetCache *wc = wc_array[0];
   if (wc && wc->gtkWindow) {
-    TileGtk_gtk_widget_destroy(wc->gtkWindow); /*This will destroy also ALL children!*/
+    /*This will destroy also ALL children!*/
+    TileGtk_gtk_widget_destroy(wc->gtkWindow);
   }
   // printf("Tk_DeleteGenericHandler: %p\n", interp); fflush(NULL);
   Tk_DeleteGenericHandler(&TileGtk_XEventHandler, (ClientData) interp);
