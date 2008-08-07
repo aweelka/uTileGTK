@@ -165,8 +165,8 @@ ENDFOREACH ( path )
 ADD_CUSTOM_COMMAND ( OUTPUT ${PROJECT_SOURCE_DIR}/generic/tileGtk_Symbols.cpp
                             ${PROJECT_SOURCE_DIR}/generic/tileGtk_Symbols.h
     DEPENDS library/GenarateSymbols.tcl
-    COMMAND ${TCL_TCLSH} library/GenarateSymbols.tcl
-    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR} )
+    COMMAND ${TCL_TCLSH} GenarateSymbols.tcl
+    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/library )
 
 SET ( PKG_TARGET_LIB_NAME ${PKG_NAME}${PKG_VERSION} )
 ## ===========================================================================
