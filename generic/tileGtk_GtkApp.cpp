@@ -44,7 +44,7 @@ static void TileGtk_InterpDeleteProc(ClientData clientData, Tcl_Interp *interp) 
   TileGtk_WidgetCache **wc_array = (TileGtk_WidgetCache **) clientData;
   TileGtk_WidgetCache *wc = wc_array[0];
   if (wc && wc->gtkWindow) {
-    gtk_widget_destroy(wc->gtkWindow); /*This will destroy also ALL children!*/
+    TileGtk_gtk_widget_destroy(wc->gtkWindow); /*This will destroy also ALL children!*/
   }
   // printf("Tk_DeleteGenericHandler: %p\n", interp); fflush(NULL);
   Tk_DeleteGenericHandler(&TileGtk_XEventHandler, (ClientData) interp);
@@ -70,12 +70,13 @@ TileGtk_WidgetCache **TileGtk_CreateGtkApp(Tcl_Interp *interp) {
     GOptionContext *option_context;
 #endif /* TILEGTK_ENABLE_GNOME */
     int argc = 1;
-    char **argv = g_new0(char*, 2);
+    char **argv = TileGtk_g_new0(char*, 2);
     argv[0] = (char *) Tcl_GetNameOfExecutable();
 
 #ifdef TILEGTK_ENABLE_GNOME
-    option_context = g_option_context_new("tile-gtk");
-    g_option_context_add_main_entries (option_context, option_entries, NULL);
+    option_context = TileGtk_g_option_context_new("tile-gtk");
+    TileGtk_g_option_context_add_main_entries(option_context,
+                                              option_entries, NULL);
     /* We assume PACKAGE and VERSION are set to the program name and version
      * number respectively. Also, assume that 'option_entries' is a global
      * array of GOptionEntry structures.
@@ -86,20 +87,20 @@ TileGtk_WidgetCache **TileGtk_CreateGtkApp(Tcl_Interp *interp) {
                                 GNOME_PARAM_NONE);
     if (my_app) TileGtk_GtkInitialisedFlag = TRUE;
     if (remaining_args != NULL) {
-      g_strfreev (remaining_args);
+      TileGtk_g_strfreev(remaining_args);
       remaining_args = NULL;
     }
 #else  /* TILEGTK_ENABLE_GNOME */
-    TileGtk_GtkInitialisedFlag = gtk_init_check(&argc, &argv);
+    TileGtk_GtkInitialisedFlag = TileGtk_gtk_init_check(&argc, &argv);
 #endif /* TILEGTK_ENABLE_GNOME */
-    g_free(argv);
+    TileGtk_g_free(argv);
     if (!TileGtk_GtkInitialisedFlag) {
       Tcl_MutexUnlock(&tilegtkMutex);
       return NULL;
     }
     /* Initialise TileGtk_GtkWindow... */
-    TileGtk_GtkWindow = gtk_window_new(GTK_WINDOW_POPUP);
-    gtk_widget_realize(TileGtk_GtkWindow);
+    TileGtk_GtkWindow = TileGtk_gtk_window_new(GTK_WINDOW_POPUP);
+    TileGtk_gtk_widget_realize(TileGtk_GtkWindow);
     /* Set an error event handler that ignores QueryTree failures */
     TileGtk_TkXErrorHandler = XSetErrorHandler(TileGtk_XErrorHandler);
     // XSynchronize(wc->TileGtk_MainDisplay, true);
@@ -119,7 +120,7 @@ TileGtk_WidgetCache **TileGtk_CreateGtkApp(Tcl_Interp *interp) {
                            Tcl_Alloc(sizeof(TileGtk_WidgetCache));
   wc_array[1] = (TileGtk_WidgetCache *) 
                            Tcl_Alloc(sizeof(TileGtk_WidgetCache));
-  Tcl_SetAssocData(interp, "tilegtk_widget_cache",
+  Tcl_SetAssocData(interp, "tileTileGtk_gtk_widget_cache",
                    &TileGtk_InterpDeleteProc, (ClientData) wc_array);
   TileGtk_WidgetCache *wc = wc_array[0];
   memset(wc, 0, sizeof(TileGtk_WidgetCache));
@@ -140,16 +141,16 @@ TileGtk_WidgetCache **TileGtk_CreateGtkApp(Tcl_Interp *interp) {
     return NULL;
   }
 #ifndef __WIN32__
-  wc->gdkDisplay = gdk_x11_lookup_xdisplay(wc->TileGtk_MainDisplay);
+  wc->gdkDisplay = TileGtk_gdk_x11_lookup_xdisplay(wc->TileGtk_MainDisplay);
 #endif
   if (!wc->gdkDisplay) {
-    wc->gdkDisplay = gdk_display_get_default();
+    wc->gdkDisplay = TileGtk_gdk_display_get_default();
   }
-  wc->gtkWindow = gtk_window_new(GTK_WINDOW_POPUP);
-  if (wc->gtkWindow) gtk_widget_realize(wc->gtkWindow);
+  wc->gtkWindow = TileGtk_gtk_window_new(GTK_WINDOW_POPUP);
+  if (wc->gtkWindow) TileGtk_gtk_widget_realize(wc->gtkWindow);
   wc->gtkStyle = TileGtk_GetGtkWindowStyle(wc->gtkWindow);
-  wc->protoLayout = gtk_fixed_new();
-  gtk_container_add((GtkContainer*)(wc->gtkWindow), wc->protoLayout);
+  wc->protoLayout = TileGtk_gtk_fixed_new();
+  TileGtk_gtk_container_add((GtkContainer*)(wc->gtkWindow), wc->protoLayout);
   memcpy(wc_array[1], wc_array[0], sizeof(TileGtk_WidgetCache));
   wc_array[0]->orientation    = TTK_ORIENT_HORIZONTAL;
   wc_array[1]->orientation    = TTK_ORIENT_VERTICAL;
@@ -159,7 +160,7 @@ TileGtk_WidgetCache **TileGtk_CreateGtkApp(Tcl_Interp *interp) {
 #ifndef __WIN32__
   Tcl_MutexLock(&tilegtkMutex);
   if (!TileGtk_xlib_rgb_initialised) {
-    xlib_rgb_init(wc->TileGtk_MainDisplay, Tk_Screen(wc->TileGtk_tkwin));
+    TileGtk_xlib_rgb_init(wc->TileGtk_MainDisplay,Tk_Screen(wc->TileGtk_tkwin));
     TileGtk_xlib_rgb_initialised = 1;
   }
   Tcl_MutexUnlock(&tilegtkMutex);

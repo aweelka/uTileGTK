@@ -72,7 +72,7 @@ static void ToolButtonElementDraw(
     TILEGTK_WIDGET_SET_DEFAULT(widget, bd->defaultStateObj);
     TILEGTK_DEFAULT_BACKGROUND;
     // TileGtk_StateInfo(state, gtkState, gtkShadow, tkwin, widget);
-    gtk_paint_box(style, pixmap, gtkState, gtkShadow, NULL, widget,
+    TileGtk_gtk_paint_box(style, pixmap, gtkState, gtkShadow, NULL, widget,
                   GTK_WIDGET_HAS_DEFAULT(widget) ? "buttondefault" : "button",
                   0, 0, b.width, b.height);
     TileGtk_CopyGtkPixmapOnToDrawable(pixmap, d, tkwin,

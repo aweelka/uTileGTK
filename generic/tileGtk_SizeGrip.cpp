@@ -60,7 +60,7 @@ static void SizeGripElementDraw(
     //         TILEGTK_SECTION_ALL);
     TILEGTK_DEFAULT_BACKGROUND;
     // TileGtk_StateInfo(state, gtkState, gtkShadow, tkwin, widget);
-    gtk_paint_resize_grip(style, pixmap, GTK_STATE_NORMAL, NULL, widget,
+    TileGtk_gtk_paint_resize_grip(style, pixmap, GTK_STATE_NORMAL, NULL, widget,
        "window", GDK_WINDOW_EDGE_SOUTH_EAST, 0, 0, b.width, b.height);
     TileGtk_CopyGtkPixmapOnToDrawable(pixmap, d, tkwin,
                    0, 0, b.width, b.height, b.x, b.y);

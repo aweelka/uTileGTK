@@ -49,8 +49,8 @@ static void EntryFieldElementGeometry(
                                   yt + EntryUniformPadding,
                                   xt + EntryUniformPadding,
                                   yt + EntryUniformPadding);
-    // gtk_widget_style_get(widget, "inner-border", &border, NULL);
-    // g_object_get(widget, "inner-border", &border, NULL);
+    // TileGtk_gtk_widget_style_get(widget, "inner-border", &border, NULL);
+    // TileGtk_g_object_get(widget, "inner-border", &border, NULL);
     // *paddingPtr = TILEGTK_GTKBORDER_TO_PADDING(border);
 }
 
@@ -68,9 +68,9 @@ static void EntryFieldElementDraw(
             TILEGTK_SECTION_ENTRY|TILEGTK_SECTION_ALL);
     // TILEGTK_SETUP_WIDGET_SIZE(b.width, b.height);
     TILEGTK_WIDGET_SET_FOCUS(widget);
-    // g_object_get(widget, "has-frame", &hasFrame, NULL);
+    // TileGtk_g_object_get(widget, "has-frame", &hasFrame, NULL);
     if (hasFrame) {
-      gtk_paint_shadow(style, pixmap, gtkState, gtkShadow, NULL, widget,
+      TileGtk_gtk_paint_shadow(style, pixmap, gtkState, gtkShadow, NULL, widget,
                       "entry", 0, 0, b.width, b.height);
     } else {
       TILEGTK_DEFAULT_BACKGROUND;

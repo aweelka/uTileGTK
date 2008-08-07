@@ -66,12 +66,12 @@ int Tileqt_ThemeName(ClientData clientData, Tcl_Interp *interp,
   if (objc != 1) {Tcl_WrongNumArgs(interp, 1, objv, ""); return TCL_ERROR;}
 
   Tcl_MutexLock(&tilegtkMutex);
-  settings = gtk_settings_get_default();
+  settings = TileGtk_gtk_settings_get_default();
   if (settings) {
-    g_object_get(settings, "gtk-theme-name", &strval, NULL);
+    TileGtk_g_object_get(settings, "gtk-theme-name", &strval, NULL);
     if (strval) {
       Tcl_SetResult(interp, (char *) strval, TCL_VOLATILE);
-      g_free(strval);
+      TileGtk_g_free(strval);
     }
   }
   Tcl_MutexUnlock(&tilegtkMutex);
@@ -103,23 +103,23 @@ int Tileqt_SettingsProperty(ClientData clientData, Tcl_Interp *interp,
   }
 
   Tcl_MutexLock(&tilegtkMutex);
-  settings = gtk_settings_get_default();
+  settings = TileGtk_gtk_settings_get_default();
   if (settings) {
     switch ((enum methods) type) {
       case INTEGER:
-        g_object_get(settings, Tcl_GetString(objv[1]), &i_val, NULL);
+        TileGtk_g_object_get(settings, Tcl_GetString(objv[1]), &i_val, NULL);
         Tcl_SetObjResult(interp, Tcl_NewIntObj(i_val));
         break;
       case BOOLEAN:
-        g_object_get(settings, Tcl_GetString(objv[1]), &b_val, NULL);
+        TileGtk_g_object_get(settings, Tcl_GetString(objv[1]), &b_val, NULL);
         if (b_val) Tcl_SetObjResult(interp, Tcl_NewBooleanObj(1));
         else Tcl_SetObjResult(interp, Tcl_NewBooleanObj(0));
         break;
       case STRING:
-        g_object_get(settings, Tcl_GetString(objv[1]), &s_val, NULL);
+        TileGtk_g_object_get(settings, Tcl_GetString(objv[1]), &s_val, NULL);
         if (s_val) {
           Tcl_SetResult(interp, (char *) s_val, TCL_VOLATILE);
-          g_free (s_val);
+          TileGtk_g_free (s_val);
         }
         break;
     }
@@ -185,10 +185,10 @@ int Tileqt_GetProperty(ClientData clientData, Tcl_Interp *interp,
       case INTEGER:
         switch (gtkMethod) {
           case GETPROPERTY_GTK_WIDGET_GET:
-            gtk_object_get((GtkObject *) widget, Tcl_GetString(objv[2]), &i_val, NULL);
+            TileGtk_gtk_object_get((GtkObject *) widget, Tcl_GetString(objv[2]), &i_val, NULL);
           break;
           case GETPROPERTY_GTK_WIDGET_STYLE_GET:
-            gtk_widget_style_get(widget, Tcl_GetString(objv[2]), &i_val, NULL);
+            TileGtk_gtk_widget_style_get(widget, Tcl_GetString(objv[2]), &i_val, NULL);
             break;
         }
         Tcl_SetObjResult(interp, Tcl_NewIntObj(i_val));
@@ -196,10 +196,10 @@ int Tileqt_GetProperty(ClientData clientData, Tcl_Interp *interp,
       case BOOLEAN:
         switch (gtkMethod) {
           case GETPROPERTY_GTK_WIDGET_GET:
-            gtk_object_get((GtkObject *) widget, Tcl_GetString(objv[2]), &b_val, NULL);
+            TileGtk_gtk_object_get((GtkObject *) widget, Tcl_GetString(objv[2]), &b_val, NULL);
             break;
           case GETPROPERTY_GTK_WIDGET_STYLE_GET:
-            gtk_widget_style_get(widget, Tcl_GetString(objv[2]), &b_val, NULL);
+            TileGtk_gtk_widget_style_get(widget, Tcl_GetString(objv[2]), &b_val, NULL);
             break;
         }
         if (b_val) Tcl_SetObjResult(interp, Tcl_NewBooleanObj(1));
@@ -208,15 +208,15 @@ int Tileqt_GetProperty(ClientData clientData, Tcl_Interp *interp,
       case STRING:
         switch (gtkMethod) {
           case GETPROPERTY_GTK_WIDGET_GET:
-            gtk_object_get((GtkObject *) widget, Tcl_GetString(objv[2]), &s_val, NULL);
+            TileGtk_gtk_object_get((GtkObject *) widget, Tcl_GetString(objv[2]), &s_val, NULL);
             break;
           case GETPROPERTY_GTK_WIDGET_STYLE_GET:
-            gtk_widget_style_get(widget, Tcl_GetString(objv[2]), &s_val, NULL);
+            TileGtk_gtk_widget_style_get(widget, Tcl_GetString(objv[2]), &s_val, NULL);
             break;
         }
         if (s_val) {
           Tcl_SetResult(interp, (char *) s_val, TCL_VOLATILE);
-          g_free (s_val);
+          TileGtk_g_free (s_val);
         }
         break;
     }
@@ -299,7 +299,7 @@ int Tileqt_GtkDirectory(ClientData clientData, Tcl_Interp *interp,
   Tcl_MutexLock(&tilegtkMutex);
   switch ((enum methods) type) {
     case THEME:
-      dir = gtk_rc_get_theme_dir();
+      dir = TileGtk_gtk_rc_get_theme_dir();
       break;
     case DEFAULT_FILES:
       if (objc == 3) {
@@ -307,20 +307,20 @@ int Tileqt_GtkDirectory(ClientData clientData, Tcl_Interp *interp,
         if (Tcl_ListObjGetElements(interp, objv[2], &mobjc, &mobjv) != TCL_OK) {
           return TCL_ERROR;
         }
-        dirs = g_new0(gchar *, mobjc+1);
+        dirs = TileGtk_g_new0(gchar *, mobjc+1);
         for (int i = 0; i < mobjc; ++i) {
           dirs[i] = Tcl_GetString(mobjv[i]);
         }
-        gtk_rc_set_default_files(dirs);
-        g_free(dirs); dirs = NULL;
+        TileGtk_gtk_rc_set_default_files(dirs);
+        TileGtk_g_free(dirs); dirs = NULL;
       } else {
-        dirs = gtk_rc_get_default_files();
+        dirs = TileGtk_gtk_rc_get_default_files();
       }
       break;
   }
   if (dir) {
     Tcl_SetResult(interp, (char *) dir, TCL_VOLATILE);
-    g_free(dir);
+    TileGtk_g_free(dir);
   }
   if (dirs) {
     Tcl_Obj *list = Tcl_NewListObj(0, NULL);
@@ -337,7 +337,7 @@ int Tileqt_GtkDirectory(ClientData clientData, Tcl_Interp *interp,
 int Tileqt_gtk_method(ClientData clientData, Tcl_Interp *interp,
                                  int objc, Tcl_Obj *const objv[]) {
   static const char *Methods[] = {
-    "gtk_rc_reparse_all_for_settings", "gtk_rc_reset_styles", (char *) NULL
+    "TileGtk_gtk_rc_reparse_all_for_settings", "TileGtk_gtk_rc_reset_styles", (char *) NULL
   };
   enum methods {
     GTK_RC_REPARSE_ALL_FOR_SETTINGS, GTK_RC_RESET_STYLES
@@ -355,10 +355,10 @@ int Tileqt_gtk_method(ClientData clientData, Tcl_Interp *interp,
   Tcl_MutexLock(&tilegtkMutex);
   switch ((enum methods) type) {
     case GTK_RC_REPARSE_ALL_FOR_SETTINGS:
-      gtk_rc_reparse_all_for_settings(gtk_settings_get_default(), TRUE);
+      TileGtk_gtk_rc_reparse_all_for_settings(TileGtk_gtk_settings_get_default(), TRUE);
       break;
     case GTK_RC_RESET_STYLES:
-      gtk_rc_reset_styles(gtk_settings_get_default());
+      TileGtk_gtk_rc_reset_styles(TileGtk_gtk_settings_get_default());
       break;
   }
   Tcl_MutexUnlock(&tilegtkMutex);
@@ -467,16 +467,16 @@ int Tileqt_ThemeColour(ClientData clientData, Tcl_Interp *interp,
     case TAA_SELECTED:      colour = style->text_aa[GTK_STATE_SELECTED];  break;
     case TAA_INSENSITIVE:   colour = style->text_aa[GTK_STATE_INSENSITIVE];
   }
-    colour_str = gdk_color_to_string(&colour);
+    colour_str = TileGtk_gdk_color_to_string(&colour);
   } else {
-    if (gtk_style_lookup_color(style, Tcl_GetString(objv[1]), &colour)) {
-      colour_str = gdk_color_to_string(&colour);
+    if (TileGtk_gtk_style_lookup_color(style, Tcl_GetString(objv[1]), &colour)){
+      colour_str = TileGtk_gdk_color_to_string(&colour);
     }
   }
 
   if (colour_str) {
     Tcl_SetResult(interp, (char *) colour_str, TCL_VOLATILE);
-    g_free(colour_str);
+    TileGtk_g_free(colour_str);
     return TCL_OK;
   }
   Tcl_SetResult(interp, (char *) "colour not found: ", TCL_STATIC);
@@ -508,7 +508,7 @@ int Tileqt_ColourKeys(ClientData clientData, Tcl_Interp *interp,
   Tcl_Obj *list = Tcl_NewListObj(0, NULL);
   for (iter = priv->color_hashes; iter != NULL; iter = iter->next) {
     GHashTable *hash    = (GHashTable *) iter->data;
-    GList *keys = g_hash_table_get_keys(hash);
+    GList *keys = TileGtk_g_hash_table_get_keys(hash);
     for (; keys != NULL; keys = keys->next) {
       Tcl_ListObjAppendElement(NULL, list,
                                Tcl_NewStringObj((char *) keys->data, -1));
@@ -979,13 +979,13 @@ Tilegtk_Init(Tcl_Interp *interp)
 #endif
     /* Save the name of the current theme... */
     strcpy(tmpScript, "namespace eval ttk::theme::tilegtk { variable theme ");
-    settings = gtk_settings_get_default();
+    settings = TileGtk_gtk_settings_get_default();
     if (settings) {
-      g_object_get(settings, "gtk-theme-name", &strval, NULL);
+      TileGtk_g_object_get(settings, "gtk-theme-name", &strval, NULL);
       strcat(tmpScript, "{");
       if (strval) {
         strcat(tmpScript, strval);
-        g_free (strval);
+        TileGtk_g_free (strval);
       }
       strcat(tmpScript, "}");
     } else {

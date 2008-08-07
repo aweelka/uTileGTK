@@ -63,10 +63,10 @@ static void ButtonElementGeometry(
     TILEGTK_ENSURE_WIDGET_OK;
     TILEGTK_WIDGET_SETUP_DEFAULT(bd->defaultStateObj);
     // GtkBorder border = {0, 0, 0, 0};
-    // gtk_widget_style_get(widget, "inner-border", &border, NULL);
+    // TileGtk_gtk_widget_style_get(widget, "inner-border", &border, NULL);
     // printf("inner-border left: %d, right: %d, top: %d, bottom: %d\n",
     //   border.left, border.right, border.top, border.bottom);
-    // gtk_widget_style_get(widget, "default-border", &border, NULL);
+    // TileGtk_gtk_widget_style_get(widget, "default-border", &border, NULL);
     // printf("default-border left: %d, right: %d, top: %d, bottom: %d\n",
     //   border.left, border.right, border.top, border.bottom);
     // TILEGTK_GET_WIDGET_SIZE(*widthPtr, *heightPtr);
@@ -95,7 +95,7 @@ static void ButtonElementDraw(
     TILEGTK_WIDGET_SET_DEFAULT(widget, bd->defaultStateObj);
     TILEGTK_DEFAULT_BACKGROUND;
     // TileGtk_StateInfo(state, gtkState, gtkShadow, tkwin, widget);
-    gtk_paint_box(style, pixmap, gtkState, gtkShadow, NULL, widget,
+    TileGtk_gtk_paint_box(style, pixmap, gtkState, gtkShadow, NULL, widget,
                   GTK_WIDGET_HAS_DEFAULT(widget) ? "buttondefault" : "button",
                   0, 0, b.width, b.height);
     TileGtk_CopyGtkPixmapOnToDrawable(pixmap, d, tkwin,

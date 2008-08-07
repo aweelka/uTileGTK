@@ -15,7 +15,9 @@ SET ( PKG_NAME_VERSION  ${PKG_NAME}-${PKG_VERSION} )
 SET ( PKG_VENDOR        "Georgios Petasis" )
 SET ( PKG_HOME_DIR      ${PROJECT_SOURCE_DIR} )
 
+SET ( LOAD_GTK_DYNAMICALLY OFF )
 SET ( NO_MSVCRT ON )
+SET ( USE_GNOME OFF )
 
 SET ( PKG_SOURCES generic/tileGtk_Init.cpp
                   generic/tileGtk_TreeView.cpp
@@ -23,6 +25,7 @@ SET ( PKG_SOURCES generic/tileGtk_Init.cpp
                   generic/tileGtk_Arrows.cpp )
 
 SET ( PKG_SOURCES generic/tileGtk_Init.cpp
+                  generic/tileGtk_Symbols.cpp
                   generic/tileGtk_GtkApp.cpp
                   generic/tileGtk_Utilities.cpp
                   generic/tileGtk_Background.cpp
@@ -98,8 +101,12 @@ IF ( WIN32 )
   ADD_DEFINITIONS ( -D_WIN32 )
   ADD_DEFINITIONS ( -D_WINDOWS )
   ADD_DEFINITIONS ( -D__WIN32__ )
+  SET ( CMAKE_SHARED_LIBRARY_PREFIX lib )
 ENDIF ( WIN32 )
 
+IF ( LOAD_GTK_DYNAMICALLY )
+  ADD_DEFINITIONS   ( -DTILEGTK_LOAD_GTK_DYNAMICALLY )
+ENDIF ( LOAD_GTK_DYNAMICALLY )
 ADD_DEFINITIONS     ( -DUSE_TCL_STUBS )
 ADD_DEFINITIONS     ( -DUSE_TK_STUBS )
 ADD_DEFINITIONS     ( -DUSE_TTK_STUBS )
@@ -108,25 +115,28 @@ ADD_DEFINITIONS     ( -DPACKAGE_VERSION="${PKG_VERSION}" )
 INCLUDE_DIRECTORIES ( ${TCL_INCLUDE_PATH} )
 INCLUDE_DIRECTORIES ( ${TK_INCLUDE_PATH} )
 INCLUDE_DIRECTORIES ( ${PROJECT_SOURCE_DIR}/generic )
-LINK_LIBRARIES      ( ${TCL_STUB_LIBRARY} )
-LINK_LIBRARIES      ( ${TK_STUB_LIBRARY} )
-IF ( UNIX )
-  LINK_LIBRARIES    ( gdk_pixbuf_xlib-2.0 )
-ENDIF ( UNIX )
 
 ## ===========================================================================
 ##  Locate GNOME2...
 ## ===========================================================================
-MESSAGE ( STATUS "Searching for GNOME..." )
-INCLUDE ( cmake/Modules/FindGNOME2.cmake OPTIONAL )
-IF ( GNOME_FOUND )
-    MESSAGE ( STATUS "  GNOME Found!" )
-    # ADD_DEFINITIONS     ( -DTILEGTK_ENABLE_GNOME )
-    INCLUDE_DIRECTORIES ( ${GNOME_INCLUDE_DIR} )
-    LINK_LIBRARIES      ( ${GNOME_LIBRARIES} )
-ENDIF ( GNOME_FOUND )
-MESSAGE ( STATUS "  GNOME_INCLUDE_DIR:       " ${GNOME_INCLUDE_DIR} )
-MESSAGE ( STATUS "  GNOME_LIBRARIES:         " ${GNOME_LIBRARIES} )
+IF ( USE_GNOME )
+  MESSAGE ( STATUS "Searching for GNOME..." )
+  INCLUDE ( cmake/Modules/FindGNOME2.cmake OPTIONAL )
+  IF ( GNOME_FOUND )
+      MESSAGE ( STATUS "  GNOME Found!" )
+      ADD_DEFINITIONS     ( -DTILEGTK_ENABLE_GNOME )
+      INCLUDE_DIRECTORIES ( ${GNOME_INCLUDE_DIR} )
+      LINK_LIBRARIES      ( ${GNOME_LIBRARIES} )
+  ENDIF ( GNOME_FOUND )
+  MESSAGE ( STATUS "  GNOME_INCLUDE_DIR:" )
+  FOREACH ( path ${GNOME_INCLUDE_DIR} )
+    MESSAGE ( STATUS "   + ${path}" )
+  ENDFOREACH ( path )
+  MESSAGE ( STATUS "  GNOME_LIBRARIES:" )
+  FOREACH ( path ${GNOME_LIBRARIES} )
+    MESSAGE ( STATUS "   + ${path}" )
+  ENDFOREACH ( path )
+ENDIF ( USE_GNOME )
 
 ## ===========================================================================
 ##  Locate GTK...
@@ -140,26 +150,50 @@ IF ( GTK_FOUND )
   INCLUDE_DIRECTORIES ( ${GTK_INCLUDE_DIR} )
   LINK_LIBRARIES      ( ${GTK_LIBRARIES} )
 ENDIF ( GTK_FOUND )
-MESSAGE ( STATUS "  GTK_INCLUDE_DIR:         " ${GTK_INCLUDE_DIR} )
-MESSAGE ( STATUS "  GTK_LIBRARIES:           " ${GTK_LIBRARIES} )
+MESSAGE ( STATUS "  GTK_INCLUDE_DIR:" )
+FOREACH ( path ${GTK_INCLUDE_DIR} )
+  MESSAGE ( STATUS "   + ${path}" )
+ENDFOREACH ( path )
+MESSAGE ( STATUS "  GTK_LIBRARIES:" )
+FOREACH ( path ${GTK_LIBRARIES} )
+  MESSAGE ( STATUS "   + ${path}" )
+ENDFOREACH ( path )
 
+## ===========================================================================
+##  Locate X11...
+## ===========================================================================
 FIND_PACKAGE ( X11 )
 
-IF   ( WIN32 )
-  SET ( PKG_TARGET_LIB_NAME lib${PKG_NAME}${PKG_VERSION} )
-ELSE ( WIN32 )
-  SET ( PKG_TARGET_LIB_NAME ${PKG_NAME}${PKG_VERSION} )
-ENDIF ( WIN32 )
-MESSAGE ( STATUS "      + Shared Library: ${PKG_TARGET_LIB_NAME}" )
+## ===========================================================================
+##  Target: tileGtk_Symbols.[h|cpp]
+## ===========================================================================
+ADD_CUSTOM_COMMAND ( OUTPUT ${PROJECT_SOURCE_DIR}/generic/tileGtk_Symbols.cpp
+                            ${PROJECT_SOURCE_DIR}/generic/tileGtk_Symbols.h
+    DEPENDS library/GenarateSymbols.tcl
+    COMMAND ${TCL_TCLSH} library/GenarateSymbols.tcl
+    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR} )
+
+SET ( PKG_TARGET_LIB_NAME ${PKG_NAME}${PKG_VERSION} )
+## ===========================================================================
+##  Target: tilegtk shared library
+## ===========================================================================
+MESSAGE ( STATUS "===========================================================" )
+MESSAGE ( STATUS "   ++++ Shared Library: ${PKG_TARGET_LIB_NAME} ++++" )
+MESSAGE ( STATUS "===========================================================" )
 ADD_LIBRARY ( ${PKG_TARGET_LIB_NAME} SHARED ${PKG_SOURCES} )
 TARGET_LINK_LIBRARIES ( ${PKG_TARGET_LIB_NAME} ${TK_STUB_LIBRARY} )
 TARGET_LINK_LIBRARIES ( ${PKG_TARGET_LIB_NAME} ${TTK_STUB_LIBRARY} )
 TARGET_LINK_LIBRARIES ( ${PKG_TARGET_LIB_NAME} ${TK_LIBRARY_STATIC} )
 TARGET_LINK_LIBRARIES ( ${PKG_TARGET_LIB_NAME} ${TCL_STUB_LIBRARY} )
 TARGET_LINK_LIBRARIES ( ${PKG_TARGET_LIB_NAME} ${TCL_LIBRARY_STATIC} )
-TARGET_LINK_LIBRARIES ( ${PKG_TARGET_LIB_NAME} ${GTK_LIBRARIES} )
-TARGET_LINK_LIBRARIES ( ${PKG_TARGET_LIB_NAME} ${X11_Xft_LIB} )
-TARGET_LINK_LIBRARIES ( ${PKG_TARGET_LIB_NAME} ${X11_Xscreensaver_LIB} )
+IF ( NOT LOAD_GTK_DYNAMICALLY )
+  TARGET_LINK_LIBRARIES ( ${PKG_TARGET_LIB_NAME} ${GTK_LIBRARIES} )
+  TARGET_LINK_LIBRARIES ( ${PKG_TARGET_LIB_NAME} ${X11_Xft_LIB} )
+  TARGET_LINK_LIBRARIES ( ${PKG_TARGET_LIB_NAME} ${X11_Xscreensaver_LIB} )
+  IF ( UNIX )
+    TARGET_LINK_LIBRARIES ( ${PKG_TARGET_LIB_NAME} gdk_pixbuf_xlib-2.0 )
+  ENDIF ( UNIX )
+ENDIF ( NOT LOAD_GTK_DYNAMICALLY )
 
 FILE ( WRITE library/pkgIndex.tcl 
 "package ifneeded ttk::theme::tilegtk ${PKG_VERSION} \\

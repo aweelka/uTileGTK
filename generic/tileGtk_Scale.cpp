@@ -43,7 +43,7 @@ static void ScaleTroughElementGeometry(
     GtkWidget *widget = TileGtk_GetScale(wc);
     TILEGTK_ENSURE_GTK_STYLE_ENGINE_ACTIVE;
     TILEGTK_ENSURE_WIDGET_OK;
-    gtk_widget_style_get(widget, "trough-border", &trough_border, NULL);
+    TileGtk_gtk_widget_style_get(widget, "trough-border", &trough_border, NULL);
     // xt = widget->style->xthickness;
     // yt = widget->style->ythickness;
     *paddingPtr = Ttk_MakePadding(xt + trough_border,
@@ -66,7 +66,7 @@ static void ScaleTroughElementDraw(
             TILEGTK_SECTION_TROUGH|TILEGTK_SECTION_ALL);
     // TILEGTK_SETUP_WIDGET_SIZE(b.width, b.height);
     TILEGTK_WIDGET_SET_FOCUS(widget);
-    gtk_widget_style_get(widget, "trough-side-details",
+    TileGtk_gtk_widget_style_get(widget, "trough-side-details",
                                  &trough_side_details, NULL);
     // TILEGTK_DEFAULT_BACKGROUND;
     // TileGtk_StateInfo(state, gtkState, gtkShadow, tkwin, widget);
@@ -76,17 +76,17 @@ static void ScaleTroughElementDraw(
         trough_change_pos_x = b.width / 2;
       else
         trough_change_pos_y = b.height / 2;
-      gtk_paint_box(style, pixmap, gtkState, GTK_SHADOW_IN, NULL, widget,
+      TileGtk_gtk_paint_box(style, pixmap, gtkState, GTK_SHADOW_IN, NULL, widget,
           "trough-upper", 0, 0, trough_change_pos_x, trough_change_pos_y);
       if (wc->gtkOrientation == GTK_ORIENTATION_HORIZONTAL)
         trough_change_pos_y = 0;
       else
         trough_change_pos_x = 0;
-      gtk_paint_box(style, pixmap, gtkState, GTK_SHADOW_IN, NULL, widget,
+      TileGtk_gtk_paint_box(style, pixmap, gtkState, GTK_SHADOW_IN, NULL, widget,
           "trough-lower", trough_change_pos_x, trough_change_pos_y,
           b.width-trough_change_pos_x, b.height-trough_change_pos_y);
     } else {
-      gtk_paint_box(style, pixmap, gtkState, GTK_SHADOW_IN, NULL, widget,
+      TileGtk_gtk_paint_box(style, pixmap, gtkState, GTK_SHADOW_IN, NULL, widget,
           "trough", 0, 0, b.width, b.height);
     }
     TileGtk_CopyGtkPixmapOnToDrawable(pixmap, d, tkwin,
@@ -121,7 +121,7 @@ static void ScaleSliderElementGeometry(
     GtkWidget *widget = TileGtk_GetScale(wc);
     TILEGTK_ENSURE_GTK_STYLE_ENGINE_ACTIVE;
     TILEGTK_ENSURE_WIDGET_OK;
-    gtk_widget_style_get (widget, "slider-length", &slider_len,
+    TileGtk_gtk_widget_style_get(widget, "slider-length", &slider_len,
                                   "slider-width",  &slider_width, NULL);
     *heightPtr = *widthPtr = slider_width;
     if (wc->orientation == TTK_ORIENT_HORIZONTAL) {
@@ -146,13 +146,13 @@ static void ScaleSliderElementDraw(
     TILEGTK_ENSURE_WIDGET_OK;
     // TILEGTK_SETUP_WIDGET_SIZE(b.width, b.height);
     TILEGTK_WIDGET_SET_FOCUS(widget);
-    adj = gtk_range_get_adjustment((GtkRange *) widget);
-    gtk_adjustment_set_value(adj, TileGtk_ValueFromSlider(wc, tkwin, b));
+    adj = TileGtk_gtk_range_get_adjustment((GtkRange *) widget);
+    TileGtk_gtk_adjustment_set_value(adj, TileGtk_ValueFromSlider(wc, tkwin, b));
     TILEGTK_DEFAULT_BACKGROUND;
     TileGtk_StateShadowTableLookup(NULL, state, gtkState, gtkShadow,
             TILEGTK_SECTION_SCROLLBAR|TILEGTK_SECTION_ALL);
     // TileGtk_StateInfo(state, gtkState, gtkShadow, tkwin, widget);
-    gtk_paint_slider(style, pixmap, gtkState, gtkShadow, NULL, widget,
+    TileGtk_gtk_paint_slider(style, pixmap, gtkState, gtkShadow, NULL, widget,
         GTK_RANGE_GET_CLASS(widget)->slider_detail, 0, 0, b.width, b.height,
         wc->gtkOrientation);
     TileGtk_CopyGtkPixmapOnToDrawable(pixmap, d, tkwin,

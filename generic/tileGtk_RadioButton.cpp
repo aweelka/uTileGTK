@@ -43,7 +43,7 @@ static void RadioButtonIndicatorElementGeometry(
     TILEGTK_ENSURE_GTK_STYLE_ENGINE_ACTIVE;
     GtkWidget *widget = TileGtk_GetRadioButton(wc);
     TILEGTK_ENSURE_WIDGET_OK;
-    gtk_widget_style_get(widget, "indicator-size", &size, NULL);
+    TileGtk_gtk_widget_style_get(widget, "indicator-size", &size, NULL);
     *widthPtr = *heightPtr = size;
     *paddingPtr = Ttk_MakePadding(0, 0, RadioButtonHorizontalPadding, 0);
 }
@@ -63,7 +63,7 @@ static void RadioButtonIndicatorElementDraw(
     TileGtk_StateShadowTableLookup(NULL, state, gtkState, gtkShadow,
             TILEGTK_SECTION_BUTTONS|TILEGTK_SECTION_ALL);
     // TileGtk_StateInfo(state, gtkState, gtkShadow, tkwin, widget);
-    gtk_paint_option(style, pixmap, gtkState, gtkShadow, NULL, widget,
+    TileGtk_gtk_paint_option(style, pixmap, gtkState, gtkShadow, NULL, widget,
                      "radiobutton", 0, 0, b.width, b.height);
     TileGtk_CopyGtkPixmapOnToDrawable(pixmap, d, tkwin,
                    0, 0, b.width, b.height, b.x, b.y);
@@ -94,7 +94,7 @@ static void RadioButtonBorderElementGeometry(
     gint hpadding = 0;
     TILEGTK_ENSURE_GTK_STYLE_ENGINE_ACTIVE;
     GtkWidget *widget = TileGtk_GetRadioButton(wc);
-    gtk_widget_style_get(widget, "indicator-spacing", &hpadding, NULL);
+    TileGtk_gtk_widget_style_get(widget, "indicator-spacing", &hpadding, NULL);
     *paddingPtr = Ttk_UniformPadding(hpadding);
 }
 
@@ -112,7 +112,7 @@ static void RadioButtonBorderElementDraw(
     //         TILEGTK_SECTION_BUTTONS|TILEGTK_SECTION_ALL);
     // TILEGTK_SETUP_WIDGET_SIZE(b.width, b.height);
     // TILEGTK_WIDGET_SET_FOCUS(widget);
-    // gtk_paint_flat_box(style, pixmap, gtkState, gtkShadow, NULL, widget,
+    // TileGtk_gtk_paint_flat_box(style, pixmap, gtkState, gtkShadow, NULL, widget,
     //               "radiobutton", 0, 0, b.width, b.height);
     TileGtk_CopyGtkPixmapOnToDrawable(pixmap, d, tkwin,
                    0, 0, b.width, b.height, b.x, b.y);

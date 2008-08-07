@@ -41,7 +41,7 @@ static void MenubuttonIndicatorElementGeometry(
     gint size = 15;
     GtkWidget *widget = TileGtk_GetComboboxEntry(wc);
     TILEGTK_ENSURE_WIDGET_OK;
-    gtk_widget_style_get(widget, "arrow-size", &size, NULL);
+    TileGtk_gtk_widget_style_get(widget, "arrow-size", &size, NULL);
 
     *widthPtr = *heightPtr = size;
     *paddingPtr = Ttk_UniformPadding(3);
@@ -59,9 +59,9 @@ static void MenubuttonIndicatorElementDraw(
     TileGtk_StateShadowTableLookup(NULL, state, gtkState, gtkShadow,
             TILEGTK_SECTION_BUTTONS|TILEGTK_SECTION_ALL);
     TILEGTK_WIDGET_SET_FOCUS(widget);
-    gtk_paint_flat_box(style, pixmap, gtkState, gtkShadow, NULL, widget,
+    TileGtk_gtk_paint_flat_box(style, pixmap, gtkState, gtkShadow, NULL, widget,
             "button", 0, 0, b.width, b.height);
-    gtk_paint_arrow(style, pixmap, gtkState, gtkShadow, NULL, widget,
+    TileGtk_gtk_paint_arrow(style, pixmap, gtkState, gtkShadow, NULL, widget,
             "combo", GTK_ARROW_DOWN, FALSE, 0, 0, b.width, b.height);
     TileGtk_CopyGtkPixmapOnToDrawable(pixmap, d, tkwin,
                    0, 0, b.width, b.height, b.x, b.y);
@@ -107,7 +107,7 @@ static void MenubuttonElementDraw(
     TileGtk_StateShadowTableLookup(NULL, state, gtkState, gtkShadow,
             TILEGTK_SECTION_BUTTONS|TILEGTK_SECTION_ALL);
     TILEGTK_WIDGET_SET_FOCUS(widget);
-    gtk_paint_box(style, pixmap, gtkState, gtkShadow, NULL, widget,
+    TileGtk_gtk_paint_box(style, pixmap, gtkState, gtkShadow, NULL, widget,
                   "button", 0, 0, b.width, b.height);
     TileGtk_CopyGtkPixmapOnToDrawable(pixmap, d, tkwin,
                   0, 0, b.width, b.height, b.x, b.y);

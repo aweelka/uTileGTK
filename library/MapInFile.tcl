@@ -2,10 +2,7 @@ if {$argc != 1} {
   error "Usage: $argv0 directory"
 }
 
-set MAP {tileqt tilegtk tileQt tileGtk TileQt TileGtk Qt Gtk KDE GNOME
-         TILEQT TILEGTK QT GTK QApp GtkApp kde gnome
-         NULL_Q_APP NO_GTK_STYLE_ENGINE
-         {if (qApp == NULL)} {if (!TileGtk_GtkInitialised())}
+set MAP {
 }
 
 foreach file [glob -directory [lindex $argv 0] -type f *] {

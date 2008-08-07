@@ -26,7 +26,7 @@
   if (!widget) return;
 
 #define TILEGTK_ATTACH_STYLE_TO_WIDGET \
-  style = gtk_style_attach(style, widget->window);
+  style = TileGtk_gtk_style_attach(style, widget->window);
 
 #define TILEGTK_WIDGET_CACHE_DEFINITION \
   TileGtk_WidgetCache *wc = (TileGtk_WidgetCache *) clientData;
@@ -51,17 +51,17 @@
   if (!gdkWindow) return; \
   style = wc->gtkStyle; \
   if (!style) return; \
-  pixmap = gdk_pixmap_new(GDK_DRAWABLE(gdkWindow), \
+  pixmap = TileGtk_gdk_pixmap_new(GDK_DRAWABLE(gdkWindow), \
                           pw, ph, -1); \
-  style = gtk_style_attach(style, gdkWindow); \
+  style = TileGtk_gtk_style_attach(style, gdkWindow); \
   /*gdk_draw_rectangle(pixmap, *style->bg_gc, TRUE, 0, 0, b.width, b.height);*/
 
 #define TILEGTK_DEFAULT_BACKGROUND \
-  gtk_style_apply_default_background(style, pixmap, TRUE, gtkState, \
+  TileGtk_gtk_style_apply_default_background(style, pixmap, TRUE, gtkState, \
                                      NULL, 0, 0, b.width, b.height);
 
 #define TILEGTK_CLEANUP_GTK_DRAWABLE \
-  gdk_drawable_unref(pixmap); \
+  TileGtk_gdk_drawable_unref(pixmap); \
 
 #define TILEGTK_SETUP_STATE_SHADOW(statemap, shadowmap) \
     gtkState  = (GtkStateType) \
@@ -70,12 +70,12 @@
        TileGtk_StateTableLookup(shadowmap, state);
 
 #define TILEGTK_SETUP_WIDGET_SIZE(width, height) \
-  gtk_widget_set_size_request(widget, width, height);
+  TileGtk_gtk_widget_set_size_request(widget, width, height);
 
 #define TILEGTK_GET_WIDGET_SIZE(widthPtr, heightPtr)  \
   if (widget) { \
     GtkRequisition size; \
-    gtk_widget_size_request(widget, &size); \
+    TileGtk_gtk_widget_size_request(widget, &size); \
     widthPtr  = size.width; \
     heightPtr = size.height; \
   }

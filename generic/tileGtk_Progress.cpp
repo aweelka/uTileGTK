@@ -55,7 +55,7 @@ static void ProgressTroughElementDraw(
     TILEGTK_WIDGET_SET_FOCUS(widget);
     // TILEGTK_DEFAULT_BACKGROUND;
     // TileGtk_StateInfo(state, gtkState, gtkShadow, tkwin, widget);
-    gtk_paint_box(style, pixmap, gtkState, GTK_SHADOW_IN, NULL, widget,
+    TileGtk_gtk_paint_box(style, pixmap, gtkState, GTK_SHADOW_IN, NULL, widget,
         "trough", 0, 0, b.width, b.height);
     TileGtk_CopyGtkPixmapOnToDrawable(pixmap, d, tkwin,
                    0, 0, b.width, b.height, b.x, b.y);
@@ -121,14 +121,14 @@ static void ProgressBarElementDraw(
     // }
 
     // if (determinate) {
-    //   gtk_progress_bar_set_bar_style((GtkProgressBar *) widget,
+    //   TileGtk_gtk_progress_bar_set_bar_style((GtkProgressBar *) widget,
     //                                   GTK_PROGRESS_DISCRETE);
-    //   gtk_progress_bar_set_fraction((GtkProgressBar *) widget,
+    //   TileGtk_gtk_progress_bar_set_fraction((GtkProgressBar *) widget,
     //                      TileGtk_ValueFromSlider(wc, tkwin, b));
     // } else {
-    //   gtk_progress_bar_set_bar_style((GtkProgressBar *) widget,
+    //   TileGtk_gtk_progress_bar_set_bar_style((GtkProgressBar *) widget,
     //                                   GTK_PROGRESS_CONTINUOUS);
-    //   gtk_progress_bar_set_fraction((GtkProgressBar *) widget,
+    //   TileGtk_gtk_progress_bar_set_fraction((GtkProgressBar *) widget,
     //                      TileGtk_ValueFromSlider(wc, tkwin, b));
     // }
 
@@ -137,7 +137,7 @@ static void ProgressBarElementDraw(
     TileGtk_StateShadowTableLookup(NULL, state, gtkState, gtkShadow,
             TILEGTK_SECTION_SCROLLBAR|TILEGTK_SECTION_ALL);
     // TileGtk_StateInfo(state, gtkState, gtkShadow, tkwin, widget);
-    gtk_paint_box(style, pixmap, gtkState, gtkShadow, NULL, widget,
+    TileGtk_gtk_paint_box(style, pixmap, gtkState, gtkShadow, NULL, widget,
         "bar", 0, 0, b.width, b.height);
     TileGtk_CopyGtkPixmapOnToDrawable(pixmap, d, tkwin,
                    0, 0, b.width, b.height, b.x, b.y);

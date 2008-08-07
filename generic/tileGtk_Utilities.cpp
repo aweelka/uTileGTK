@@ -40,12 +40,12 @@ GtkStyle *TileGtk_GetGtkStyle(void) {
 void TileGtk_InitialiseGtkWidget(TileGtk_WidgetCache* wc, GtkWidget* widget) {
   if (!wc || !widget) return;
   if (!wc->protoLayout) {
-    wc->protoLayout = gtk_fixed_new();
-    gtk_container_add((GtkContainer*)(wc->gtkWindow), wc->protoLayout);
+    wc->protoLayout = TileGtk_gtk_fixed_new();
+    TileGtk_gtk_container_add((GtkContainer*)(wc->gtkWindow), wc->protoLayout);
   }
   if (!wc->protoLayout) return;
-  gtk_container_add((GtkContainer*)(wc->protoLayout), widget);
-  gtk_widget_realize(widget);
+  TileGtk_gtk_container_add((GtkContainer*)(wc->protoLayout), widget);
+  TileGtk_gtk_widget_realize(widget);
 }; /* TileGtk_InitialiseGtkWidget */
 
 #define TILEGTK_CHECK_WIDGET(widget, allocator_function) \
@@ -58,11 +58,11 @@ void TileGtk_InitialiseGtkWidget(TileGtk_WidgetCache* wc, GtkWidget* widget) {
   return wc->widget;
 
 GtkWidget *TileGtk_GetButton(TileGtk_WidgetCache* wc) {
-  TILEGTK_CHECK_WIDGET(gtkButton, gtk_button_new());
+  TILEGTK_CHECK_WIDGET(gtkButton, TileGtk_gtk_button_new());
 }; /* TileGtk_GetButton */
 
 GtkWidget *TileGtk_GetCheckButton(TileGtk_WidgetCache* wc) {
-  TILEGTK_CHECK_WIDGET(gtkCheckButton, gtk_check_button_new());
+  TILEGTK_CHECK_WIDGET(gtkCheckButton, TileGtk_gtk_check_button_new());
 }; /* TileGtk_GetCheckButton */
 
 GtkWidget *TileGtk_GetRadioButton(TileGtk_WidgetCache* wc) {
@@ -70,35 +70,35 @@ GtkWidget *TileGtk_GetRadioButton(TileGtk_WidgetCache* wc) {
 }; /* TileGtk_GetRadioButton */
 
 GtkWidget *TileGtk_GetToolButton(TileGtk_WidgetCache* wc) {
-  TILEGTK_CHECK_WIDGET(gtkToolBar, gtk_toolbar_new());
+  TILEGTK_CHECK_WIDGET(gtkToolBar, TileGtk_gtk_toolbar_new());
 }; /* TileGtk_GetToolButton */
 
 GtkWidget *TileGtk_GetFrame(TileGtk_WidgetCache* wc) {
-  TILEGTK_CHECK_WIDGET(gtkFrame, gtk_frame_new(NULL));
+  TILEGTK_CHECK_WIDGET(gtkFrame, TileGtk_gtk_frame_new(NULL));
 }; /* TileGtk_GetFrame */
 
 GtkWidget *TileGtk_GetEntry(TileGtk_WidgetCache* wc) {
-  TILEGTK_CHECK_WIDGET(gtkEntry, gtk_entry_new());
+  TILEGTK_CHECK_WIDGET(gtkEntry, TileGtk_gtk_entry_new());
 }; /* TileGtk_GetEntry */
 
 GtkWidget *TileGtk_GetCombobox(TileGtk_WidgetCache* wc) {
-  TILEGTK_CHECK_WIDGET(gtkCombobox, gtk_combo_box_new());
+  TILEGTK_CHECK_WIDGET(gtkCombobox, TileGtk_gtk_combo_box_new());
 }; /* TileGtk_GetComboboxEntry */
 
 GtkWidget *TileGtk_GetComboboxEntry(TileGtk_WidgetCache* wc) {
-  TILEGTK_CHECK_WIDGET(gtkComboboxEntry, gtk_combo_box_entry_new());
+  TILEGTK_CHECK_WIDGET(gtkComboboxEntry, TileGtk_gtk_combo_box_entry_new());
 }; /* TileGtk_GetComboboxEntry */
 
 GtkWidget *TileGtk_GetHScrollBar(TileGtk_WidgetCache* wc) {
   GtkAdjustment *adjustment = (GtkAdjustment *)
-             gtk_adjustment_new(0.0, 0.0, 1.0, 0, 0, 0);
-  TILEGTK_CHECK_WIDGET(gtkHScrollBar, gtk_hscrollbar_new(adjustment));
+             TileGtk_gtk_adjustment_new(0.0, 0.0, 1.0, 0, 0, 0);
+  TILEGTK_CHECK_WIDGET(gtkHScrollBar, TileGtk_gtk_hscrollbar_new(adjustment));
 }; /* TileGtk_GetHScrollBar */
 
 GtkWidget *TileGtk_GetVScrollBar(TileGtk_WidgetCache* wc) {
   GtkAdjustment *adjustment = (GtkAdjustment *)
-             gtk_adjustment_new(0.0, 0.0, 1.0, 0, 0, 0);
-  TILEGTK_CHECK_WIDGET(gtkVScrollBar, gtk_vscrollbar_new(adjustment));
+             TileGtk_gtk_adjustment_new(0.0, 0.0, 1.0, 0, 0, 0);
+  TILEGTK_CHECK_WIDGET(gtkVScrollBar, TileGtk_gtk_vscrollbar_new(adjustment));
 }; /* TileGtk_GetVScrollBar */
 
 GtkWidget *TileGtk_GetScrollBar(TileGtk_WidgetCache* wc) {
@@ -109,11 +109,11 @@ GtkWidget *TileGtk_GetScrollBar(TileGtk_WidgetCache* wc) {
 }; /* TileGtk_GetScrollBar */
 
 GtkWidget *TileGtk_GetHScale(TileGtk_WidgetCache* wc) {
-  TILEGTK_CHECK_WIDGET(gtkHScale, gtk_hscale_new_with_range(0, 1, 0.001));
+  TILEGTK_CHECK_WIDGET(gtkHScale, TileGtk_gtk_hscale_new_with_range(0,1,0.001));
 }; /* TileGtk_GetHScale */
 
 GtkWidget *TileGtk_GetVScale(TileGtk_WidgetCache* wc) {
-  TILEGTK_CHECK_WIDGET(gtkVScale, gtk_vscale_new_with_range(0, 1, 0.001));
+  TILEGTK_CHECK_WIDGET(gtkVScale, TileGtk_gtk_vscale_new_with_range(0,1,0.001));
 }; /* TileGtk_GetVScale */
 
 GtkWidget *TileGtk_GetScale(TileGtk_WidgetCache* wc) {
@@ -124,17 +124,19 @@ GtkWidget *TileGtk_GetScale(TileGtk_WidgetCache* wc) {
 }; /* TileGtk_GetScale */
 
 GtkWidget *TileGtk_GetHProgressBar(TileGtk_WidgetCache* wc) {
-  TILEGTK_CHECK_WIDGET(gtkHProgressBar, gtk_progress_bar_new());
-  gtk_progress_bar_set_orientation((GtkProgressBar*) wc->gtkHProgressBar,
-                                   GTK_PROGRESS_LEFT_TO_RIGHT);
-  gtk_progress_bar_set_fraction((GtkProgressBar *) wc->gtkHProgressBar, 1);
+  TILEGTK_CHECK_WIDGET(gtkHProgressBar, TileGtk_gtk_progress_bar_new());
+  TileGtk_gtk_progress_bar_set_orientation(
+     (GtkProgressBar*) wc->gtkHProgressBar, GTK_PROGRESS_LEFT_TO_RIGHT);
+  TileGtk_gtk_progress_bar_set_fraction(
+     (GtkProgressBar *) wc->gtkHProgressBar, 1);
 }; /* TileGtk_GetHProgressBar */
 
 GtkWidget *TileGtk_GetVProgressBar(TileGtk_WidgetCache* wc) {
-  TILEGTK_CHECK_WIDGET(gtkVProgressBar, gtk_progress_bar_new());
-  gtk_progress_bar_set_orientation((GtkProgressBar*) wc->gtkVProgressBar,
-                                   GTK_PROGRESS_BOTTOM_TO_TOP);
-  gtk_progress_bar_set_fraction((GtkProgressBar *) wc->gtkVProgressBar, 1);
+  TILEGTK_CHECK_WIDGET(gtkVProgressBar, TileGtk_gtk_progress_bar_new());
+  TileGtk_gtk_progress_bar_set_orientation(
+     (GtkProgressBar*) wc->gtkVProgressBar, GTK_PROGRESS_BOTTOM_TO_TOP);
+  TileGtk_gtk_progress_bar_set_fraction(
+     (GtkProgressBar *) wc->gtkVProgressBar, 1);
 }; /* TileGtk_GetVProgressBar */
 
 GtkWidget *TileGtk_GetProgressBar(TileGtk_WidgetCache* wc) {
@@ -145,15 +147,15 @@ GtkWidget *TileGtk_GetProgressBar(TileGtk_WidgetCache* wc) {
 }; /* TileGtk_GetProgressBar */
 
 GtkWidget *TileGtk_GetStatusBar(TileGtk_WidgetCache* wc) {
-  TILEGTK_CHECK_WIDGET(gtkStatusBar, gtk_statusbar_new());
+  TILEGTK_CHECK_WIDGET(gtkStatusBar, TileGtk_gtk_statusbar_new());
 }; /* TileGtk_GetStatusBar */
 
 GtkWidget *TileGtk_GetHPaned(TileGtk_WidgetCache* wc) {
-  TILEGTK_CHECK_WIDGET(gtkHPaned, gtk_hpaned_new());
+  TILEGTK_CHECK_WIDGET(gtkHPaned, TileGtk_gtk_hpaned_new());
 }; /* TileGtk_GetHPaned */
 
 GtkWidget *TileGtk_GetVPaned(TileGtk_WidgetCache* wc) {
-  TILEGTK_CHECK_WIDGET(gtkVPaned, gtk_vpaned_new());
+  TILEGTK_CHECK_WIDGET(gtkVPaned, TileGtk_gtk_vpaned_new());
 }; /* TileGtk_GetVPaned */
 
 GtkWidget *TileGtk_GetPaned(TileGtk_WidgetCache* wc) {
@@ -164,7 +166,7 @@ GtkWidget *TileGtk_GetPaned(TileGtk_WidgetCache* wc) {
 }; /* TileGtk_GetPaned */
 
 GtkWidget *TileGtk_GetNotebook(TileGtk_WidgetCache* wc) {
-  TILEGTK_CHECK_WIDGET(gtkNotebook, gtk_notebook_new());
+  TILEGTK_CHECK_WIDGET(gtkNotebook, TileGtk_gtk_notebook_new());
 }; /* TileGtk_GetNotebook */
 
 const char *TileGtk_GtkStateStr(GtkStateType gtkState) {
@@ -261,15 +263,15 @@ void TileGtk_CopyGtkPixmapOnToDrawable(GdkPixmap *pixmap, Drawable d,
     gcValues.graphics_exposures = False;
     GC gc = Tk_GetGC(tkwin, GCForeground | GCBackground | GCGraphicsExposures,
                      &gcValues);
-    GdkGC *gdkGC = gdk_gc_new(pixmap);
-    HDC hdcSrc = gdk_win32_hdc_get(pixmap, gdkGC, gc_usage);
+    GdkGC *gdkGC = TileGtk_gdk_gc_new(pixmap);
+    HDC hdcSrc = TileGtk_gdk_win32_hdc_get(pixmap, gdkGC, gc_usage);
     /* Create a Tk Drawable from the HDC... */
-    TkWinDrawable gtk_d;
-    gtk_d.type = TWD_WINDC;
-    gtk_d.winDC.hdc = hdcSrc;
+    TkWinDrawable gtkD;
+    gtkD.type = TWD_WINDC;
+    gtkD.winDC.hdc = hdcSrc;
     XCopyArea(Tk_Display(tkwin), (Drawable) &gtk_d, d, gc, x, y, w, h, x1, x2);
-    gdk_win32_hdc_release(GDK_DRAWABLE(pixmap), gdkGC, gc_usage);
-    if (gdkGC) g_object_unref(gdkGC);
+    TileGtk_gdk_win32_hdc_release(GDK_DRAWABLE(pixmap), gdkGC, gc_usage);
+    if (gdkGC) TileGtk_g_object_unref(gdkGC);
     Tk_FreeGC(Tk_Display(tkwin), gc);
 #else
 
@@ -287,15 +289,16 @@ void TileGtk_CopyGtkPixmapOnToDrawable(GdkPixmap *pixmap, Drawable d,
     gcValues.graphics_exposures = False;
     GC gc = Tk_GetGC(tkwin, GCForeground | GCBackground | GCGraphicsExposures,
                      &gcValues);
-    imgb = gdk_pixbuf_new(GDK_COLORSPACE_RGB, true, 8, w, h);
+    imgb = TileGtk_gdk_pixbuf_new(GDK_COLORSPACE_RGB, true, 8, w, h);
     if (!imgb) {
       Tk_FreeGC(Tk_Display(tkwin), gc);
       return;
     }
-    imgb = gdk_pixbuf_get_from_drawable(imgb, pixmap, NULL, 0, 0, 0, 0, w, h);
-    gdk_pixbuf_xlib_render_to_drawable(imgb, d, gc,
+    imgb = TileGtk_gdk_pixbuf_get_from_drawable(imgb, pixmap,
+                                                NULL, 0, 0, 0, 0, w, h);
+    TileGtk_gdk_pixbuf_xlib_render_to_drawable(imgb, d, gc,
          x, y, x1, x2, w, h, XLIB_RGB_DITHER_MAX, 0, 0);
-    gdk_pixbuf_unref(imgb);
+    TileGtk_gdk_pixbuf_unref(imgb);
     Tk_FreeGC(Tk_Display(tkwin), gc);
 #endif
 

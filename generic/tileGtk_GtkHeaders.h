@@ -16,14 +16,12 @@
 #define _TILEGTK_GTKHEADERS
 
 #include <tk.h>
-#include <gtk/gtk.h>
-#include <gdk-pixbuf/gdk-pixbuf.h>
-#ifndef __WIN32__
-#include <gdk-pixbuf-xlib/gdk-pixbuf-xlib.h>
-#include <gdk/gdkx.h>
-#else
-#include <gdk/gdkwin32.h>
-#endif
+#include "tileGtk_Symbols.h"
+
+/* Convenience memory allocators
+ */
+#define TileGtk_g_new0(struct_type, n_structs)		\
+    ((struct_type *) TileGtk_g_malloc0 (((gsize) sizeof (struct_type)) * ((gsize) (n_structs))))
 
 typedef struct TileGtk_WidgetCache {
   Tk_Window      TileGtk_tkwin;

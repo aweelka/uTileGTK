@@ -42,7 +42,7 @@ static void PanedSashGripElementGeometry(
     gint size = 5;
     TILEGTK_ENSURE_GTK_STYLE_ENGINE_ACTIVE;
     TILEGTK_ENSURE_WIDGET_OK;
-    gtk_widget_style_get (widget, "handle-size", &size, NULL);
+    TileGtk_gtk_widget_style_get(widget, "handle-size", &size, NULL);
     if (wc->orientation == TTK_ORIENT_HORIZONTAL) {
       *widthPtr  = size;
     } else {
@@ -63,7 +63,7 @@ static void PanedSashGripElementDraw(
     TileGtk_StateShadowTableLookup(NULL, state, gtkState, gtkShadow,
             TILEGTK_SECTION_SASH|TILEGTK_SECTION_ALL);
     TILEGTK_DEFAULT_BACKGROUND;
-    gtk_paint_handle (style, pixmap, gtkState, GTK_SHADOW_NONE,
+    TileGtk_gtk_paint_handle(style, pixmap, gtkState, GTK_SHADOW_NONE,
             NULL, widget, "paned", 0, 0, b.width, b.height,
             wc->gtkOrientation);
     TileGtk_CopyGtkPixmapOnToDrawable(pixmap, d, tkwin,
