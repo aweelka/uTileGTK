@@ -51,7 +51,7 @@
   if (!gdkWindow) return; \
   style = wc->gtkStyle; \
   if (!style) return; \
-  pixmap = TileGtk_gdk_pixmap_new(GDK_DRAWABLE(gdkWindow), \
+  pixmap = TileGtk_gdk_pixmap_new(gdkWindow, \
                           pw, ph, -1); \
   style = TileGtk_gtk_style_attach(style, gdkWindow); \
   /*gdk_draw_rectangle(pixmap, *style->bg_gc, TRUE, 0, 0, b.width, b.height);*/
