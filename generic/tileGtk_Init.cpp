@@ -21,6 +21,10 @@ static char initScript[] =
                                                    PACKAGE_VERSION " };"
     "tcl_findLibrary tilegtk $ttk::theme::tilegtk::version "
     "$ttk::theme::tilegtk::version tilegtk.tcl TILEGTK_LIBRARY tilegtk::library;";
+#ifdef TILEGTK_LOAD_GTK_DYNAMICALLY
+static char libsInitScript[] =
+    "ttk::theme::tilegtk::loadLibraries";
+#endif /* TILEGTK_LOAD_GTK_DYNAMICALLY */
 
 /*
  * Exit Handler.
@@ -48,7 +52,7 @@ static void TileGtk_ExitProc(ClientData data) {
 /*
  * Helper Functions
  */
-int Tileqt_ThemeName(ClientData clientData, Tcl_Interp *interp,
+int Tilegtk_ThemeName(ClientData clientData, Tcl_Interp *interp,
                                  int objc, Tcl_Obj *const objv[]) {
   // TileGtk_WidgetCache **wc_array = (TileGtk_WidgetCache **) clientData;
   // TileGtk_WidgetCache *wc;
@@ -76,9 +80,9 @@ int Tileqt_ThemeName(ClientData clientData, Tcl_Interp *interp,
   }
   Tcl_MutexUnlock(&tilegtkMutex);
   return TCL_OK;
-}; /* Tileqt_ThemeName */
+}; /* Tilegtk_ThemeName */
 
-int Tileqt_SettingsProperty(ClientData clientData, Tcl_Interp *interp,
+int Tilegtk_SettingsProperty(ClientData clientData, Tcl_Interp *interp,
                                  int objc, Tcl_Obj *const objv[]) {
   static const char *Methods[] = {
     "integer", "boolean", "string", (char *) NULL
@@ -126,11 +130,11 @@ int Tileqt_SettingsProperty(ClientData clientData, Tcl_Interp *interp,
   }
   Tcl_MutexUnlock(&tilegtkMutex);
   return TCL_OK;
-}; /* Tileqt_SettingsProperty */
+}; /* Tilegtk_SettingsProperty */
 
 #define GETPROPERTY_GTK_WIDGET_GET       0
 #define GETPROPERTY_GTK_WIDGET_STYLE_GET 1
-int Tileqt_GetProperty(ClientData clientData, Tcl_Interp *interp,
+int Tilegtk_GetProperty(ClientData clientData, Tcl_Interp *interp,
                                  int objc, Tcl_Obj *const objv[], int gtkMethod) {
   static const char *Methods[] = {
     "integer", "boolean", "string", (char *) NULL
@@ -229,21 +233,21 @@ int Tileqt_GetProperty(ClientData clientData, Tcl_Interp *interp,
   }
   Tcl_MutexUnlock(&tilegtkMutex);
   return TCL_OK;
-}; /* Tileqt_GetProperty */
+}; /* Tilegtk_GetProperty */
 
-int Tileqt_WidgetProperty(ClientData clientData, Tcl_Interp *interp,
+int Tilegtk_WidgetProperty(ClientData clientData, Tcl_Interp *interp,
                           int objc, Tcl_Obj *const objv[]) {
-  return Tileqt_GetProperty(clientData, interp, objc, objv,
+  return Tilegtk_GetProperty(clientData, interp, objc, objv,
                             GETPROPERTY_GTK_WIDGET_GET);
-}; /* Tileqt_WidgetProperty */
+}; /* Tilegtk_WidgetProperty */
 
-int Tileqt_WidgetStyleProperty(ClientData clientData, Tcl_Interp *interp,
+int Tilegtk_WidgetStyleProperty(ClientData clientData, Tcl_Interp *interp,
                                  int objc, Tcl_Obj *const objv[]) {
-  return Tileqt_GetProperty(clientData, interp, objc, objv,
+  return Tilegtk_GetProperty(clientData, interp, objc, objv,
                             GETPROPERTY_GTK_WIDGET_STYLE_GET);
-}; /* Tileqt_WidgetStyleProperty */
+}; /* Tilegtk_WidgetStyleProperty */
 
-int Tileqt_GtkEnum(ClientData clientData, Tcl_Interp *interp,
+int Tilegtk_GtkEnum(ClientData clientData, Tcl_Interp *interp,
                                  int objc, Tcl_Obj *const objv[]) {
   static const char *Methods[] = {
     "GtkPositionType", (char *) NULL
@@ -280,9 +284,9 @@ int Tileqt_GtkEnum(ClientData clientData, Tcl_Interp *interp,
   }
   Tcl_SetResult(interp, (char *) n, TCL_STATIC);
   return TCL_OK;
-}; /* Tileqt_GtkEnum */
+}; /* Tilegtk_GtkEnum */
 
-int Tileqt_GtkDirectory(ClientData clientData, Tcl_Interp *interp,
+int Tilegtk_GtkDirectory(ClientData clientData, Tcl_Interp *interp,
                                  int objc, Tcl_Obj *const objv[]) {
   static const char *Methods[] = {
     "theme", "default_files", (char *) NULL
@@ -338,9 +342,9 @@ int Tileqt_GtkDirectory(ClientData clientData, Tcl_Interp *interp,
   }
   Tcl_MutexUnlock(&tilegtkMutex);
   return TCL_OK;
-}; /* Tileqt_GtkDirectory */
+}; /* Tilegtk_GtkDirectory */
 
-int Tileqt_gtk_method(ClientData clientData, Tcl_Interp *interp,
+int Tilegtk_gtk_method(ClientData clientData, Tcl_Interp *interp,
                                  int objc, Tcl_Obj *const objv[]) {
   static const char *Methods[] = {
     "gtk_rc_reparse_all_for_settings", "gtk_rc_reset_styles", (char *) NULL
@@ -370,9 +374,9 @@ int Tileqt_gtk_method(ClientData clientData, Tcl_Interp *interp,
   }
   Tcl_MutexUnlock(&tilegtkMutex);
   return TCL_OK;
-}; /* Tileqt_gtk_method */
+}; /* Tilegtk_gtk_method */
 
-int Tileqt_ThemeColour(ClientData clientData, Tcl_Interp *interp,
+int Tilegtk_ThemeColour(ClientData clientData, Tcl_Interp *interp,
                                  int objc, Tcl_Obj *const objv[]) {
   static const char *Methods[] = {
     "fg(NORMAL)",           "fg(PRELIGHT)",           "fg(ACTIVE)",
@@ -489,7 +493,7 @@ int Tileqt_ThemeColour(ClientData clientData, Tcl_Interp *interp,
   Tcl_SetResult(interp, (char *) "colour not found: ", TCL_STATIC);
   Tcl_AppendResult(interp, (char *) Tcl_GetString(objv[1]), NULL);
   return TCL_ERROR;
-}; /* Tileqt_ThemeColour */
+}; /* Tilegtk_ThemeColour */
 
 #ifndef TILEGTK_LOAD_GTK_DYNAMICALLY
 #ifndef GTK_STYLE_GET_PRIVATE
@@ -501,7 +505,7 @@ typedef struct _GtkStylePrivate GtkStylePrivate;
 #endif
 #endif /* TILEGTK_LOAD_GTK_DYNAMICALLY */
 
-int Tileqt_ColourKeys(ClientData clientData, Tcl_Interp *interp,
+int Tilegtk_ColourKeys(ClientData clientData, Tcl_Interp *interp,
                                  int objc, Tcl_Obj *const objv[]) {
   TileGtk_WidgetCache **wc = (TileGtk_WidgetCache **) clientData;
   if (!wc) {
@@ -527,9 +531,86 @@ int Tileqt_ColourKeys(ClientData clientData, Tcl_Interp *interp,
   Tcl_SetObjResult(interp, list);
 #endif /* TILEGTK_LOAD_GTK_DYNAMICALLY */
   return TCL_OK;
-}; /* Tileqt_ColourKeys */
+}; /* Tilegtk_ColourKeys */
 
-int Tileqt_SetPalette(ClientData clientData, Tcl_Interp *interp,
+int Tilegtk_InitialiseLibrary(ClientData clientData, Tcl_Interp *interp,
+                                 int objc, Tcl_Obj *const objv[]) {
+  static const char *Methods[] = {
+    "required",
+    "gdk",  "gdk_pixbuf", "gdk_pixbuf_xlib",
+    "glib", "gobject",
+    "gtk",
+    (char *) NULL
+  };
+  enum methods {
+    L_REQUIRED,
+    L_GDK,  L_GDK_PIXBUF, L_GDK_PIXBUF_XLIB,
+    L_GLIB, L_GOBJECT,
+    L_GTK
+  };
+  int index;
+  const char *result = NULL;
+  if (objc != 2 & objc != 3) {
+    Tcl_WrongNumArgs(interp, 1, objv, "required|library ?filename?");
+    return TCL_ERROR;
+  }
+  if (Tcl_GetIndexFromObj(interp, objv[1], (const char **) Methods,
+                          "method", 0, &index) != TCL_OK)
+    return TCL_ERROR;
+  Tcl_MutexLock(&tilegtkMutex);
+  switch ((enum methods) index) {
+    case L_REQUIRED:
+#ifdef TILEGTK_LOAD_GTK_DYNAMICALLY
+      Tcl_SetObjResult(interp, Tcl_NewBooleanObj(1));
+#else
+      Tcl_SetObjResult(interp, Tcl_NewBooleanObj(0));
+#endif /* TILEGTK_LOAD_GTK_DYNAMICALLY */
+      Tcl_MutexUnlock(&tilegtkMutex);
+      return TCL_OK;
+#ifdef TILEGTK_LOAD_GTK_DYNAMICALLY
+    case L_GDK:
+      if (!TILEGTK_LAST_SYMBOL_gdk && objc > 2) {
+        result = TileGtk_InitialiseSymbols_gdk(Tcl_GetString(objv[2]));
+      }
+      break;
+    case L_GDK_PIXBUF:
+      if (!TILEGTK_LAST_SYMBOL_gdk_pixbuf && objc > 2) {
+        result = TileGtk_InitialiseSymbols_gdk_pixbuf(Tcl_GetString(objv[2]));
+      }
+      break;
+    case L_GDK_PIXBUF_XLIB:
+      if (!TILEGTK_LAST_SYMBOL_gdk_pixbuf_xlib && objc > 2) {
+        result = TileGtk_InitialiseSymbols_gdk_pixbuf_xlib(
+                                                Tcl_GetString(objv[2]));
+      }
+      break;
+    case L_GLIB:
+      if (!TILEGTK_LAST_SYMBOL_glib && objc > 2) {
+        result = TileGtk_InitialiseSymbols_glib(Tcl_GetString(objv[2]));
+      }
+      break;
+    case L_GOBJECT:
+      if (!TILEGTK_LAST_SYMBOL_gobject && objc > 2) {
+        result = TileGtk_InitialiseSymbols_gobject(Tcl_GetString(objv[2]));
+      }
+      break;
+    case L_GTK:
+      if (!TILEGTK_LAST_SYMBOL_gtk && objc > 2) {
+        result = TileGtk_InitialiseSymbols_gtk(Tcl_GetString(objv[2]));
+      }
+      break;
+#endif /* TILEGTK_LOAD_GTK_DYNAMICALLY */
+  }
+  Tcl_MutexUnlock(&tilegtkMutex);
+        
+  if (result) {
+    Tcl_SetResult(interp, (char *) result, TCL_STATIC);
+    return TCL_ERROR;
+  }
+  return TCL_OK;
+}; /* Tilegtk_InitialiseLibrary */
+
+int Tilegtk_SetPalette(ClientData clientData, Tcl_Interp *interp,
                                  int objc, Tcl_Obj *const objv[]) {
 #if 0
   static const char *Methods[] = {
@@ -559,9 +640,9 @@ int Tileqt_SetPalette(ClientData clientData, Tcl_Interp *interp,
   Tcl_MutexUnlock(&tilegtkMutex);
 #endif
   return TCL_OK;
-}; /* Tileqt_SetPalette */
+}; /* Tilegtk_SetPalette */
 
-int Tileqt_SetStyle(ClientData clientData, Tcl_Interp *interp,
+int Tilegtk_SetStyle(ClientData clientData, Tcl_Interp *interp,
                                  int objc, Tcl_Obj *const objv[]) {
   if (objc != 2) {Tcl_WrongNumArgs(interp, 1, objv, "style"); return TCL_ERROR;}
   Tcl_MutexLock(&tilegtkMutex);
@@ -652,9 +733,9 @@ int Tileqt_SetStyle(ClientData clientData, Tcl_Interp *interp,
 #endif
   Tcl_MutexUnlock(&tilegtkMutex);
   return TCL_OK;
-}; /* Tileqt_SetStyle */
+}; /* Tilegtk_SetStyle */
 
-int Tileqt_GetPixelMetric(ClientData clientData, Tcl_Interp *interp,
+int Tilegtk_GetPixelMetric(ClientData clientData, Tcl_Interp *interp,
                                  int objc, Tcl_Obj *const objv[]) {
 /*
   PM_TabBarTabOverlap         - number of pixels the tabs should overlap.
@@ -734,9 +815,9 @@ int Tileqt_GetPixelMetric(ClientData clientData, Tcl_Interp *interp,
   Tcl_MutexUnlock(&tilegtkMutex);
   Tcl_SetObjResult(interp, Tcl_NewIntObj(pixels));
   return TCL_OK;
-}; /* Tileqt_GetPixelMetric */
+}; /* Tilegtk_GetPixelMetric */
 
-int Tileqt_GetStyleHint(ClientData clientData, Tcl_Interp *interp,
+int Tilegtk_GetStyleHint(ClientData clientData, Tcl_Interp *interp,
                                  int objc, Tcl_Obj *const objv[]) {
 /*
   SH_TabBar_Alignment         - The alignment for tabs in a GTKabBar.
@@ -789,9 +870,9 @@ int Tileqt_GetStyleHint(ClientData clientData, Tcl_Interp *interp,
 #endif
   Tcl_SetResult(interp, (char *) pstr, TCL_STATIC);
   return TCL_OK;
-}; /* Tileqt_GetStyleHint */
+}; /* Tilegtk_GetStyleHint */
 
-int Tileqt_GetSubControlMetrics(ClientData clientData, Tcl_Interp *interp,
+int Tilegtk_GetSubControlMetrics(ClientData clientData, Tcl_Interp *interp,
                                  int objc, Tcl_Obj *const objv[]) {
 #if 0
   /*
@@ -891,7 +972,7 @@ int Tileqt_GetSubControlMetrics(ClientData clientData, Tcl_Interp *interp,
   Tcl_SetObjResult(interp, result);
 #endif
   return TCL_OK;
-}; /* Tileqt_GetSubControlMetrics */
+}; /* Tilegtk_GetSubControlMetrics */
 
 extern "C" int DLLEXPORT
 Tilegtk_Init(Tcl_Interp *interp)
@@ -915,6 +996,20 @@ Tilegtk_Init(Tcl_Interp *interp)
 
     themePtr  = Ttk_CreateTheme(interp, "tilegtk", NULL);
     if (!themePtr) return TCL_ERROR;
+
+    Tcl_CreateObjCommand(interp,
+                         "ttk::theme::tilegtk::initialiseLibrary",
+                         Tilegtk_InitialiseLibrary, (ClientData) wc, NULL);
+    if (Tcl_Eval(interp, initScript) != TCL_OK) {
+      return TCL_ERROR;
+    }
+#ifdef TILEGTK_LOAD_GTK_DYNAMICALLY
+    if (!TileGtk_GtkAppCreated) {
+      if (Tcl_Eval(interp, libsInitScript) != TCL_OK) {
+        return TCL_ERROR;
+      }
+    }
+#endif /* TILEGTK_LOAD_GTK_DYNAMICALLY */
 
     /*
      * Initialise Gtk:
@@ -953,40 +1048,40 @@ Tilegtk_Init(Tcl_Interp *interp)
      * Register the TileGtk package...
      */
     Tcl_CreateObjCommand(interp, "ttk::theme::tilegtk::gtkEnum",
-                         Tileqt_GtkEnum, (ClientData) wc, NULL);
+                         Tilegtk_GtkEnum, (ClientData) wc, NULL);
     Tcl_CreateObjCommand(interp, "ttk::theme::tilegtk::settingsProperty",
-                         Tileqt_SettingsProperty, (ClientData) wc, NULL);
+                         Tilegtk_SettingsProperty, (ClientData) wc, NULL);
     Tcl_CreateObjCommand(interp, "ttk::theme::tilegtk::widgetStyleProperty",
-                         Tileqt_WidgetStyleProperty, (ClientData) wc, NULL);
+                         Tilegtk_WidgetStyleProperty, (ClientData) wc, NULL);
     Tcl_CreateObjCommand(interp, "ttk::theme::tilegtk::widgetProperty",
-                         Tileqt_WidgetProperty, (ClientData) wc, NULL);
+                         Tilegtk_WidgetProperty, (ClientData) wc, NULL);
     Tcl_CreateObjCommand(interp, "ttk::theme::tilegtk::currentThemeName",
-                         Tileqt_ThemeName, (ClientData) wc, NULL);
+                         Tilegtk_ThemeName, (ClientData) wc, NULL);
     Tcl_CreateObjCommand(interp, "ttk::theme::tilegtk::gtkDirectory",
-                         Tileqt_GtkDirectory, (ClientData) wc, NULL);
+                         Tilegtk_GtkDirectory, (ClientData) wc, NULL);
     Tcl_CreateObjCommand(interp, "ttk::theme::tilegtk::setStyle",
-                         Tileqt_SetStyle, (ClientData) wc, NULL);
+                         Tilegtk_SetStyle, (ClientData) wc, NULL);
     Tcl_CreateObjCommand(interp, "ttk::theme::tilegtk::gtk_method",
-                         Tileqt_gtk_method, (ClientData) wc, NULL);
+                         Tilegtk_gtk_method, (ClientData) wc, NULL);
     Tcl_CreateObjCommand(interp,
                          "ttk::theme::tilegtk::currentThemeColour",
-                         Tileqt_ThemeColour, (ClientData) wc, NULL);
+                         Tilegtk_ThemeColour, (ClientData) wc, NULL);
     Tcl_CreateObjCommand(interp,
                          "ttk::theme::tilegtk::currentThemeColourKeys",
-                         Tileqt_ColourKeys, (ClientData) wc, NULL);
+                         Tilegtk_ColourKeys, (ClientData) wc, NULL);
 #if 0
     Tcl_CreateObjCommand(interp,
                          "ttk::theme::tilegtk::setPalette",
-                         Tileqt_SetPalette, (ClientData) wc, NULL);
+                         Tilegtk_SetPalette, (ClientData) wc, NULL);
     Tcl_CreateObjCommand(interp,
                          "ttk::theme::tilegtk::getPixelMetric",
-                         Tileqt_GetPixelMetric, (ClientData) wc, NULL);
+                         Tilegtk_GetPixelMetric, (ClientData) wc, NULL);
     Tcl_CreateObjCommand(interp,
                          "ttk::theme::tilegtk::getStyleHint",
-                         Tileqt_GetStyleHint, (ClientData) wc, NULL);
+                         Tilegtk_GetStyleHint, (ClientData) wc, NULL);
     Tcl_CreateObjCommand(interp,
                          "ttk::theme::tilegtk::getSubControlMetrics",
-                         Tileqt_GetSubControlMetrics, (ClientData) wc, NULL);
+                         Tilegtk_GetSubControlMetrics, (ClientData) wc, NULL);
 #endif
     /* Save the name of the current theme... */
     strcpy(tmpScript, "namespace eval ttk::theme::tilegtk { variable theme ");
@@ -1008,7 +1103,7 @@ Tilegtk_Init(Tcl_Interp *interp)
     if (Tcl_Eval(interp, tmpScript) != TCL_OK) {
       return TCL_ERROR;
     }
-    if (Tcl_Eval(interp, initScript) != TCL_OK) {
+    if (Tcl_Eval(interp, "ttk::theme::tilegtk::init") != TCL_OK) {
       return TCL_ERROR;
     }
     Tcl_PkgProvide(interp, "ttk::theme::tilegtk", PACKAGE_VERSION);

@@ -3,6 +3,60 @@ namespace eval ttk::theme::tilegtk {
   variable System
   variable StyleToRc
 
+  proc loadLibraries {args} {
+    if {![initialiseLibrary required]} {return}
+    set libs {gdk gdk_pixbuf glib gobject gtk}
+    switch $::tcl_platform(platform) {
+      windows {
+        set sep ;
+        set prefixes {{} lib}
+        set names {-win32-2.0 -2.0 20 -win32 {}}
+      }
+      unix {
+        set sep :
+        set prefixes {lib}
+        set names {-x11-2.0 -2.0 20 -x11 {}}
+        lappend libs gdk_pixbuf_xlib
+      }
+      default {}
+    }
+    set ext [info sharedlibextension]
+    set paths {
+      /usr/lib /opt/gnome/lib /usr/openwin/lib
+    }
+    if {[info exists ::env(LD_LIBRARY_PATH)]} {
+      foreach path [split $::env(LD_LIBRARY_PATH) $sep] {
+        set path [string trim $path]
+        if {[string length $path] && [file isdirectory $path]} {
+          lappend paths $path
+        }
+      }
+    }
+    set loaded 0
+    foreach lib $libs {
+      puts "* Locating: $lib"
+      foreach path $paths {
+        foreach name $names {
+          foreach prefix $prefixes {
+            set file $path/${prefix}${lib}${name}$ext
+            if {[file exists $file]} {
+              puts "    ++ $file"
+              if {[catch {initialiseLibrary $lib $file} symbol]} {
+                puts "      => ERROR: $symbol"
+              } else {
+                incr loaded
+              }
+              break
+            }
+          }
+        }
+      }
+    }
+    if {$loaded != [llength $libs]} {
+      error "Not all symbols loaded!"
+    }
+  };# loadLibraries
+
   proc getSystemInfo {} {
     global env
     variable System
@@ -634,8 +688,10 @@ namespace eval ttk::theme::tilegtk {
   };# getStyleColourInformation
 
   ## Update layouts on load...
-  getSystemInfo
-  availableStyles_AsReturned
-  updateLayouts
-  updateStyles
+  proc init {} {
+    getSystemInfo
+    availableStyles_AsReturned
+    updateLayouts
+    updateStyles
+  };# init
 }
