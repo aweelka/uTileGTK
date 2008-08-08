@@ -92,6 +92,7 @@ TileGtk_WidgetCache **TileGtk_CreateGtkApp(Tcl_Interp *interp) {
       remaining_args = NULL;
     }
 #else  /* TILEGTK_ENABLE_GNOME */
+    TileGtk_gtk_set_locale();
     TileGtk_GtkInitialisedFlag = TileGtk_gtk_init_check(&argc, &argv);
 #endif /* TILEGTK_ENABLE_GNOME */
     TileGtk_g_free(argv);

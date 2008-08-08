@@ -16,14 +16,14 @@ extern TileGtk_WidgetCache **TileGtk_CreateGtkApp(Tcl_Interp *interp);
 extern void TileGtk_DestroyGtkApp(void);
 
 static char initScript[] =
-    "namespace eval tilegtk { };"
-    "namespace eval ttk::theme::tilegtk { variable version "
-                                                   PACKAGE_VERSION " };"
-    "tcl_findLibrary tilegtk $ttk::theme::tilegtk::version "
-    "$ttk::theme::tilegtk::version tilegtk.tcl TILEGTK_LIBRARY tilegtk::library;";
+  "namespace eval tilegtk { };"
+  "namespace eval ttk::theme::tilegtk { variable version "
+                                                 PACKAGE_VERSION " };"
+  "tcl_findLibrary tilegtk $ttk::theme::tilegtk::version "
+  "$ttk::theme::tilegtk::version tilegtk.tcl TILEGTK_LIBRARY tilegtk::library;";
 #ifdef TILEGTK_LOAD_GTK_DYNAMICALLY
 static char libsInitScript[] =
-    "ttk::theme::tilegtk::loadLibraries";
+  "ttk::theme::tilegtk::loadLibraries";
 #endif /* TILEGTK_LOAD_GTK_DYNAMICALLY */
 
 /*
@@ -319,9 +319,13 @@ int Tilegtk_GtkDirectory(ClientData clientData, Tcl_Interp *interp,
         }
         dirs = TileGtk_g_new0(gchar *, mobjc+1);
         for (int i = 0; i < mobjc; ++i) {
+          Tcl_IncrRefCount(mobjv[i]);
           dirs[i] = Tcl_GetString(mobjv[i]);
         }
         TileGtk_gtk_rc_set_default_files(dirs);
+        for (int i = 0; i < mobjc; ++i) {
+          Tcl_DecrRefCount(mobjv[i]);
+        }
         TileGtk_g_free(dirs); dirs = NULL;
       } else {
         dirs = TileGtk_gtk_rc_get_default_files();
@@ -579,10 +583,12 @@ int Tilegtk_InitialiseLibrary(ClientData clientData, Tcl_Interp *interp,
       }
       break;
     case L_GDK_PIXBUF_XLIB:
+#ifndef __WIN32__
       if (!TILEGTK_LAST_SYMBOL_gdk_pixbuf_xlib && objc > 2) {
         result = TileGtk_InitialiseSymbols_gdk_pixbuf_xlib(
                                                 Tcl_GetString(objv[2]));
       }
+#endif
       break;
     case L_GLIB:
       if (!TILEGTK_LAST_SYMBOL_glib && objc > 2) {

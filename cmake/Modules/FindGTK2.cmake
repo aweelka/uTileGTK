@@ -4,7 +4,7 @@
 #  GTK_FOUND         - GTK was found
 #  GTK_GL_FOUND      - GTK's GL features were found
 
-SET ( GTK_ADDITIONAL_PATHS "C:/Program Files (x86)/gtk+-bundle-2.12.11" )
+SET ( GTK_ADDITIONAL_PATHS "$ENV{ProgramFiles}/gtk+-bundle-2.12.11" )
 
 FOREACH ( path ${GTK_ADDITIONAL_PATHS} )
   SET ( GTK_ADDITIONAL_INCLUDE_PATHS ${GTK_ADDITIONAL_INCLUDE_PATHS}

@@ -6,11 +6,15 @@ namespace eval ttk::theme::tilegtk {
   proc loadLibraries {args} {
     if {![initialiseLibrary required]} {return}
     set libs {gdk gdk_pixbuf glib gobject gtk}
+    set paths {
+      /usr/lib /opt/gnome/lib /usr/openwin/lib
+    }
+    set ext [info sharedlibextension]
     switch $::tcl_platform(platform) {
       windows {
-        set sep ;
+        set sep \;
         set prefixes {{} lib}
-        set names {-win32-2.0 -2.0 20 -win32 {}}
+        set names {-win32-2.0* -2.0* 20* -win32* * {}}
       }
       unix {
         set sep :
@@ -20,10 +24,6 @@ namespace eval ttk::theme::tilegtk {
       }
       default {}
     }
-    set ext [info sharedlibextension]
-    set paths {
-      /usr/lib /opt/gnome/lib /usr/openwin/lib
-    }
     if {[info exists ::env(LD_LIBRARY_PATH)]} {
       foreach path [split $::env(LD_LIBRARY_PATH) $sep] {
         set path [string trim $path]
@@ -32,24 +32,38 @@ namespace eval ttk::theme::tilegtk {
         }
       }
     }
+    if {[info exists ::env(ProgramFiles)]} {
+      foreach path [glob -nocomplain -dir $::env(ProgramFiles) *gtk*] {
+        set path $path/bin
+        if {[file isdirectory $path]} {
+          lappend paths [file normalize $path]
+        }
+      }
+    }
     set loaded 0
     foreach lib $libs {
       puts "* Locating: $lib"
+      set found 0
       foreach path $paths {
+        if {![file isdirectory $path]} {continue}
         foreach name $names {
           foreach prefix $prefixes {
-            set file $path/${prefix}${lib}${name}$ext
-            if {[file exists $file]} {
-              puts "    ++ $file"
-              if {[catch {initialiseLibrary $lib $file} symbol]} {
-                puts "      => ERROR: $symbol"
-              } else {
-                incr loaded
-              }
-              break
-            }
-          }
-        }
+            foreach file [glob -nocomplain -dir $path -type f \
+                               ${prefix}${lib}${name}$ext] {
+              if {[file exists $file]} {
+                puts "    ++ $file"
+                if {[catch {initialiseLibrary $lib $file} symbol]} {
+                  puts "      => ERROR: $symbol"
+                } else {
+                  incr loaded; set found 1
+                  break
+                }
+              };# if {[file exists $file]}
+            };# foreach file ...
+            if {$found} {break}
+          };# foreach prefix $prefixes
+          if {$found} {break}
+        };# foreach name $names
       }
     }
     if {$loaded != [llength $libs]} {
@@ -61,24 +75,30 @@ namespace eval ttk::theme::tilegtk {
     global env
     variable System
 
+    set System(HOME) {}
+    foreach var {HOME} {
+      if {[info exists env($var)]} {
+        set System($var) [file normalize $env($var)]
+	break
+      }
+    }
+
     set System(GTK_RC_FILES) {}
     if {[info exists env(GTK_RC_FILES)]} {
-      set System(GTK_RC_FILES) $env(GTK_RC_FILES)
+      set System(GTK_RC_FILES) [file normalize $env(GTK_RC_FILES)]
     } elseif {[info exists env(HOME)]} {
-      foreach rc [glob -nocomplain -dir $env(HOME) -type f .gtkrc*] {
+      foreach rc [glob -nocomplain -dir $System(HOME) -type f .gtkrc*] {
         lappend System(GTK_RC_FILES) $rc
       }
       set System(GTK_RC_FILES) [lsort -dictionary $System(GTK_RC_FILES)]
     }
 
-    set System(HOME) {}
-    foreach var {HOME} {
-      if {[info exists env($var)]} {set System(HOME) $env($var); break}
-    }
-
     set System(TEMP) {}
     foreach var {TEMP TMP temp tmp} {
-      if {[info exists env($var)]} {set System(TEMP) $env($var); break}
+      if {[info exists env($var)]} {
+        set System(TEMP) [file normalize $env($var)]
+	break
+      }
     } 
     if {![string length $System(TEMP)]} {
       foreach dir {/tmp} {
@@ -95,8 +115,9 @@ namespace eval ttk::theme::tilegtk {
   #  Returns the available styles...
   proc availableStyles_AsReturned {} {
     variable StyleToRc
+    variable System
     set styles {}
-    foreach dir [list $::env(HOME)/.themes [gtkDirectory theme]] {
+    foreach dir [list $System(HOME)/.themes [gtkDirectory theme]] {
       foreach theme [glob -nocomplain -type d -directory $dir *] {
         if {[file exists $theme/gtk-2.0/gtkrc]} {
           set style [file tail $theme]
