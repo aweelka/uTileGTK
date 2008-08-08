@@ -550,7 +550,7 @@ int Tilegtk_InitialiseLibrary(ClientData clientData, Tcl_Interp *interp,
   };
   int index;
   const char *result = NULL;
-  if (objc != 2 & objc != 3) {
+  if (objc != 2 && objc != 3) {
     Tcl_WrongNumArgs(interp, 1, objv, "required|library ?filename?");
     return TCL_ERROR;
   }
