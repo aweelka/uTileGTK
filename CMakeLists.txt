@@ -15,9 +15,15 @@ SET ( PKG_NAME_VERSION  ${PKG_NAME}-${PKG_VERSION} )
 SET ( PKG_VENDOR        "Georgios Petasis" )
 SET ( PKG_HOME_DIR      ${PROJECT_SOURCE_DIR} )
 
-SET ( LOAD_GTK_DYNAMICALLY OFF )
-SET ( NO_MSVCRT ON )
-SET ( USE_GNOME OFF )
+OPTION ( LOAD_GTK_DYNAMICALLY "Load GTK+ libraries dynamically" OFF )
+OPTION ( NO_MSVCRT "Do not require a specific MSVCRT runtime"   ON  )
+OPTION ( USE_GNOME "Use GNOME libraries if found"               OFF )
+OPTION ( VERBOSE   "Print more information"                     ON  )
+
+IF ( VERBOSE )
+  # SET ( CMAKE_VERBOSE_MAKEFILE ON )
+  SET ( GTK_LOGGING_ENABLED    ON )
+ENDIF ( VERBOSE )
 
 SET ( PKG_SOURCES generic/tileGtk_Init.cpp
                   generic/tileGtk_TreeView.cpp
