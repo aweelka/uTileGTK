@@ -212,6 +212,9 @@ proc get_function_spec {f} {
     gtk_rc_set_default_files {
       set a {gchar **filenames}
     }
+    gtk_set_locale {
+      set t {gchar*}
+    }
     gtk_settings_get_default {
       set t {GtkSettings *}
     }
