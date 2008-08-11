@@ -1,9 +1,17 @@
-08
+11 Aug 2008  Georgios Petasis  <petasis@iit.demokritos.gr>
+        * cmake/Modules/FindGTK2.cmake: Make the module more easy to adapt to
+	new GTK+ paths.
+
+	* library/GenerateSymbols.tcl:
+	* library/tilegtk.tcl:
+	* generic/tileGtk_Init.cpp: Completed the ability to dynamically
+	load GTK+ libraries under windows.
+
 07 Aug 2008  Georgios Petasis  <petasis@iit.demokritos.gr>
         * library/GenerateSymbols.tcl:
 	* library/tilegtk.tcl:
 	* generic/tileGtk_Init.cpp: Completed the ability to dynamically
-	upload GTK+ libraries from linux.
+	load GTK+ libraries under linux.
 
 07 Aug 2008  Georgios Petasis  <petasis@iit.demokritos.gr>
         * library/GenarateSymbols.tcl: Added a new script that generates
