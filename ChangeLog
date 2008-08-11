@@ -1,32 +1,34 @@
 11 Aug 2008  Georgios Petasis  <petasis@iit.demokritos.gr>
-        * cmake/Modules/FindGTK2.cmake: Make the module more easy to adapt to
-	new GTK+ paths.
+  * demos/StyleInstrospection.tcl: Updated.
 
-	* library/GenerateSymbols.tcl:
-	* library/tilegtk.tcl:
-	* generic/tileGtk_Init.cpp: Completed the ability to dynamically
-	load GTK+ libraries under windows.
+  * cmake/Modules/FindGTK2.cmake: Make the module more easy to adapt to
+  new GTK+ paths.
 
-07 Aug 2008  Georgios Petasis  <petasis@iit.demokritos.gr>
-        * library/GenerateSymbols.tcl:
-	* library/tilegtk.tcl:
-	* generic/tileGtk_Init.cpp: Completed the ability to dynamically
-	load GTK+ libraries under linux.
+  * library/GenerateSymbols.tcl:
+  * library/tilegtk.tcl:
+  * generic/tileGtk_Init.cpp: Completed the ability to dynamically
+  load GTK+ libraries under windows.
 
 07 Aug 2008  Georgios Petasis  <petasis@iit.demokritos.gr>
-        * library/GenarateSymbols.tcl: Added a new script that generates
-	generic/tileGtk_Symbols.h, generic/tileGtk_Symbols.h from GTK/Glib/GDK
-	functions used in code. The generated files map all glib/gdk/gtk
-	functions to pointers, if symbol TILEGTK_LOAD_GTK_DYNAMICALLY is
-	defined. In general, to enable this feature, LOAD_GTK_DYNAMICALLY must
-	be set to ON in CMakeLists.txt.
-	Note that this support is still incomplete.
+  * library/GenerateSymbols.tcl:
+  * library/tilegtk.tcl:
+  * generic/tileGtk_Init.cpp: Completed the ability to dynamically
+  load GTK+ libraries under linux.
+
+07 Aug 2008  Georgios Petasis  <petasis@iit.demokritos.gr>
+  * library/GenarateSymbols.tcl: Added a new script that generates
+  generic/tileGtk_Symbols.h, generic/tileGtk_Symbols.h from GTK/Glib/GDK
+  functions used in code. The generated files map all glib/gdk/gtk
+  functions to pointers, if symbol TILEGTK_LOAD_GTK_DYNAMICALLY is
+  defined. In general, to enable this feature, LOAD_GTK_DYNAMICALLY must
+  be set to ON in CMakeLists.txt.
+  Note that this support is still incomplete.
 
 06 Aug 2008  Georgios Petasis  <petasis@iit.demokritos.gr>
-        * New widgets: SizeGrip, Paned, ToolButton, Notebook & Combobox.
+  * New widgets: SizeGrip, Paned, ToolButton, Notebook & Combobox.
 
 05 Aug 2008  Georgios Petasis  <petasis@iit.demokritos.gr>
-        * Updates: Scrollbars, Scales & ProgressBar widgets added.
+  * Updates: Scrollbars, Scales & ProgressBar widgets added.
 
 03 Aug 2008  Georgios Petasis  <petasis@iit.demokritos.gr>
-        * Started the tile-gtk theme.
+  * Started the tile-gtk theme.

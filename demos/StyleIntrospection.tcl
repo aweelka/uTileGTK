@@ -8,53 +8,27 @@ ttk::setTheme tilegtk
 
 set win {}
 label $win.lbl_option   -text Option:
-label $win.lbl_active   -text -active
-label $win.lbl_disabled -text -disabled
-label $win.lbl_inactive -text -inactive
-label $win.lbl_explain  -text Explanation:
-grid $win.lbl_option $win.lbl_active $win.lbl_disabled $win.lbl_inactive \
-     $win.lbl_explain -sticky snew -padx 2 -pady 2
-foreach {option explanation} {
-                background      {Returns the background color.}
-                foreground      {Returns the foreground color.}
-                button          {Returns the button color.}
-                light           {Returns the light color.}
-                dark            {Returns the dark color.}
-                mid             {Returns the mid color.}
-                text            {Returns the text foreground color. }
-                base            {Returns the base color.}
-                midlight        {Returns the midlight color.}
-                brightText      {Returns the bright text foreground color.}
-                buttonText      {Returns the button text foreground color.}
-                shadow          {Returns the shadow color.}
-                highlight       {Returns the highlight color.}
-                highlightedText {Returns the highlighted text color.}
-                link            {Returns the unvisited link text color.}
-                linkVisited     {Returns the visited link text color.}} {
-  label $win.$option -text "-$option:" -anchor w
-  
-  set active_colour [ttk::theme::tilegtk::currentThemeColour -$option]
-  label $win.${option}_active_colour -background $active_colour \
-    -relief raised -borderwidth 1
-  label $win.${option}_active_colour_value -text $active_colour
-
-  set disabled_colour [ttk::theme::tilegtk::currentThemeColour \
-                             -disabled -$option]
-  label $win.${option}_disabled_colour -background $disabled_colour \
-    -relief raised -borderwidth 1
-  label $win.${option}_disabled_colour_value -text $disabled_colour
-
-  set inactive_colour [ttk::theme::tilegtk::currentThemeColour \
-                             -inactive -$option]
-  label $win.${option}_inactive_colour -background $inactive_colour \
-    -relief raised -borderwidth 1
-  label $win.${option}_inactive_colour_value -text $inactive_colour
-  
-  label $win.${option}_explain -text $explanation -anchor w
-  grid $win.$option $win.${option}_active_colour \
-       $win.${option}_disabled_colour $win.${option}_inactive_colour \
-       $win.${option}_explain -sticky snew -padx 2 -pady 2
-  grid x $win.${option}_active_colour_value \
-       $win.${option}_disabled_colour_value \
-       $win.${option}_inactive_colour_value -sticky snew -padx 2 -pady 2
+label $win.lbl_1 -text NORMAL
+label $win.lbl_2 -text PRELIGHT
+label $win.lbl_3 -text ACTIVE
+label $win.lbl_4 -text SELECTED
+label $win.lbl_5 -text INSENSITIVE
+grid $win.lbl_option $win.lbl_1 $win.lbl_2 $win.lbl_3 $win.lbl_4 $win.lbl_5 \
+     -sticky snew -padx 2 -pady 2
+set row 1
+foreach base {fg bg base text light mid dark text_aa} {
+  set col 0
+  label $win.$base -text "$base:" -anchor w
+  grid  $win.$base -row $row -column $col
+  foreach state {NORMAL PRELIGHT ACTIVE SELECTED INSENSITIVE} {
+    set colour [ttk::theme::tilegtk::currentThemeColour ${base}($state)]
+    label $win.${base}_$state -background $colour \
+      -relief raised -borderwidth 1
+    label $win.${base}_${state}_value -text $colour
+    grid $win.${base}_$state -row $row -column [incr col] \
+         -sticky snew -padx 2 -pady 2
+    grid $win.${base}_${state}_value -row [expr {$row+1}] -column $col \
+         -sticky snew -padx 2 -pady 2
+  }
+  incr row 2
 }
