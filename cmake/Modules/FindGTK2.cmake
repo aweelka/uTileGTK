@@ -28,7 +28,7 @@
 #  GTK2_atk_LIBRARY
 
 # - Usage:
-#  The bahaviour of the module can be altered through variables, defined
+#  The behaviour of the module can be altered through variables, defined
 #  before the module is loaded. These (optional) variables are:
 #
 #  GTK2_ADDITIONAL_PATHS: A list of paths to search for GTK+
