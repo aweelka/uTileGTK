@@ -83,10 +83,12 @@ static void ButtonElementDraw(
 {
     TILEGTK_GTK_DRAWABLE_DEFINITIONS;
     TILEGTK_ENSURE_GTK_STYLE_ENGINE_ACTIVE;
-    TILEGTK_SETUP_GTK_DRAWABLE;
+    /* TILEGTK_SETUP_GTK_DRAWABLE; */
     GtkWidget *widget = TileGtk_GetButton(wc);
     ButtonElement *bd = (ButtonElement *) elementRecord;
     TILEGTK_ENSURE_WIDGET_OK;
+    TILEGTK_STYLE_FROM_WIDGET;
+    TILEGTK_PIXMAP_FROM_WIDGET;
     // TILEGTK_SETUP_STATE_SHADOW(pushbutton_statemap, pushbutton_shadowmap);
     TileGtk_StateShadowTableLookup(NULL, state, gtkState, gtkShadow,
             TILEGTK_SECTION_BUTTONS|TILEGTK_SECTION_ALL);

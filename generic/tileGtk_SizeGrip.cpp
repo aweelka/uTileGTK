@@ -53,9 +53,11 @@ static void SizeGripElementDraw(
 {
     TILEGTK_GTK_DRAWABLE_DEFINITIONS;
     TILEGTK_ENSURE_GTK_STYLE_ENGINE_ACTIVE;
-    TILEGTK_SETUP_GTK_DRAWABLE;
+    /* TILEGTK_SETUP_GTK_DRAWABLE; */
     GtkWidget *widget = wc->gtkWindow;
     TILEGTK_ENSURE_WIDGET_OK;
+    TILEGTK_STYLE_FROM_WIDGET;
+    TILEGTK_PIXMAP_FROM_WIDGET;
     // TileGtk_StateShadowTableLookup(NULL, state, gtkState, gtkShadow,
     //         TILEGTK_SECTION_ALL);
     TILEGTK_DEFAULT_BACKGROUND;

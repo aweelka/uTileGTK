@@ -53,9 +53,11 @@ static void MenubuttonIndicatorElementDraw(
 {
     TILEGTK_GTK_DRAWABLE_DEFINITIONS;
     TILEGTK_ENSURE_GTK_STYLE_ENGINE_ACTIVE;
-    TILEGTK_SETUP_GTK_DRAWABLE;
+    /* TILEGTK_SETUP_GTK_DRAWABLE; */
     GtkWidget *widget = TileGtk_GetCombobox(wc);
     TILEGTK_ENSURE_WIDGET_OK;
+    TILEGTK_STYLE_FROM_WIDGET;
+    TILEGTK_PIXMAP_FROM_WIDGET;
     TileGtk_StateShadowTableLookup(NULL, state, gtkState, gtkShadow,
             TILEGTK_SECTION_BUTTONS|TILEGTK_SECTION_ALL);
     TILEGTK_WIDGET_SET_FOCUS(widget);
@@ -101,9 +103,11 @@ static void MenubuttonElementDraw(
 {
     TILEGTK_GTK_DRAWABLE_DEFINITIONS;
     TILEGTK_ENSURE_GTK_STYLE_ENGINE_ACTIVE;
-    TILEGTK_SETUP_GTK_DRAWABLE;
+    /* TILEGTK_SETUP_GTK_DRAWABLE; */
     GtkWidget *widget = TileGtk_GetCombobox(wc);
     TILEGTK_ENSURE_WIDGET_OK;
+    TILEGTK_STYLE_FROM_WIDGET;
+    TILEGTK_PIXMAP_FROM_WIDGET;
     TileGtk_StateShadowTableLookup(NULL, state, gtkState, gtkShadow,
             TILEGTK_SECTION_BUTTONS|TILEGTK_SECTION_ALL);
     TILEGTK_WIDGET_SET_FOCUS(widget);

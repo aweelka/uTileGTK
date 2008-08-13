@@ -58,10 +58,12 @@ static void ScaleTroughElementDraw(
 {
     TILEGTK_GTK_DRAWABLE_DEFINITIONS;
     TILEGTK_ENSURE_GTK_STYLE_ENGINE_ACTIVE;
-    TILEGTK_SETUP_GTK_DRAWABLE;
+    /* TILEGTK_SETUP_GTK_DRAWABLE; */
     GtkWidget *widget = TileGtk_GetScale(wc);
     gboolean trough_side_details = FALSE;
     TILEGTK_ENSURE_WIDGET_OK;
+    TILEGTK_STYLE_FROM_WIDGET;
+    TILEGTK_PIXMAP_FROM_WIDGET;
     TileGtk_StateShadowTableLookup(NULL, state, gtkState, gtkShadow,
             TILEGTK_SECTION_TROUGH|TILEGTK_SECTION_ALL);
     // TILEGTK_SETUP_WIDGET_SIZE(b.width, b.height);
@@ -140,10 +142,12 @@ static void ScaleSliderElementDraw(
 {
     TILEGTK_GTK_DRAWABLE_DEFINITIONS;
     TILEGTK_ENSURE_GTK_STYLE_ENGINE_ACTIVE;
-    TILEGTK_SETUP_GTK_DRAWABLE;
+    /* TILEGTK_SETUP_GTK_DRAWABLE; */
     GtkWidget *widget = TileGtk_GetScale(wc);
     GtkAdjustment *adj = NULL;
     TILEGTK_ENSURE_WIDGET_OK;
+    TILEGTK_STYLE_FROM_WIDGET;
+    TILEGTK_PIXMAP_FROM_WIDGET;
     // TILEGTK_SETUP_WIDGET_SIZE(b.width, b.height);
     TILEGTK_WIDGET_SET_FOCUS(widget);
     adj = TileGtk_gtk_range_get_adjustment((GtkRange *) widget);

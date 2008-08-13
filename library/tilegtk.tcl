@@ -79,7 +79,7 @@ namespace eval ttk::theme::tilegtk {
     foreach var {HOME} {
       if {[info exists env($var)]} {
         set System($var) [file normalize $env($var)]
-	break
+        break
       }
     }
 
@@ -97,7 +97,7 @@ namespace eval ttk::theme::tilegtk {
     foreach var {TEMP TMP temp tmp} {
       if {[info exists env($var)]} {
         set System(TEMP) [file normalize $env($var)]
-	break
+        break
       }
     } 
     if {![string length $System(TEMP)]} {
@@ -564,7 +564,7 @@ namespace eval ttk::theme::tilegtk {
                  -text {Preview Unavailable!}] -fill both -expand 1
       } else {
         frame $dlgFrame.preview.container -container 1 -height 250 -width 400
-        ## Create a slave interpreter, and load tileQt. Widgets in this interp
+        ## Create a slave interpreter, and load tilegtk. Widgets in this interp
         ## may be of a different widget style!
         set PreviewInterp [interp create]
         interp eval $PreviewInterp {package require Tk}
@@ -573,7 +573,7 @@ namespace eval ttk::theme::tilegtk {
           set auto_path \{$::auto_path\}
           package require tile
           package require ttk::theme::tilegtk
-          #ttk::theme::tilegtk::applyStyle \{[currentThemeName]\}
+          ttk::theme::tilegtk::applyStyle \{[currentThemeName]\}
           toplevel .widgets -height 250 -width 400 \
                             -use [winfo id $dlgFrame.preview.container]
           ttk::theme::tilegtk::selectStyleDlg_previewWidgets .widgets
@@ -594,7 +594,6 @@ namespace eval ttk::theme::tilegtk {
   };# destroyThemeConfigurationPanel
 
   proc updateThemeConfigurationPanel {style} {
-    return
     variable PreviewInterp
     interp eval $PreviewInterp "ttk::theme::tilegtk::applyStyle \{$style\}"
   };# updateThemeConfigurationPanel
@@ -615,12 +614,12 @@ namespace eval ttk::theme::tilegtk {
     ttk::panedwindow $tab1.panedwindow -orient horizontal
     ## Add a set of radiobuttons to the left...
     ttk::labelframe $tab1.panedwindow.buttons -text " Button Group "
-      ttk::radiobutton $tab1.panedwindow.buttons.b1 -text "Radio button" -variable \
-         ttk::theme::tilegtk::temp(selectionVariable) -value 1
-      ttk::radiobutton $tab1.panedwindow.buttons.b2 -text "Radio button" -variable \
-         ttk::theme::tilegtk::temp(selectionVariable) -value 2
-      ttk::radiobutton $tab1.panedwindow.buttons.b3 -text "Radio button" -variable \
-         ttk::theme::tilegtk::temp(selectionVariable) -value 3
+      ttk::radiobutton $tab1.panedwindow.buttons.b1 -text "Radio button" \
+         -variable ttk::theme::tilegtk::temp(selectionVariable) -value 1
+      ttk::radiobutton $tab1.panedwindow.buttons.b2 -text "Radio button" \
+         -variable ttk::theme::tilegtk::temp(selectionVariable) -value 2
+      ttk::radiobutton $tab1.panedwindow.buttons.b3 -text "Radio button" \
+         -variable ttk::theme::tilegtk::temp(selectionVariable) -value 3
       ttk::separator $tab1.panedwindow.buttons.sep -orient horizontal
       ttk::checkbutton $tab1.panedwindow.buttons.b4 -text "Checkbox"
       $tab1.panedwindow.buttons.b4 state selected
@@ -637,8 +636,8 @@ namespace eval ttk::theme::tilegtk {
       ttk::progressbar $tab1.panedwindow.widgets.progress -orient horizontal \
         -maximum 100 -variable ttk::theme::tilegtk::temp(progress)
       grid $tab1.panedwindow.widgets.progress -sticky snew -padx 2 -pady 2
-      ttk::scale $tab1.panedwindow.widgets.scale -orient horizontal -from 0 -to 100 \
-        -variable ttk::theme::tilegtk::temp(progress)
+      ttk::scale $tab1.panedwindow.widgets.scale -orient horizontal -from 0 \
+        -to 100 -variable ttk::theme::tilegtk::temp(progress)
       set ttk::theme::tilegtk::temp(progress) 70
       grid $tab1.panedwindow.widgets.scale -sticky snew -padx 2 -pady 2
       ttk::entry $tab1.panedwindow.widgets.entry -textvariable \

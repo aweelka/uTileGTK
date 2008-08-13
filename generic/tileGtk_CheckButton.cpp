@@ -17,31 +17,6 @@
 #include "tileGtk_TkHeaders.h"
 #include "tileGtk_WidgetDefaults.h"
 
-#if 0
-/*
- * Map between Tk/Tile & Gtk/GNOME state flags.
- */
-static Ttk_StateTable checkbutton_statemap[] =
-{
-    {GTK_STATE_INSENSITIVE,   TTK_STATE_DISABLED,  0},
-    {GTK_STATE_SELECTED,      TTK_STATE_PRESSED,   0},
-    {GTK_STATE_ACTIVE,        TTK_STATE_ACTIVE,    0},
-    {GTK_STATE_PRELIGHT,      TTK_STATE_FOCUS,     0},
-    {GTK_STATE_NORMAL,        TTK_STATE_ALTERNATE, 0},
-    {GTK_STATE_NORMAL,        0,                   0}
-};
-
-static Ttk_StateTable checkbutton_shadowmap[] =
-{
-    {GTK_SHADOW_OUT,          TTK_STATE_DISABLED,  0},
-    {GTK_SHADOW_IN,           TTK_STATE_PRESSED,   0},
-    {GTK_SHADOW_OUT,          TTK_STATE_ACTIVE,    0},
-    {GTK_SHADOW_OUT,          TTK_STATE_FOCUS,     0},
-    {GTK_SHADOW_NONE,         TTK_STATE_ALTERNATE, 0},
-    {GTK_SHADOW_OUT,          0,                   0}
-};
-#endif
-
 typedef struct {
 } CheckButtonIndicatorElement;
 
@@ -70,10 +45,12 @@ static void CheckButtonIndicatorElementDraw(
 {
     TILEGTK_GTK_DRAWABLE_DEFINITIONS;
     TILEGTK_ENSURE_GTK_STYLE_ENGINE_ACTIVE;
-    TILEGTK_SETUP_GTK_DRAWABLE;
+    /* TILEGTK_SETUP_GTK_DRAWABLE; */
     GtkWidget *widget = TileGtk_GetCheckButton(wc);
     TILEGTK_ENSURE_WIDGET_OK;
-    TILEGTK_SETUP_WIDGET_SIZE(b.width, b.height);
+    TILEGTK_STYLE_FROM_WIDGET;
+    TILEGTK_PIXMAP_FROM_WIDGET;
+    /* TILEGTK_SETUP_WIDGET_SIZE(b.width, b.height); */
     TILEGTK_WIDGET_SET_FOCUS(widget);
     TILEGTK_DEFAULT_BACKGROUND;
     TileGtk_StateShadowTableLookup(NULL, state, gtkState, gtkShadow,
@@ -120,9 +97,11 @@ static void CheckButtonBorderElementDraw(
 {
     TILEGTK_GTK_DRAWABLE_DEFINITIONS;
     TILEGTK_ENSURE_GTK_STYLE_ENGINE_ACTIVE;
-    TILEGTK_SETUP_GTK_DRAWABLE;
+    /* TILEGTK_SETUP_GTK_DRAWABLE; */
     GtkWidget *widget = TileGtk_GetCheckButton(wc);
     TILEGTK_ENSURE_WIDGET_OK;
+    TILEGTK_STYLE_FROM_WIDGET;
+    TILEGTK_PIXMAP_FROM_WIDGET;
     TILEGTK_DEFAULT_BACKGROUND;
     // TileGtk_StateShadowTableLookup(NULL, state, gtkState, gtkShadow,
     //         TILEGTK_SECTION_BUTTONS|TILEGTK_SECTION_ALL);

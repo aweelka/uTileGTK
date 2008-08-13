@@ -1,4 +1,8 @@
 13 Aug 2008  Georgios Petasis  <petasis@iit.demokritos.gr>
+  * generic/tileGtk_Utilities.h:
+  * generic/tileGtk_Utilities.cpp:
+  * generic/*.cpp: Added the ability to adapt to style changes!
+
   * generic/tileGtk_GtkApp.cpp: Added support for installing an XError
   handler, overidiing the one installed by GTK+.
 

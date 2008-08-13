@@ -62,6 +62,7 @@ static void ScrollbarTroughElementDraw(
     GtkWidget *widget = TileGtk_GetScrollBar(wc);
     gboolean trough_side_details = FALSE;
     TILEGTK_ENSURE_WIDGET_OK;
+    TILEGTK_STYLE_FROM_WIDGET;
     TileGtk_StateShadowTableLookup(NULL, state, gtkState, gtkShadow,
             TILEGTK_SECTION_TROUGH|TILEGTK_SECTION_ALL);
     //TILEGTK_SETUP_WIDGET_SIZE(b.width, b.height);
@@ -141,10 +142,11 @@ static void ScrollbarThumbElementDraw(
     GtkWidget *widget = TileGtk_GetScrollBar(wc);
     GtkAdjustment *adj = NULL;
     TILEGTK_ENSURE_WIDGET_OK;
+    TILEGTK_STYLE_FROM_WIDGET;
     // TILEGTK_SETUP_WIDGET_SIZE(b.width, b.height);
     TILEGTK_WIDGET_SET_FOCUS(widget);
     adj = TileGtk_gtk_range_get_adjustment((GtkRange *) widget);
-    TileGtk_gtk_adjustment_set_value(adj, TileGtk_ValueFromSlider(wc, tkwin, b));
+    TileGtk_gtk_adjustment_set_value(adj,TileGtk_ValueFromSlider(wc, tkwin, b));
     TILEGTK_DEFAULT_BACKGROUND;
     TileGtk_StateShadowTableLookup(NULL, state, gtkState, gtkShadow,
             TILEGTK_SECTION_SCROLLBAR|TILEGTK_SECTION_ALL);
@@ -209,6 +211,7 @@ static void ScrollbarUpArrowElementDraw(
     GtkWidget *widget = TileGtk_GetScrollBar(wc);
     int horizontal = wc->orientation == TTK_ORIENT_HORIZONTAL;
     TILEGTK_ENSURE_WIDGET_OK;
+    TILEGTK_STYLE_FROM_WIDGET;
     TileGtk_StateShadowTableLookup(NULL, state, gtkState, gtkShadow,
             TILEGTK_SECTION_STEPPERS|TILEGTK_SECTION_ALL);
     // TILEGTK_SETUP_WIDGET_SIZE(b.width, b.height);
@@ -260,6 +263,7 @@ static void ScrollbarDownArrowElementDraw(
     GtkWidget *widget = TileGtk_GetScrollBar(wc);
     int horizontal = wc->orientation == TTK_ORIENT_HORIZONTAL;
     TILEGTK_ENSURE_WIDGET_OK;
+    TILEGTK_STYLE_FROM_WIDGET;
     TileGtk_StateShadowTableLookup(NULL, state, gtkState, gtkShadow,
             TILEGTK_SECTION_STEPPERS|TILEGTK_SECTION_ALL);
     // TILEGTK_SETUP_WIDGET_SIZE(b.width, b.height);

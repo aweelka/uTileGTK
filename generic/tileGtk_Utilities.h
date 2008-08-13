@@ -55,6 +55,17 @@
   style = TileGtk_gtk_style_attach(style, gdkWindow); \
   /*gdk_draw_rectangle(pixmap, *style->bg_gc, TRUE, 0, 0, b.width, b.height);*/
 
+#define TILEGTK_STYLE_FROM_WIDGET \
+  style = gtk_rc_get_style(widget); \
+  if (!style) style = wc->gtkStyle; \
+  if (!style) return;
+
+#define TILEGTK_PIXMAP_FROM_WIDGET_SIZE(pw, ph) \
+  pixmap = TileGtk_gdk_pixmap_new(widget->window, pw, ph, -1);
+
+#define TILEGTK_PIXMAP_FROM_WIDGET \
+  TILEGTK_PIXMAP_FROM_WIDGET_SIZE(b.width, b.height)
+
 #define TILEGTK_DEFAULT_BACKGROUND \
   TileGtk_gtk_style_apply_default_background(style, pixmap, TRUE, gtkState, \
                                      NULL, 0, 0, b.width, b.height);
