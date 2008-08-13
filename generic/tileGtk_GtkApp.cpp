@@ -31,6 +31,8 @@ GtkWidget *TileGtk_GtkWindow = NULL;
  * own, which filters out some XErrors... */
 static int (*TileGtk_TkXErrorHandler)(Display *displayPtr,
                                      XErrorEvent *errorPtr);
+static int (*TileGtk_GtkXErrorHandler)(Display *displayPtr,
+                                     XErrorEvent *errorPtr);
 static int TileGtk_XErrorHandler(Display *displayPtr, XErrorEvent *errorPtr);
 
 static int  TileGtk_XEventHandler(ClientData clientdata, XEvent *eventPtr);
@@ -74,6 +76,10 @@ TileGtk_WidgetCache **TileGtk_CreateGtkApp(Tcl_Interp *interp) {
     char **argv = TileGtk_g_new0(char*, 2);
     argv[0] = (char *) Tcl_GetNameOfExecutable();
 
+#ifdef TILEGTK_INSTALL_XERROR_HANDLER
+    TileGtk_TkXErrorHandler = XSetErrorHandler(TileGtk_XErrorHandler);
+#endif /* TILEGTK_INSTALL_XERROR_HANDLER */
+
 #ifdef TILEGTK_ENABLE_GNOME
     option_context = TileGtk_g_option_context_new("tile-gtk");
     TileGtk_g_option_context_add_main_entries(option_context,
@@ -92,7 +98,7 @@ TileGtk_WidgetCache **TileGtk_CreateGtkApp(Tcl_Interp *interp) {
       remaining_args = NULL;
     }
 #else  /* TILEGTK_ENABLE_GNOME */
-    TileGtk_gtk_set_locale();
+    /* TileGtk_gtk_set_locale(); */
     TileGtk_GtkInitialisedFlag = TileGtk_gtk_init_check(&argc, &argv);
 #endif /* TILEGTK_ENABLE_GNOME */
     TileGtk_g_free(argv);
@@ -103,11 +109,17 @@ TileGtk_WidgetCache **TileGtk_CreateGtkApp(Tcl_Interp *interp) {
     /* Initialise TileGtk_GtkWindow... */
     TileGtk_GtkWindow = TileGtk_gtk_window_new(GTK_WINDOW_POPUP);
     TileGtk_gtk_widget_realize(TileGtk_GtkWindow);
-    /* Set an error event handler that ignores QueryTree failures */
-    // TileGtk_TkXErrorHandler = XSetErrorHandler(TileGtk_XErrorHandler);
-    // XSynchronize(wc->TileGtk_MainDisplay, true);
-    /* As Gtk registers also its own XError handler, reset our own... */
-    // XSetErrorHandler(TileGtk_XErrorHandler);
+#ifdef TILEGTK_INSTALL_XERROR_HANDLER
+    /*
+     * GTK+ xerror handler will terminate the application.
+     * Just get rid of that...
+     */
+    TileGtk_GtkXErrorHandler = XSetErrorHandler(TileGtk_XErrorHandler);
+#endif /* TILEGTK_INSTALL_XERROR_HANDLER */
+
+#ifdef TILEGTK_SYNCHRONIZE
+    XSynchronize(Tk_Display(Tk_MainWindow(interp)), true);
+#endif /* TILEGTK_SYNCHRONIZE */
   }
   Tcl_MutexUnlock(&tilegtkMutex);
 
@@ -179,10 +191,23 @@ void TileGtk_DestroyGtkApp(void) {
   Tcl_MutexUnlock(&tilegtkMutex);
 }; /* TileGtk_DestroyGtkApp */
 
+/*
+ * TileGtk_XErrorHandler:
+ * This XError handler just prints some debug information and then calls
+ * Tk's XError handler...
+ */
 static int TileGtk_XErrorHandler(Display *displayPtr, XErrorEvent *errorPtr) {
-  if (errorPtr->error_code == BadWindow &&
-      errorPtr->request_code == 15 /* X_QueryTree */) return 0;
-  else return TileGtk_TkXErrorHandler(displayPtr, errorPtr);
+#ifdef TILEGTK_VERBOSE_XERROR_HANDLER
+  char buf[64];
+  XGetErrorText (displayPtr, errorPtr->error_code, buf, 63);
+  printf("===============================================================\n");
+  printf("  TileGtk_XErrorHandler:\n");
+  printf("    error_code   = %s (%d)\n", buf, errorPtr->error_code);
+  printf("    request_code = %d\n", errorPtr->request_code);
+  printf("    minor_code   = %d\n", errorPtr->minor_code);
+  printf("===============================================================\n");
+#endif /* TILEGTK_VERBOSE_XERROR_HANDLER */
+  return TileGtk_TkXErrorHandler(displayPtr, errorPtr);
 }; /* TileGtk_XErrorHandler */
 
 static int TileGtk_XEventHandler(ClientData clientData, XEvent *eventPtr) {

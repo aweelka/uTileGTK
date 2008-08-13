@@ -25,7 +25,7 @@ IF ( VERBOSE )
   SET ( GTK2_LOGGING_ENABLED   ON )
 ENDIF ( VERBOSE )
 
-SET ( PKG_SOURCES generic/tileGtk_Init.cpp
+SET ( PKG_SOURCES 
                   generic/tileGtk_TreeView.cpp
                   generic/tileGtk_Separator.cpp
                   generic/tileGtk_Arrows.cpp )
@@ -114,6 +114,11 @@ IF ( LOAD_GTK_DYNAMICALLY )
   MESSAGE ( STATUS "GTK+ will be loaded dynamically!" )
   ADD_DEFINITIONS   ( -DTILEGTK_LOAD_GTK_DYNAMICALLY )
 ENDIF ( LOAD_GTK_DYNAMICALLY )
+IF ( CMAKE_BUILD_TYPE STREQUAL Debug )
+  ADD_DEFINITIONS   ( -DTILEGTK_SYNCHRONIZE )
+  ADD_DEFINITIONS   ( -DTILEGTK_VERBOSE_XERROR_HANDLER )
+ENDIF ( CMAKE_BUILD_TYPE STREQUAL Debug )
+ADD_DEFINITIONS     ( -DTILEGTK_INSTALL_XERROR_HANDLER )
 ADD_DEFINITIONS     ( -DUSE_TCL_STUBS )
 ADD_DEFINITIONS     ( -DUSE_TK_STUBS )
 ADD_DEFINITIONS     ( -DUSE_TTK_STUBS )
@@ -172,6 +177,7 @@ ADD_CUSTOM_COMMAND ( OUTPUT ${PROJECT_SOURCE_DIR}/generic/tileGtk_Symbols.cpp
                             ${PROJECT_SOURCE_DIR}/generic/tileGtk_Symbols.h
     DEPENDS library/GenarateSymbols.tcl
             generic/tileGtk_Init.cpp
+            generic/tileGtk_GtkApp.cpp
             generic/tileGtk_Utilities.h
             generic/tileGtk_Utilities.cpp
     COMMAND ${TCL_TCLSH} GenarateSymbols.tcl
