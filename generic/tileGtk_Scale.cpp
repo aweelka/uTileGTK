@@ -63,7 +63,7 @@ static void ScaleTroughElementDraw(
     gboolean trough_side_details = FALSE;
     TILEGTK_ENSURE_WIDGET_OK;
     TILEGTK_STYLE_FROM_WIDGET;
-    TILEGTK_PIXMAP_FROM_WIDGET;
+    TILEGTK_DRAWABLE_FROM_WIDGET;
     TileGtk_StateShadowTableLookup(NULL, state, gtkState, gtkShadow,
             TILEGTK_SECTION_TROUGH|TILEGTK_SECTION_ALL);
     // TILEGTK_SETUP_WIDGET_SIZE(b.width, b.height);
@@ -78,20 +78,20 @@ static void ScaleTroughElementDraw(
         trough_change_pos_x = b.width / 2;
       else
         trough_change_pos_y = b.height / 2;
-      TileGtk_gtk_paint_box(style, pixmap, gtkState, GTK_SHADOW_IN, NULL, widget,
+      TileGtk_gtk_paint_box(style, gdkDrawable, gtkState, GTK_SHADOW_IN, NULL, widget,
           "trough-upper", 0, 0, trough_change_pos_x, trough_change_pos_y);
       if (wc->gtkOrientation == GTK_ORIENTATION_HORIZONTAL)
         trough_change_pos_y = 0;
       else
         trough_change_pos_x = 0;
-      TileGtk_gtk_paint_box(style, pixmap, gtkState, GTK_SHADOW_IN, NULL, widget,
+      TileGtk_gtk_paint_box(style, gdkDrawable, gtkState, GTK_SHADOW_IN, NULL, widget,
           "trough-lower", trough_change_pos_x, trough_change_pos_y,
           b.width-trough_change_pos_x, b.height-trough_change_pos_y);
     } else {
-      TileGtk_gtk_paint_box(style, pixmap, gtkState, GTK_SHADOW_IN, NULL, widget,
+      TileGtk_gtk_paint_box(style, gdkDrawable, gtkState, GTK_SHADOW_IN, NULL, widget,
           "trough", 0, 0, b.width, b.height);
     }
-    TileGtk_CopyGtkPixmapOnToDrawable(pixmap, d, tkwin,
+    TileGtk_CopyGtkPixmapOnToDrawable(gdkDrawable, d, tkwin,
                    0, 0, b.width, b.height, b.x, b.y);
     TILEGTK_CLEANUP_GTK_DRAWABLE;
 }
@@ -147,7 +147,7 @@ static void ScaleSliderElementDraw(
     GtkAdjustment *adj = NULL;
     TILEGTK_ENSURE_WIDGET_OK;
     TILEGTK_STYLE_FROM_WIDGET;
-    TILEGTK_PIXMAP_FROM_WIDGET;
+    TILEGTK_DRAWABLE_FROM_WIDGET;
     // TILEGTK_SETUP_WIDGET_SIZE(b.width, b.height);
     TILEGTK_WIDGET_SET_FOCUS(widget);
     adj = TileGtk_gtk_range_get_adjustment((GtkRange *) widget);
@@ -156,11 +156,11 @@ static void ScaleSliderElementDraw(
     TileGtk_StateShadowTableLookup(NULL, state, gtkState, gtkShadow,
             TILEGTK_SECTION_SCROLLBAR|TILEGTK_SECTION_ALL);
     // TileGtk_StateInfo(state, gtkState, gtkShadow, tkwin, widget);
-    TileGtk_gtk_paint_slider(style, pixmap, gtkState, gtkShadow, NULL, widget,
+    TileGtk_gtk_paint_slider(style, gdkDrawable, gtkState, gtkShadow, NULL, widget,
         (wc->orientation == TTK_ORIENT_HORIZONTAL) ? "hscale" : "vscale",
         0, 0, b.width, b.height,
         wc->gtkOrientation);
-    TileGtk_CopyGtkPixmapOnToDrawable(pixmap, d, tkwin,
+    TileGtk_CopyGtkPixmapOnToDrawable(gdkDrawable, d, tkwin,
                    0, 0, b.width, b.height, b.x, b.y);
     TILEGTK_CLEANUP_GTK_DRAWABLE;
 }

@@ -50,7 +50,7 @@ static void BackgroundElementDraw(
     //TileGtk_StateShadowTableLookup(NULL, state, gtkState, gtkShadow,
     //                               TILEGTK_SECTION_ALL);
     TILEGTK_DEFAULT_BACKGROUND;
-    TileGtk_CopyGtkPixmapOnToDrawable(pixmap, d, tkwin,
+    TileGtk_CopyGtkPixmapOnToDrawable(gdkDrawable, d, tkwin,
                    0, 0, b.width, b.height, b.x, b.y);
     TILEGTK_CLEANUP_GTK_DRAWABLE;
 }
@@ -139,7 +139,7 @@ static void BorderElementDraw(
             QRect(0, 0, b.width, b.height), qApp->palette().active(), sflags,
             QStyleOption(borderWidth, 0));
     }
-    TileGtk_CopyGtkPixmapOnToDrawable(pixmap, d, tkwin,
+    TileGtk_CopyGtkPixmapOnToDrawable(gdkDrawable, d, tkwin,
                                     0, 0, b.width, b.height, b.x, b.y);
     Tcl_MutexUnlock(&tilegtkMutex);
 }

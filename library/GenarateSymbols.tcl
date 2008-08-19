@@ -48,6 +48,9 @@ proc get_function_spec {f} {
     g_object_get {
       set a {gpointer object, const gchar *first_property_name, ...}
     }
+    g_object_ref {
+      set a {gpointer object}
+    }
     g_object_unref {
       set a {gpointer object}
     }
@@ -68,8 +71,27 @@ proc get_function_spec {f} {
     gdk_display_get_default {
       set t {GdkDisplay*}
     }
+    gdk_display_get_screen {
+      set t {GdkScreen*}
+      set a {GdkDisplay*, gint}
+    }
     gdk_drawable_unref {
       set a {GdkDrawable *drawable}
+    }
+    gdk_drawable_get_colormap {
+      set t {GdkColormap*}
+      set a {GdkDrawable *drawable}
+    }
+    gdk_drawable_set_colormap {
+      set a {GdkColormap*}
+    }
+    gdk_pixmap_foreign_new {
+      set t {GdkPixmap*}
+      set a {GdkNativeWindow anid}
+    }
+    gdk_pixmap_foreign_new_for_screen {
+      set t {GdkPixmap*}
+      set a {GdkScreen *screen, GdkNativeWindow anid, gint width, gint height, gint depth}
     }
     gdk_gc_new {
       set t {GdkGC*}
@@ -93,6 +115,10 @@ proc get_function_spec {f} {
       set t {GdkPixmap*}
       set a {GdkDrawable *drawable, gint width, gint height, gint depth}
     }
+    gdk_pixmap_foreign_new_for_display {
+      set t {GdkPixmap*}
+      set a {GdkDisplay *display, GdkNativeWindow anid}
+    }
     gdk_win32_hdc_get {
       set t {HDC}
       set a {GdkDrawable *drawable, GdkGC *gc, GdkGCValuesMask usage}
@@ -100,9 +126,17 @@ proc get_function_spec {f} {
     gdk_win32_hdc_release {
       set a {GdkDrawable *drawable, GdkGC *gc, GdkGCValuesMask usage}
     }
+    gdk_x11_colormap_foreign_new {
+      set t {GdkColormap*}
+      set a {GdkVisual *visual, Colormap xcolormap}
+    }
     gdk_x11_lookup_xdisplay {
       set t {GdkDisplay*}
       set a {Display *xdisplay}
+    }
+    gdk_x11_screen_lookup_visual {
+      set t {GdkVisual*}
+      set a {GdkScreen *screen, VisualID xvisualid}
     }
     xlib_rgb_init {
       set a {Display *display, Screen *screen}
@@ -128,8 +162,13 @@ proc get_function_spec {f} {
     gtk_button_new {
       set t {GtkWidget*}
     }
+    gtk_border_free {
+      set a {GtkBorder*}
+    }
     gtk_container_add {
       set a {GtkContainer *container, GtkWidget *widget}
+    }
+    gtk_disable_setlocale {
     }
     gtk_frame_new {
       set t {GtkWidget*}
@@ -168,6 +207,9 @@ proc get_function_spec {f} {
     gtk_paint_flat_box {
       set a {GtkStyle*,GdkWindow*, GtkStateType, GtkShadowType, const GdkRectangle *, GtkWidget *, const gchar *, gint , gint , gint , gint}
     }
+    gtk_paint_focus {
+      set a {GtkStyle *style, GdkWindow *window, GtkStateType state_type, GdkRectangle *area, GtkWidget *widget, const gchar *detail, gint x, gint y, gint width, gint height}
+    }
     gtk_paint_handle {
       set a {GtkStyle*,GdkWindow*, GtkStateType, GtkShadowType, const GdkRectangle *, GtkWidget *, const gchar *, gint , gint , gint , gint, GtkOrientation}
     }
@@ -198,6 +240,10 @@ proc get_function_spec {f} {
     }
     gtk_rc_get_default_files {
       set t {gchar**}
+    }
+    gtk_rc_get_style {
+      set t {GtkStyle *}
+      set a {GtkWidget*}
     }
     gtk_rc_get_theme_dir {
       set t {gchar*}
@@ -249,6 +295,13 @@ proc get_function_spec {f} {
     }
     gtk_widget_style_get {
       set a {GtkWidget *, const gchar *first_property_name, ...}
+    }
+    gdk_window_destroy {
+      set a {(GdkWindow *}
+    }
+    gdk_window_foreign_new {
+      set t {GdkWindow*}
+      set a {GdkNativeWindow}
     }
     gtk_window_new {
       set t {GtkWidget*}

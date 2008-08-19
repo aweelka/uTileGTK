@@ -98,7 +98,7 @@ TileGtk_WidgetCache **TileGtk_CreateGtkApp(Tcl_Interp *interp) {
       remaining_args = NULL;
     }
 #else  /* TILEGTK_ENABLE_GNOME */
-    /* TileGtk_gtk_set_locale(); */
+    TileGtk_gtk_disable_setlocale();
     TileGtk_GtkInitialisedFlag = TileGtk_gtk_init_check(&argc, &argv);
 #endif /* TILEGTK_ENABLE_GNOME */
     TileGtk_g_free(argv);
@@ -162,7 +162,6 @@ TileGtk_WidgetCache **TileGtk_CreateGtkApp(Tcl_Interp *interp) {
   }
   wc->gtkWindow = TileGtk_gtk_window_new(GTK_WINDOW_POPUP);
   if (wc->gtkWindow) TileGtk_gtk_widget_realize(wc->gtkWindow);
-  wc->gtkStyle = TileGtk_GetGtkWindowStyle(wc->gtkWindow);
   wc->protoLayout = TileGtk_gtk_fixed_new();
   TileGtk_gtk_container_add((GtkContainer*)(wc->gtkWindow), wc->protoLayout);
   memcpy(wc_array[1], wc_array[0], sizeof(TileGtk_WidgetCache));

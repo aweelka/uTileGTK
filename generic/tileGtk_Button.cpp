@@ -17,31 +17,6 @@
 #include "tileGtk_TkHeaders.h"
 #include "tileGtk_WidgetDefaults.h"
 
-/*
- * Pushbuttons (Tk: "Button")
- */
-#if 0
-static Ttk_StateTable pushbutton_statemap[] =
-{
-    {GTK_STATE_INSENSITIVE,   TTK_STATE_DISABLED,  0},
-    {GTK_STATE_SELECTED,      TTK_STATE_PRESSED,   0},
-    {GTK_STATE_ACTIVE,        TTK_STATE_ACTIVE,    0},
-    {GTK_STATE_PRELIGHT,      TTK_STATE_FOCUS,     0},
-    {GTK_STATE_NORMAL,        TTK_STATE_ALTERNATE, 0},
-    {GTK_STATE_NORMAL,        0,                   0}
-};
-
-static Ttk_StateTable pushbutton_shadowmap[] =
-{
-    {GTK_SHADOW_OUT,          TTK_STATE_DISABLED,  0},
-    {GTK_SHADOW_IN,           TTK_STATE_PRESSED,   0},
-    {GTK_SHADOW_OUT,          TTK_STATE_ACTIVE,    0},
-    {GTK_SHADOW_OUT,          TTK_STATE_FOCUS,     0},
-    {GTK_SHADOW_NONE,         TTK_STATE_ALTERNATE, 0},
-    {GTK_SHADOW_OUT,          0,                   0}
-};
-#endif
-
 typedef struct {
     Tcl_Obj        *defaultStateObj;
 } ButtonElement;
@@ -57,24 +32,16 @@ static void ButtonElementGeometry(
     int *widthPtr, int *heightPtr, Ttk_Padding *paddingPtr)
 {
     TILEGTK_WIDGET_CACHE_DEFINITION;
+    gint focus_width;
+    gint focus_pad;
     TILEGTK_ENSURE_GTK_STYLE_ENGINE_ACTIVE;
     GtkWidget *widget = TileGtk_GetButton(wc);
-    ButtonElement *bd = (ButtonElement *) elementRecord;
     TILEGTK_ENSURE_WIDGET_OK;
-    TILEGTK_WIDGET_SETUP_DEFAULT(bd->defaultStateObj);
-    // GtkBorder border = {0, 0, 0, 0};
-    // TileGtk_gtk_widget_style_get(widget, "inner-border", &border, NULL);
-    // printf("inner-border left: %d, right: %d, top: %d, bottom: %d\n",
-    //   border.left, border.right, border.top, border.bottom);
-    // TileGtk_gtk_widget_style_get(widget, "default-border", &border, NULL);
-    // printf("default-border left: %d, right: %d, top: %d, bottom: %d\n",
-    //   border.left, border.right, border.top, border.bottom);
-    // TILEGTK_GET_WIDGET_SIZE(*widthPtr, *heightPtr);
-    if (defaultState != TTK_BUTTON_DEFAULT_DISABLED) {
-      *paddingPtr = Ttk_UniformPadding(PushButtonUniformPaddingDefaulted);
-    } else {
-      *paddingPtr = Ttk_UniformPadding(PushButtonUniformPadding);
-    }
+    TileGtk_gtk_widget_style_get(widget,
+           "focus-line-width", &focus_width,
+           "focus-padding",    &focus_pad, NULL);
+    *paddingPtr = Ttk_UniformPadding(PushButtonUniformPadding +
+                                     focus_width + focus_pad);
 }
 
 static void ButtonElementDraw(
@@ -82,26 +49,117 @@ static void ButtonElementDraw(
     Drawable d, Ttk_Box b, unsigned int state)
 {
     TILEGTK_GTK_DRAWABLE_DEFINITIONS;
+    gint width, height;
+    gint x, y;
+    gint border_width;
+    GtkBorder default_border = { 1, 1, 1, 1 };
+    GtkBorder default_outside_border = { 0, 0, 0, 0 };
+    GtkBorder *tmp_border, *tmp_outside_border;
+    gboolean interior_focus;
+    gint focus_width;
+    gint focus_pad;
     TILEGTK_ENSURE_GTK_STYLE_ENGINE_ACTIVE;
-    /* TILEGTK_SETUP_GTK_DRAWABLE; */
     GtkWidget *widget = TileGtk_GetButton(wc);
     ButtonElement *bd = (ButtonElement *) elementRecord;
+    GtkButton *button = (GtkButton *) widget;
     TILEGTK_ENSURE_WIDGET_OK;
     TILEGTK_STYLE_FROM_WIDGET;
-    TILEGTK_PIXMAP_FROM_WIDGET;
-    // TILEGTK_SETUP_STATE_SHADOW(pushbutton_statemap, pushbutton_shadowmap);
+    TILEGTK_DRAWABLE_FROM_WIDGET;
+    TILEGTK_DEFAULT_BACKGROUND;
     TileGtk_StateShadowTableLookup(NULL, state, gtkState, gtkShadow,
             TILEGTK_SECTION_BUTTONS|TILEGTK_SECTION_ALL);
-    // TILEGTK_SETUP_WIDGET_SIZE(b.width, b.height);
     TILEGTK_WIDGET_SET_FOCUS(widget);
     TILEGTK_WIDGET_SET_DEFAULT(widget, bd->defaultStateObj);
-    TILEGTK_DEFAULT_BACKGROUND;
     // TileGtk_StateInfo(state, gtkState, gtkShadow, tkwin, widget);
-    TileGtk_gtk_paint_box(style, pixmap, gtkState, gtkShadow, NULL, widget,
-                  has_default ? "buttondefault" : "button",
-                  0, 0, b.width, b.height);
-    TileGtk_CopyGtkPixmapOnToDrawable(pixmap, d, tkwin,
-                   0, 0, b.width, b.height, b.x, b.y);
+    // TileGtk_gtk_paint_box(style, gdkDrawable, gtkState, gtkShadow, NULL,
+    //               widget, has_default ? "buttondefault" : "button",
+    //               0, 0, b.width, b.height);
+    // TileGtk_gtk_paint_focus(style, gdkDrawable, gtkState,
+    //               NULL, widget, "button", 0, 0, b.width, b.height);
+
+    /*
+     * The following was taken from GTK+ button drawing code.
+     */
+    border_width = GTK_CONTAINER(widget)->border_width;
+    TileGtk_gtk_widget_style_get(widget,
+           "default-border",         &tmp_border,
+           "default-outside-border", &tmp_outside_border,
+           "interior-focus",         &interior_focus, NULL);
+    if (tmp_border) {
+      default_border = *tmp_border;
+      TileGtk_gtk_border_free(tmp_border);
+    }
+    if (tmp_outside_border) {
+      default_outside_border = *tmp_outside_border;
+      TileGtk_gtk_border_free(tmp_outside_border);
+    }
+
+    TileGtk_gtk_widget_style_get(widget,
+           "focus-line-width", &focus_width,
+           "focus-padding",    &focus_pad, NULL); 
+        
+    x = b.x + border_width;
+    y = b.y + border_width;
+    width  = b.width  - border_width * 2;
+    height = b.height - border_width * 2;
+
+    if (has_default && button->relief == GTK_RELIEF_NORMAL) {
+      TileGtk_gtk_paint_box(style, gdkDrawable, GTK_STATE_NORMAL, GTK_SHADOW_IN,
+              NULL, widget, "buttondefault", x, y, width, height);
+      x += default_border.left;
+      y += default_border.top;
+      width -= default_border.left + default_border.right;
+      height -= default_border.top + default_border.bottom;
+    } else {
+      x += default_outside_border.left;
+      y += default_outside_border.top;
+      width -= default_outside_border.left + default_outside_border.right;
+      height -= default_outside_border.top + default_outside_border.bottom;
+    }
+     
+    if (!interior_focus && (state & TTK_STATE_FOCUS)) {
+      x += focus_width + focus_pad;
+      y += focus_width + focus_pad;
+      width -= 2 * (focus_width + focus_pad);
+      height -= 2 * (focus_width + focus_pad);
+    }
+
+    TileGtk_gtk_paint_box(style, gdkDrawable, gtkState, gtkShadow, NULL, widget,
+            "button", x, y, width, height);
+     
+    if (state & TTK_STATE_FOCUS) {
+      gint child_displacement_x;
+      gint child_displacement_y;
+      gboolean displace_focus;
+      
+      TileGtk_gtk_widget_style_get(widget,
+              "child-displacement-y", &child_displacement_y,
+              "child-displacement-x", &child_displacement_x,
+              "displace-focus",       &displace_focus, NULL);
+
+      if (interior_focus) {
+        x += widget->style->xthickness + focus_pad;
+        y += widget->style->ythickness + focus_pad;
+        width -= 2 * (widget->style->xthickness + focus_pad);
+        height -=  2 * (widget->style->ythickness + focus_pad);
+      } else {
+        x -= focus_width + focus_pad;
+        y -= focus_width + focus_pad;
+        width += 2 * (focus_width + focus_pad);
+        height += 2 * (focus_width + focus_pad);
+      }
+
+      if ((state & TTK_STATE_PRESSED) && displace_focus) {
+        x += child_displacement_x;
+        y += child_displacement_y;
+      }
+
+      TileGtk_gtk_paint_focus(style, gdkDrawable, gtkState, NULL, widget,
+              "button", x, y, width, height);
+    }
+
+    TileGtk_CopyGtkPixmapOnToDrawable(gdkDrawable, d, tkwin,
+                  0, 0, b.width, b.height, b.x, b.y);
     TILEGTK_CLEANUP_GTK_DRAWABLE;
 }
 
@@ -117,11 +175,17 @@ static Ttk_ElementSpec ButtonElementSpec = {
  * +++ Widget layout.
  */
 
+/*
+ * TTK_BEGIN_LAYOUT(ButtonLayout)
+ *     TTK_GROUP("Button.border", TTK_FILL_BOTH,
+ *         TTK_GROUP("Button.focus", TTK_FILL_BOTH, 
+ *                 TTK_NODE("Button.label", TTK_FILL_BOTH))))
+ * TTK_END_LAYOUT
+ */
 TTK_BEGIN_LAYOUT(ButtonLayout)
     TTK_GROUP("Button.border", TTK_FILL_BOTH,
-        TTK_GROUP("Button.focus", TTK_FILL_BOTH, 
-            TTK_GROUP("Button.padding", TTK_FILL_BOTH,
-                TTK_NODE("Button.label", TTK_FILL_BOTH))))
+        TTK_GROUP("Button.padding", TTK_FILL_BOTH,
+            TTK_NODE("Button.label", TTK_FILL_BOTH)))
 TTK_END_LAYOUT
 
 int TileGtk_Init_Button(Tcl_Interp *interp,

@@ -58,7 +58,7 @@ oQ0IhA6c2LEjB5w4QSiCAFCIAAcfQo4sEdIjA0dHBip88EBBgKOXhgIBADs=
 image create photo exit_image -data $exit_image_data
 image create photo help_image -data $help_image_data
 
-set win {}
+set win [ttk::frame .ttk_frame]
 set row 0; set column 0
 set widgets {button checkbutton radiobutton entry menubutton combobox rcombobox
              scrollbar scale progressbar notebook panedwindow labelframe}
@@ -127,3 +127,4 @@ ttk::labelframe $win.themes -text Themes:
 grid $win.themes -columnspan [llength $states] -padx 2 -pady 2
 grab set $win.themes
 focus $win.themes.exit
+if {[string length $win]} {pack $win -fill both -expand 1}

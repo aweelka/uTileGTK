@@ -143,10 +143,11 @@ int Tilegtk_GetProperty(ClientData clientData, Tcl_Interp *interp,
     INTEGER, BOOLEAN, STRING
   };
   static const char *Widgets[] = {
-    "GtkHScrollbar" , "GtkVScrollbar", "GtkNotebook", (char *) NULL
+    "GtkHScrollbar" , "GtkVScrollbar", "GtkNotebook", "GtkButton",
+    (char *) NULL
   };
   enum widgets {
-    W_HSCROLLBAR, W_VSCROLLBAR, W_NOTEBOOK
+    W_HSCROLLBAR, W_VSCROLLBAR, W_NOTEBOOK, W_BUTTON
   };
   int          type  = STRING;
   gchar       *s_val = NULL;
@@ -173,7 +174,8 @@ int Tilegtk_GetProperty(ClientData clientData, Tcl_Interp *interp,
   switch ((enum widgets) type) {
     case W_HSCROLLBAR: {widget = TileGtk_GetHScrollBar(wc); break;}
     case W_VSCROLLBAR: {widget = TileGtk_GetVScrollBar(wc); break;}
-    case W_NOTEBOOK:   {widget = TileGtk_GetNotebook(wc); break;}
+    case W_NOTEBOOK:   {widget = TileGtk_GetNotebook(wc);   break;}
+    case W_BUTTON:     {widget = TileGtk_GetButton(wc);     break;}
   }
   /* Get property type, which defaults to "string"... */
   if (objc == 4) {
@@ -428,15 +430,15 @@ int Tilegtk_ThemeColour(ClientData clientData, Tcl_Interp *interp,
     Tcl_SetResult(interp, (char *) "empty wc!", TCL_STATIC);
     return TCL_ERROR;
   }
-  if (!wc[0]->gtkStyle) {
-    Tcl_SetResult(interp, (char *) "empty wc[0]->gtkStyle!", TCL_STATIC);
+  style = TileGtk_GetGtkWindowStyle(wc[0]->gtkWindow);
+  if (!style) {
+    Tcl_SetResult(interp, (char *) "empty style!", TCL_STATIC);
     return TCL_ERROR;
   }
   if (objc != 2) {
     Tcl_WrongNumArgs(interp, 1, objv, "colour");
     return TCL_ERROR;
   }
-  style = wc[0]->gtkStyle;
 
   if (Tcl_GetIndexFromObj(interp, objv[1], (const char **) Methods,
                           "method", 0, &index) == TCL_OK) {
@@ -512,16 +514,18 @@ typedef struct _GtkStylePrivate GtkStylePrivate;
 int Tilegtk_ColourKeys(ClientData clientData, Tcl_Interp *interp,
                                  int objc, Tcl_Obj *const objv[]) {
   TileGtk_WidgetCache **wc = (TileGtk_WidgetCache **) clientData;
+  GtkStyle *style;
   if (!wc) {
     Tcl_SetResult(interp, (char *) "empty wc!", TCL_STATIC);
     return TCL_ERROR;
   }
-  if (!wc[0]->gtkStyle) {
-    Tcl_SetResult(interp, (char *) "empty wc[0]->gtkStyle!", TCL_STATIC);
+  style = TileGtk_GetGtkWindowStyle(wc[0]->gtkWindow);
+  if (!style) {
+    Tcl_SetResult(interp, (char *) "empty style!", TCL_STATIC);
     return TCL_ERROR;
   }
 #ifndef TILEGTK_LOAD_GTK_DYNAMICALLY
-  GtkStylePrivate *priv = GTK_STYLE_GET_PRIVATE (wc[0]->gtkStyle);
+  GtkStylePrivate *priv = GTK_STYLE_GET_PRIVATE(style);
   GSList *iter;
   Tcl_Obj *list = Tcl_NewListObj(0, NULL);
   for (iter = priv->color_hashes; iter != NULL; iter = iter->next) {
@@ -740,245 +744,6 @@ int Tilegtk_SetStyle(ClientData clientData, Tcl_Interp *interp,
   Tcl_MutexUnlock(&tilegtkMutex);
   return TCL_OK;
 }; /* Tilegtk_SetStyle */
-
-int Tilegtk_GetPixelMetric(ClientData clientData, Tcl_Interp *interp,
-                                 int objc, Tcl_Obj *const objv[]) {
-/*
-  PM_TabBarTabOverlap         - number of pixels the tabs should overlap.
-  PM_TabBarTabHSpace          - extra space added to the tab width.
-  PM_TabBarTabVSpace          - extra space added to the tab height.
-  PM_TabBarBaseHeight         - height of the area between the tab bar and the
-                                tab pages.
-  PM_TabBarBaseOverlap        - number of pixels the tab bar overlaps the
-                                tab bar base.
-  PM_TabBarScrollButtonWidth
-  PM_TabBarTabShiftHorizontal - horizontal pixel shift when a tab is selected.
-  PM_TabBarTabShiftVertical   - vertical pixel shift when a tab is selected.
-*/
-  static const char *Methods[] = {
-    "-PM_TabBarTabOverlap",       "-PM_TabBarTabHSpace",
-    "-PM_TabBarTabVSpace",        "-PM_TabBarBaseHeight",
-    "-PM_TabBarBaseOverlap",      "-PM_TabBarTabShiftHorizontal",
-    "-PM_TabBarTabShiftVertical", "-PM_TabBarScrollButtonWidth",
-    "-PM_DefaultFrameWidth",
-    (char *) NULL
-  };
-  enum methods {
-    PM_TabBarTabOverlap,       PM_TabBarTabHSpace,
-    PM_TabBarTabVSpace,        PM_TabBarBaseHeight,
-    PM_TabBarBaseOverlap,      PM_TabBarTabShiftHorizontal,
-    PM_TabBarTabShiftVertical, PM_TabBarScrollButtonWidth,
-    PM_DefaultFrameWidth
-  };
-  int index, pixels = 0;
-  TileGtk_WidgetCache **wc_array = (TileGtk_WidgetCache **) clientData;
-  TileGtk_WidgetCache *wc = wc_array[0];
-  if (objc != 2) {
-    Tcl_WrongNumArgs(interp, 1, objv, "pixel_metric_identifier");
-    return TCL_ERROR;
-  }
-  if (Tcl_GetIndexFromObj(interp, objv[1], (const char **) Methods,
-                            "method", 0, &index) != TCL_OK) {
-    return TCL_ERROR;
-  }
-#ifdef TILEGTK_GTK_VERSION_3
-#define PM(pm) (wc->TileGtk_Style->pixelMetric(QStyle::pm, \
-                                              wc->TileGtk_GTKabBar_Widget))
-#define PM2(pm) (wc->TileGtk_Style->pixelMetric(QStyle::pm, \
-                                              wc->TileGtk_GTKabWidget_Widget))
-#endif /* TILEGTK_GTK_VERSION_3 */
-#ifdef TILEGTK_GTK_VERSION_4
-#ifndef QStyleOptionTabV2
-#define QStyleOptionTabV2 QStyleOptionTab
-#endif /* QStyleOptionTabV2 */
-#define PM(pm) (wc->TileGtk_Style->pixelMetric(QStyle::pm, &option, \
-                                              wc->TileGtk_GTKabBar_Widget))
-#define PM2(pm) (wc->TileGtk_Style->pixelMetric(QStyle::pm, &option, \
-                                              wc->TileGtk_GTKabWidget_Widget))
-#endif /* TILEGTK_GTK_VERSION_4 */
-  Tcl_MutexLock(&tilegtkMutex);
-#if 0
-#ifdef TILEGTK_GTK_VERSION_4
-  QStyleOptionTabV2 option;
-  option.initFrom(wc->TileGtk_GTKabBar_Widget);
-#endif /* TILEGTK_GTK_VERSION_4 */
-  switch ((enum methods) index) {
-    case PM_TabBarTabOverlap:  {pixels = PM(PM_TabBarTabOverlap);  break;}
-    case PM_TabBarTabHSpace:   {pixels = PM(PM_TabBarTabHSpace);   break;}
-    case PM_TabBarTabVSpace:   {pixels = PM(PM_TabBarTabVSpace);   break;}
-    case PM_TabBarBaseOverlap: {pixels = PM(PM_TabBarBaseOverlap); break;}
-    case PM_TabBarBaseHeight:  {pixels = PM2(PM_TabBarBaseHeight); break;}
-    case PM_TabBarTabShiftHorizontal: {pixels = PM(PM_TabBarTabShiftHorizontal);
-                                       break;}
-    case PM_TabBarTabShiftVertical:   {pixels = PM(PM_TabBarTabShiftVertical);
-                                       break;}
-    case PM_TabBarScrollButtonWidth:  {pixels = PM(PM_TabBarScrollButtonWidth);
-                                       break;}
-    case PM_DefaultFrameWidth:        {pixels = PM(PM_DefaultFrameWidth);
-                                       break;}
-  }
-#endif
-  Tcl_MutexUnlock(&tilegtkMutex);
-  Tcl_SetObjResult(interp, Tcl_NewIntObj(pixels));
-  return TCL_OK;
-}; /* Tilegtk_GetPixelMetric */
-
-int Tilegtk_GetStyleHint(ClientData clientData, Tcl_Interp *interp,
-                                 int objc, Tcl_Obj *const objv[]) {
-/*
-  SH_TabBar_Alignment         - The alignment for tabs in a GTKabBar.
-                                Possible values are Gtk::AlignLeft,
-                                Gtk::AlignCenter and Gtk::AlignRight.
-*/
-  static const char *Methods[] = {
-    "-SH_TabBar_Alignment",
-    (char *) NULL
-  };
-  enum methods {
-    SH_TabBar_Alignment
-  };
-  int index, hint = 0;
-  const char *pstr = "";
-  TileGtk_WidgetCache **wc_array = (TileGtk_WidgetCache **) clientData;
-  TileGtk_WidgetCache *wc = wc_array[0];
-  if (objc != 2) {
-    Tcl_WrongNumArgs(interp, 1, objv, "style_hint_identifier");
-    return TCL_ERROR;
-  }
-  if (Tcl_GetIndexFromObj(interp, objv[1], (const char **) Methods,
-                            "method", 0, &index) != TCL_OK) {
-    return TCL_ERROR;
-  }
-#if 0
-  switch ((enum methods) index) {
-    case SH_TabBar_Alignment:  {stylehint = QStyle::SH_TabBar_Alignment; break;}
-  }
-  Tcl_MutexLock(&tilegtkMutex);
-  hint = wc->TileGtk_Style->styleHint(stylehint);
-  Tcl_MutexUnlock(&tilegtkMutex);
-  switch (hint) {
-    case Gtk::AlignLeft:    {pstr = "Gtk::AlignLeft";    break;}
-    case Gtk::AlignRight:   {pstr = "Gtk::AlignRight";   break;}
-    case Gtk::AlignCenter:  {pstr = "Gtk::AlignCenter";  break;}
-#ifdef TILEGTK_GTK_VERSION_3
-    case Gtk::AlignAuto:    {pstr = "Gtk::AlignAuto";    break;}
-#endif /* TILEGTK_GTK_VERSION_3 */
-    case Gtk::AlignJustify: {pstr = "Gtk::AlignJustify"; break;}
-    case Gtk::AlignTop:     {pstr = "Gtk::AlignTop";     break;}
-    case Gtk::AlignBottom:  {pstr = "Gtk::AlignBottom";  break;}
-    case Gtk::AlignVCenter: {pstr = "Gtk::AlignVCenter"; break;}
-    case Gtk::AlignHCenter: {pstr = "Gtk::AlignHCenter"; break;}
-    default: {
-      Tcl_SetObjResult(interp, Tcl_NewIntObj(hint));
-      return TCL_OK;
-    }
-  }
-#endif
-  Tcl_SetResult(interp, (char *) pstr, TCL_STATIC);
-  return TCL_OK;
-}; /* Tilegtk_GetStyleHint */
-
-int Tilegtk_GetSubControlMetrics(ClientData clientData, Tcl_Interp *interp,
-                                 int objc, Tcl_Obj *const objv[]) {
-#if 0
-  /*
-   * QStyle::SC_ScrollBarAddLine - scrollbar add line (i.e. down/right arrow). 
-   * QStyle::SC_ScrollBarSubLine - scrollbar sub line (i.e. up/left arrow). 
-   * QStyle::SC_ScrollBarAddPage - scrollbar add page (i.e. page down). 
-   * QStyle::SC_ScrollBarSubPage - scrollbar sub page (i.e. page up). 
-   * QStyle::SC_ScrollBarFirst   - scrollbar first line (i.e. home). 
-   * QStyle::SC_ScrollBarLast    - scrollbar last line (i.e. end). 
-   * QStyle::SC_ScrollBarSlider  - scrollbar slider handle. 
-   * QStyle::SC_ScrollBarGroove  - special subcontrol which contains the area
-   *                               in which the slider handle may move.
-   */
-  static const char *Methods[] = {
-    "-SC_ScrollBarAddLine",       "-SC_ScrollBarSubLine",
-    "-SC_ScrollBarAddPage",       "-SC_ScrollBarSubPage",
-    "-SC_ScrollBarFirst",         "-SC_ScrollBarLast",
-    "-SC_ScrollBarSlider",        "-SC_ScrollBarGroove",
-    (char *) NULL
-  };
-  enum methods {
-    SC_ScrollBarAddLine,       SC_ScrollBarSubLine,
-    SC_ScrollBarAddPage,       SC_ScrollBarSubPage,
-    SC_ScrollBarFirst,         SC_ScrollBarLast,
-    SC_ScrollBarSlider,        SC_ScrollBarGroove
-  };
-  int index;
-  Tcl_Obj *result;
-  TileGtk_WidgetCache **wc_array = (TileGtk_WidgetCache **) clientData;
-  TileGtk_WidgetCache *wc = wc_array[0];
-  if (objc != 2) {
-    Tcl_WrongNumArgs(interp, 1, objv, "sub_control_identifier");
-    return TCL_ERROR;
-  }
-  if (Tcl_GetIndexFromObj(interp, objv[1], (const char **) Methods,
-                            "method", 0, &index) != TCL_OK) {
-    return TCL_ERROR;
-  }
-  QStyle::ComplexControl control = QStyle::CC_ScrollBar;
-  QWidget *widget = 0;
-  QStyle::SubControl subcontrol = QStyle::SC_None;
-#ifdef TILEGTK_GTK_VERSION_4
-  QStyleOptionComplex *option = NULL;
-#endif /* TILEGTK_GTK_VERSION_4 */
-
-  if ((enum methods) index >= SC_ScrollBarAddLine &&
-      (enum methods) index <= SC_ScrollBarGroove) {
-    widget  = wc->TileGtk_QScrollBar_Widget;
-    control = QStyle::CC_ScrollBar;
-#ifdef TILEGTK_GTK_VERSION_4
-    option  = new QStyleOptionComplex();
-    if (option) option->initFrom(widget);
-#endif /* TILEGTK_GTK_VERSION_4 */
-  }
-  switch ((enum methods) index) {
-    case SC_ScrollBarAddLine: {
-      subcontrol = QStyle::SC_ScrollBarAddLine; break;
-    }
-    case SC_ScrollBarSubLine: {
-      subcontrol = QStyle::SC_ScrollBarSubLine; break;
-    }
-    case SC_ScrollBarAddPage: {
-      subcontrol = QStyle::SC_ScrollBarAddPage; break;
-    }
-    case SC_ScrollBarSubPage: {
-      subcontrol = QStyle::SC_ScrollBarSubPage; break;
-    }
-    case SC_ScrollBarFirst: {
-      subcontrol = QStyle::SC_ScrollBarFirst;   break;
-    }
-    case SC_ScrollBarLast: {
-      subcontrol = QStyle::SC_ScrollBarLast;    break;
-    }
-    case SC_ScrollBarSlider: {
-      subcontrol = QStyle::SC_ScrollBarSlider;  break;
-    }
-    case SC_ScrollBarGroove: {
-      subcontrol = QStyle::SC_ScrollBarGroove;  break;
-    }
-  }
-  Tcl_MutexLock(&tilegtkMutex);
-#ifdef TILEGTK_GTK_VERSION_3
-  QRect rc = wc->TileGtk_Style->
-    querySubControlMetrics(control, widget, subcontrol);
-#endif /* TILEGTK_GTK_VERSION_3 */
-#ifdef TILEGTK_GTK_VERSION_4
-  QRect rc = wc->TileGtk_Style->
-    subControlRect(control, option, subcontrol, widget);
-  if (option) delete option;
-#endif /* TILEGTK_GTK_VERSION_4 */
-  Tcl_MutexUnlock(&tilegtkMutex);
-  result = Tcl_NewListObj(0, NULL);
-  Tcl_ListObjAppendElement(interp, result, Tcl_NewIntObj(rc.x()));
-  Tcl_ListObjAppendElement(interp, result, Tcl_NewIntObj(rc.y()));
-  Tcl_ListObjAppendElement(interp, result, Tcl_NewIntObj(rc.width()));
-  Tcl_ListObjAppendElement(interp, result, Tcl_NewIntObj(rc.height()));
-  Tcl_SetObjResult(interp, result);
-#endif
-  return TCL_OK;
-}; /* Tilegtk_GetSubControlMetrics */
 
 extern "C" int DLLEXPORT
 Tilegtk_Init(Tcl_Interp *interp)

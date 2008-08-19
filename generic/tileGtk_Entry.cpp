@@ -65,20 +65,20 @@ static void EntryFieldElementDraw(
     GtkWidget *widget = TileGtk_GetEntry(wc);
     TILEGTK_ENSURE_WIDGET_OK;
     TILEGTK_STYLE_FROM_WIDGET;
-    TILEGTK_PIXMAP_FROM_WIDGET;
+    TILEGTK_DRAWABLE_FROM_WIDGET;
     TileGtk_StateShadowTableLookup(NULL, state, gtkState, gtkShadow,
             TILEGTK_SECTION_ENTRY|TILEGTK_SECTION_ALL);
     // TILEGTK_SETUP_WIDGET_SIZE(b.width, b.height);
     TILEGTK_WIDGET_SET_FOCUS(widget);
     // TileGtk_g_object_get(widget, "has-frame", &hasFrame, NULL);
     if (hasFrame) {
-      TileGtk_gtk_paint_shadow(style, pixmap, gtkState, gtkShadow, NULL, widget,
+      TileGtk_gtk_paint_shadow(style, gdkDrawable, gtkState, gtkShadow, NULL, widget,
                       "entry", 0, 0, b.width, b.height);
     } else {
       TILEGTK_DEFAULT_BACKGROUND;
     }
     // TileGtk_StateInfo(state, gtkState, gtkShadow, tkwin, widget);
-    TileGtk_CopyGtkPixmapOnToDrawable(pixmap, d, tkwin,
+    TileGtk_CopyGtkPixmapOnToDrawable(gdkDrawable, d, tkwin,
                    0, 0, b.width, b.height, b.x, b.y);
     TILEGTK_CLEANUP_GTK_DRAWABLE;
 }

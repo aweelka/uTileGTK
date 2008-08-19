@@ -65,7 +65,7 @@ static void ToolButtonElementDraw(
     ToolButtonElement *bd = (ToolButtonElement *) elementRecord;
     TILEGTK_ENSURE_WIDGET_OK;
     TILEGTK_STYLE_FROM_WIDGET;
-    TILEGTK_PIXMAP_FROM_WIDGET;
+    TILEGTK_DRAWABLE_FROM_WIDGET;
     // TILEGTK_SETUP_STATE_SHADOW(pushbutton_statemap, pushbutton_shadowmap);
     TileGtk_StateShadowTableLookup(NULL, state, gtkState, gtkShadow,
             TILEGTK_SECTION_BUTTONS|TILEGTK_SECTION_ALL);
@@ -74,10 +74,10 @@ static void ToolButtonElementDraw(
     TILEGTK_WIDGET_SET_DEFAULT(widget, bd->defaultStateObj);
     TILEGTK_DEFAULT_BACKGROUND;
     // TileGtk_StateInfo(state, gtkState, gtkShadow, tkwin, widget);
-    TileGtk_gtk_paint_box(style, pixmap, gtkState, gtkShadow, NULL, widget,
+    TileGtk_gtk_paint_box(style, gdkDrawable, gtkState, gtkShadow, NULL, widget,
                   has_default ? "buttondefault" : "button",
                   0, 0, b.width, b.height);
-    TileGtk_CopyGtkPixmapOnToDrawable(pixmap, d, tkwin,
+    TileGtk_CopyGtkPixmapOnToDrawable(gdkDrawable, d, tkwin,
                    0, 0, b.width, b.height, b.x, b.y);
     TILEGTK_CLEANUP_GTK_DRAWABLE;
 }

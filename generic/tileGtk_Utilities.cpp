@@ -38,6 +38,7 @@ GtkStyle *TileGtk_GetGtkStyle(void) {
 }; /* TileGtk_GetGtkStyle */
 
 void TileGtk_InitialiseGtkWidget(TileGtk_WidgetCache* wc, GtkWidget* widget) {
+  GtkStyle *style;
   if (!wc || !widget) return;
   if (!wc->protoLayout) {
     wc->protoLayout = TileGtk_gtk_fixed_new();
@@ -46,6 +47,8 @@ void TileGtk_InitialiseGtkWidget(TileGtk_WidgetCache* wc, GtkWidget* widget) {
   if (!wc->protoLayout) return;
   TileGtk_gtk_container_add((GtkContainer*)(wc->protoLayout), widget);
   TileGtk_gtk_widget_realize(widget);
+  //style = TileGtk_gtk_rc_get_style(widget);
+  //if (style) TileGtk_gtk_style_attach(style,
 }; /* TileGtk_InitialiseGtkWidget */
 
 #define TILEGTK_CHECK_WIDGET(widget, allocator_function) \
@@ -255,7 +258,7 @@ void TileGtk_StateInfo(int state, GtkStateType gtkState,
     fflush(0);
 }; /* TileGtk_StateInfo */
 
-void TileGtk_CopyGtkPixmapOnToDrawable(GdkPixmap *pixmap, Drawable d,
+void TileGtk_CopyGtkPixmapOnToDrawable(GdkPixmap *gdkDrawable, Drawable d,
             Tk_Window tkwin, int x, int y, int w, int h, int x1, int x2)
 {
 #ifdef __WIN32__
@@ -266,13 +269,13 @@ void TileGtk_CopyGtkPixmapOnToDrawable(GdkPixmap *pixmap, Drawable d,
     GC gc = Tk_GetGC(tkwin, GCForeground | GCBackground | GCGraphicsExposures,
                      &gcValues);
     GdkGC *gdkGC = TileGtk_gdk_gc_new(pixmap);
-    HDC hdcSrc = TileGtk_gdk_win32_hdc_get(pixmap, gdkGC, gc_usage);
+    HDC hdcSrc = TileGtk_gdk_win32_hdc_get(gdkDrawable, gdkGC, gc_usage);
     /* Create a Tk Drawable from the HDC... */
     TkWinDrawable gtkD;
     gtkD.type = TWD_WINDC;
     gtkD.winDC.hdc = hdcSrc;
     XCopyArea(Tk_Display(tkwin), (Drawable) &gtkD, d, gc, x, y, w, h, x1, x2);
-    TileGtk_gdk_win32_hdc_release(pixmap, gdkGC, gc_usage);
+    TileGtk_gdk_win32_hdc_release(gdkDrawable, gdkGC, gc_usage);
     if (gdkGC) TileGtk_g_object_unref(gdkGC);
     Tk_FreeGC(Tk_Display(tkwin), gc);
 #else
@@ -285,6 +288,19 @@ void TileGtk_CopyGtkPixmapOnToDrawable(GdkPixmap *pixmap, Drawable d,
     XCopyArea(Tk_Display(tkwin), GDK_DRAWABLE_XID(pixmap), d, gc,
               x, y, w, h, x1, x2);
     Tk_FreeGC(Tk_Display(tkwin), gc);
+    XGCValues gcValues;
+    GC gc;
+
+    gcValues.function = GXcopy;
+    gcValues.graphics_exposures = False;
+    gc = Tk_GetGC(tkwin, GCFunction|GCGraphicsExposures, &gcValues);
+
+    XCopyArea(Tk_Display(tkwin), d, Tk_WindowId(tkwin), gc,
+            0, 0, (unsigned) Tk_Width(tkwin), (unsigned) Tk_Height(tkwin),
+            0, 0);
+
+    Tk_FreePixmap(Tk_Display(tkwin), d);
+    Tk_FreeGC(Tk_Display(tkwin), gc);
 #else
     GdkPixbuf *imgb;
     XGCValues gcValues;
@@ -296,7 +312,7 @@ void TileGtk_CopyGtkPixmapOnToDrawable(GdkPixmap *pixmap, Drawable d,
       Tk_FreeGC(Tk_Display(tkwin), gc);
       return;
     }
-    imgb = TileGtk_gdk_pixbuf_get_from_drawable(imgb, pixmap,
+    imgb = TileGtk_gdk_pixbuf_get_from_drawable(imgb, gdkDrawable,
                                                 NULL, 0, 0, 0, 0, w, h);
     TileGtk_gdk_pixbuf_xlib_render_to_drawable(imgb, d, gc,
          x, y, x1, x2, w, h, XLIB_RGB_DITHER_MAX, 0, 0);
@@ -304,6 +320,29 @@ void TileGtk_CopyGtkPixmapOnToDrawable(GdkPixmap *pixmap, Drawable d,
     Tk_FreeGC(Tk_Display(tkwin), gc);
 #endif
 
+/*
+ * How to convert an X drawable to a GtkDrawable!
+ *
+  GdkPixmap    *gdkDrawable = NULL; \
+  GtkStyle     *style       = NULL; \
+  GdkScreen    *screen      = NULL; \
+  GdkColormap  *cmap        = NULL; \
+  screen = TileGtk_gdk_display_get_screen(wc->gdkDisplay, \
+                                          Tk_ScreenNumber(tkwin)); \
+  printf("Widget: %s, d=%d, p=%p\n", Tk_PathName(tkwin), d, \
+          gdk_xid_table_lookup((XID) d));fflush(0); \
+  gdkDrawable = TileGtk_gdk_pixmap_foreign_new_for_screen(screen, d, \
+          Tk_Width(tkwin), Tk_Height(tkwin), \
+          DefaultDepthOfScreen(Tk_Screen(tkwin))); \
+  if (!gdkDrawable) return; \
+  GdkVisual *visual = TileGtk_gdk_x11_screen_lookup_visual(screen,
+                              XVisualIDFromVisual(Tk_Visual(tkwin))); \
+  cmap = TileGtk_gdk_x11_colormap_foreign_new(visual, Tk_Colormap(tkwin)); \
+  TileGtk_gdk_drawable_set_colormap(gdkDrawable, cmap);\
+  printf("d=%d, gdkDrawable=%p, XID=%d, p=%p\n", d, gdkDrawable, \
+          gdk_x11_drawable_get_xid(gdkDrawable), \
+          gdk_xid_table_lookup((XID) d));fflush(0);
+ */
 #endif
 }; /* TileGtk_CopyGtkPixmapOnToDrawable */
 
@@ -407,10 +446,18 @@ unsigned int TileGtk_StateShadowTableLookup(TileGtk_StateTable *map,
         gtkShadow = GTK_SHADOW_IN;
       } else {
         gtkShadow = GTK_SHADOW_OUT;
+        // if (state & TTK_STATE_DISABLED || state & TTK_STATE_READONLY)
+        //                                    gtkState  = GTK_STATE_INSENSITIVE;
+        // else if (state & TTK_STATE_ACTIVE) gtkState  = GTK_STATE_PRELIGHT;
+        // else if (state & TTK_STATE_FOCUS)  gtkState  = GTK_STATE_ACTIVE;
+      }
+      if ((state & TTK_STATE_ACTIVE) &&
+             (!(state & TTK_STATE_PRESSED) || !(state & TTK_STATE_SELECTED))) {
+        gtkState = GTK_STATE_PRELIGHT;
+      } else {
         if (state & TTK_STATE_DISABLED || state & TTK_STATE_READONLY)
-                                           gtkState  = GTK_STATE_INSENSITIVE;
-        else if (state & TTK_STATE_ACTIVE) gtkState  = GTK_STATE_PRELIGHT;
-        else if (state & TTK_STATE_FOCUS)  gtkState  = GTK_STATE_ACTIVE;
+          gtkState  = GTK_STATE_INSENSITIVE;
+        else if (state & TTK_STATE_PRESSED) gtkState  = GTK_STATE_ACTIVE;
       }
       map = NULL; /* Do not search the table */
     } else if (section & TILEGTK_SECTION_TROUGH) {

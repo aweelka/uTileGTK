@@ -50,16 +50,16 @@ static void ProgressTroughElementDraw(
     GtkWidget *widget = TileGtk_GetProgressBar(wc);
     TILEGTK_ENSURE_WIDGET_OK;
     TILEGTK_STYLE_FROM_WIDGET;
-    TILEGTK_PIXMAP_FROM_WIDGET;
+    TILEGTK_DRAWABLE_FROM_WIDGET;
     TileGtk_StateShadowTableLookup(NULL, state, gtkState, gtkShadow,
             TILEGTK_SECTION_TROUGH|TILEGTK_SECTION_ALL);
     // TILEGTK_SETUP_WIDGET_SIZE(b.width, b.height);
     TILEGTK_WIDGET_SET_FOCUS(widget);
     // TILEGTK_DEFAULT_BACKGROUND;
     // TileGtk_StateInfo(state, gtkState, gtkShadow, tkwin, widget);
-    TileGtk_gtk_paint_box(style, pixmap, gtkState, GTK_SHADOW_IN, NULL, widget,
+    TileGtk_gtk_paint_box(style, gdkDrawable, gtkState, GTK_SHADOW_IN, NULL, widget,
         "trough", 0, 0, b.width, b.height);
-    TileGtk_CopyGtkPixmapOnToDrawable(pixmap, d, tkwin,
+    TileGtk_CopyGtkPixmapOnToDrawable(gdkDrawable, d, tkwin,
                    0, 0, b.width, b.height, b.x, b.y);
     TILEGTK_CLEANUP_GTK_DRAWABLE;
 }
@@ -117,7 +117,7 @@ static void ProgressBarElementDraw(
     GtkWidget *widget = TileGtk_GetProgressBar(wc);
     TILEGTK_ENSURE_WIDGET_OK;
     TILEGTK_STYLE_FROM_WIDGET;
-    TILEGTK_PIXMAP_FROM_WIDGET;
+    TILEGTK_DRAWABLE_FROM_WIDGET;
     // Tcl_GetDoubleFromObj(NULL, pbar->valueObj, &value);
     // Tcl_GetDoubleFromObj(NULL, pbar->maximumObj, &maximum);
     // if (strncmp(Tcl_GetString(pbar->modeObj), "determinate", 10) != 0) {
@@ -141,9 +141,9 @@ static void ProgressBarElementDraw(
     TileGtk_StateShadowTableLookup(NULL, state, gtkState, gtkShadow,
             TILEGTK_SECTION_SCROLLBAR|TILEGTK_SECTION_ALL);
     // TileGtk_StateInfo(state, gtkState, gtkShadow, tkwin, widget);
-    TileGtk_gtk_paint_box(style, pixmap, gtkState, gtkShadow, NULL, widget,
+    TileGtk_gtk_paint_box(style, gdkDrawable, gtkState, gtkShadow, NULL, widget,
         "bar", 0, 0, b.width, b.height);
-    TileGtk_CopyGtkPixmapOnToDrawable(pixmap, d, tkwin,
+    TileGtk_CopyGtkPixmapOnToDrawable(gdkDrawable, d, tkwin,
                    0, 0, b.width, b.height, b.x, b.y);
     TILEGTK_CLEANUP_GTK_DRAWABLE;
 }

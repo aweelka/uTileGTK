@@ -51,20 +51,20 @@ static void LabelframeBorderElementDraw(
     GtkWidget *widget = TileGtk_GetFrame(wc);
     TILEGTK_ENSURE_WIDGET_OK;
     TILEGTK_STYLE_FROM_WIDGET;
-    TILEGTK_PIXMAP_FROM_WIDGET;
+    TILEGTK_DRAWABLE_FROM_WIDGET;
     // TILEGTK_ATTACH_STYLE_TO_WIDGET;
     // TILEGTK_SETUP_WIDGET_SIZE(b.width, b.height);
     // TILEGTK_WIDGET_SET_FOCUS(widget);
     TILEGTK_DEFAULT_BACKGROUND;
-    // TileGtk_gtk_paint_flat_box(style, pixmap, gtkState, gtkShadow, NULL,
+    // TileGtk_gtk_paint_flat_box(style, gdkDrawable, gtkState, gtkShadow, NULL,
     //                            widget, "frame", 0, 0, b.width, b.height);
-    TileGtk_CopyGtkPixmapOnToDrawable(pixmap, d, tkwin,
+    TileGtk_CopyGtkPixmapOnToDrawable(gdkDrawable, d, tkwin,
                    0, 0, b.width, b.height, 0, 0);
     TileGtk_StateShadowTableLookup(NULL, state, gtkState, gtkShadow,
             TILEGTK_SECTION_BUTTONS|TILEGTK_SECTION_ALL);
-    TileGtk_gtk_paint_shadow(style, pixmap, gtkState, gtkShadow, NULL, widget,
+    TileGtk_gtk_paint_shadow(style, gdkDrawable, gtkState, gtkShadow, NULL, widget,
                      "frame", 0, 0, b.width, b.height);
-    TileGtk_CopyGtkPixmapOnToDrawable(pixmap, d, tkwin,
+    TileGtk_CopyGtkPixmapOnToDrawable(gdkDrawable, d, tkwin,
                    0, 0, b.width, b.height, b.x, b.y);
     TILEGTK_CLEANUP_GTK_DRAWABLE;
 }

@@ -36,42 +36,38 @@
 
 #define TILEGTK_GTK_DRAWABLE_DEFINITIONS \
   TileGtk_WidgetCache *wc = (TileGtk_WidgetCache *) clientData; \
-  GdkWindow    *gdkWindow; \
-  GdkPixmap    *pixmap    = NULL; \
-  GtkStyle     *style     = NULL; \
-  GtkStateType  gtkState  = GTK_STATE_NORMAL; \
-  GtkShadowType gtkShadow = GTK_SHADOW_NONE;
+  GdkPixmap    *gdkDrawable = NULL; \
+  GtkStyle     *style       = NULL; \
+  GtkStateType  gtkState    = GTK_STATE_NORMAL; \
+  GtkShadowType gtkShadow   = GTK_SHADOW_NONE;
 
 #define TILEGTK_SETUP_GTK_DRAWABLE \
   TILEGTK_SETUP_GTK_DRAWABLE_PIXMAP_SIZE(b.width, b.height)
 
 #define TILEGTK_SETUP_GTK_DRAWABLE_PIXMAP_SIZE(pw, ph) \
   if (!wc) return; \
-  gdkWindow = wc->gtkWindow->window; \
-  if (!gdkWindow) return; \
-  style = wc->gtkStyle; \
+  style = TileGtk_GetGtkWindowStyle(wc->gtkWindow); \
   if (!style) return; \
-  pixmap = TileGtk_gdk_pixmap_new(gdkWindow, pw, ph, -1); \
-  style = TileGtk_gtk_style_attach(style, gdkWindow); \
-  /*gdk_draw_rectangle(pixmap, *style->bg_gc, TRUE, 0, 0, b.width, b.height);*/
+  gdkDrawable = TileGtk_gdk_pixmap_new(wc->gtkWindow->window, pw, ph, -1); \
+  style = TileGtk_GetGtkWindowStyle(wc->gtkWindow);
 
 #define TILEGTK_STYLE_FROM_WIDGET \
-  style = gtk_rc_get_style(widget); \
-  if (!style) style = wc->gtkStyle; \
+  style = TileGtk_GetGtkWindowStyle(widget); \
+  if (!style) style = TileGtk_GetGtkWindowStyle(wc->gtkWindow); \
   if (!style) return;
 
-#define TILEGTK_PIXMAP_FROM_WIDGET_SIZE(pw, ph) \
-  pixmap = TileGtk_gdk_pixmap_new(widget->window, pw, ph, -1);
+#define TILEGTK_DRAWABLE_FROM_WIDGET_SIZE(pw, ph) \
+  gdkDrawable = TileGtk_gdk_pixmap_new(widget->window, pw, ph, Tk_Depth(tkwin));
 
-#define TILEGTK_PIXMAP_FROM_WIDGET \
-  TILEGTK_PIXMAP_FROM_WIDGET_SIZE(b.width, b.height)
+#define TILEGTK_DRAWABLE_FROM_WIDGET \
+  TILEGTK_DRAWABLE_FROM_WIDGET_SIZE(b.width, b.height)
 
 #define TILEGTK_DEFAULT_BACKGROUND \
-  TileGtk_gtk_style_apply_default_background(style, pixmap, TRUE, gtkState, \
-                                     NULL, 0, 0, b.width, b.height);
+  TileGtk_gtk_style_apply_default_background(style, gdkDrawable, TRUE, \
+               gtkState, NULL, 0, 0, b.width, b.height);
 
 #define TILEGTK_CLEANUP_GTK_DRAWABLE \
-  TileGtk_gdk_drawable_unref(pixmap); \
+  if (gdkDrawable) TileGtk_g_object_unref(gdkDrawable);
 
 #define TILEGTK_SETUP_STATE_SHADOW(statemap, shadowmap) \
     gtkState  = (GtkStateType) \

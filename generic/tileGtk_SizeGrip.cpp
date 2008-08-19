@@ -57,14 +57,14 @@ static void SizeGripElementDraw(
     GtkWidget *widget = wc->gtkWindow;
     TILEGTK_ENSURE_WIDGET_OK;
     TILEGTK_STYLE_FROM_WIDGET;
-    TILEGTK_PIXMAP_FROM_WIDGET;
+    TILEGTK_DRAWABLE_FROM_WIDGET;
     // TileGtk_StateShadowTableLookup(NULL, state, gtkState, gtkShadow,
     //         TILEGTK_SECTION_ALL);
     TILEGTK_DEFAULT_BACKGROUND;
     // TileGtk_StateInfo(state, gtkState, gtkShadow, tkwin, widget);
-    TileGtk_gtk_paint_resize_grip(style, pixmap, GTK_STATE_NORMAL, NULL, widget,
+    TileGtk_gtk_paint_resize_grip(style, gdkDrawable, GTK_STATE_NORMAL, NULL, widget,
        "window", GDK_WINDOW_EDGE_SOUTH_EAST, 0, 0, b.width, b.height);
-    TileGtk_CopyGtkPixmapOnToDrawable(pixmap, d, tkwin,
+    TileGtk_CopyGtkPixmapOnToDrawable(gdkDrawable, d, tkwin,
                    0, 0, b.width, b.height, b.x, b.y);
     TILEGTK_CLEANUP_GTK_DRAWABLE;
 }; /* SizeGripElementDraw */

@@ -20,7 +20,7 @@
 
 /* Convenience memory allocators
  */
-#define TileGtk_g_new0(struct_type, n_structs)		\
+#define TileGtk_g_new0(struct_type, n_structs) \
     ((struct_type *) TileGtk_g_malloc0 (((gsize) sizeof (struct_type)) * ((gsize) (n_structs))))
 
 typedef struct TileGtk_WidgetCache {
@@ -30,7 +30,6 @@ typedef struct TileGtk_WidgetCache {
   int            orientation;
   GtkOrientation gtkOrientation;
   GdkDisplay*    gdkDisplay;
-  GtkStyle*      gtkStyle;
   GtkWidget*     gtkNotebook;
   GtkWidget*     gtkEntry;
   GtkWidget*     gtkHScale;

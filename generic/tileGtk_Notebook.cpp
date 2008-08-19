@@ -63,8 +63,8 @@ static void NotebookTabElementDraw(
     GtkWidget *widget = TileGtk_GetNotebook(wc);
     TILEGTK_ENSURE_WIDGET_OK;
     TILEGTK_STYLE_FROM_WIDGET;
-    TILEGTK_PIXMAP_FROM_WIDGET_SIZE(b.width, height_with_overlap);
-    TileGtk_gtk_style_apply_default_background(style, pixmap, TRUE, gtkState, \
+    TILEGTK_DRAWABLE_FROM_WIDGET_SIZE(b.width, height_with_overlap);
+    TileGtk_gtk_style_apply_default_background(style, gdkDrawable, TRUE, gtkState, \
                             NULL, 0, 0, b.width, height_with_overlap);
 
     if (state & TTK_STATE_SELECTED) {
@@ -82,9 +82,9 @@ static void NotebookTabElementDraw(
     TileGtk_StateShadowTableLookup(NULL, state, gtkState, gtkShadow,
             TILEGTK_SECTION_TABS|TILEGTK_SECTION_ALL);
     // TileGtk_StateInfo(state, gtkState, gtkShadow, tkwin, widget);
-    TileGtk_gtk_paint_extension(style, pixmap, gtkState, gtkShadow, NULL,
+    TileGtk_gtk_paint_extension(style, gdkDrawable, gtkState, gtkShadow, NULL,
        widget, (char *) "tab", 0, 0, b.width, b.height + dh, GTK_POS_BOTTOM);
-    TileGtk_CopyGtkPixmapOnToDrawable(pixmap, d, tkwin,
+    TileGtk_CopyGtkPixmapOnToDrawable(gdkDrawable, d, tkwin,
                    0, 0, b.width, b.height + dh, b.x, b.y);
     TILEGTK_CLEANUP_GTK_DRAWABLE;
 }
@@ -125,13 +125,13 @@ static void NotebookClientElementDraw(
     GtkWidget *widget = TileGtk_GetNotebook(wc);
     TILEGTK_ENSURE_WIDGET_OK;
     TILEGTK_STYLE_FROM_WIDGET;
-    TILEGTK_PIXMAP_FROM_WIDGET;
-    // TileGtk_gtk_paint_box_gap(style, pixmap, GTK_STATE_NORMAL,GTK_SHADOW_OUT,
+    TILEGTK_DRAWABLE_FROM_WIDGET;
+    // TileGtk_gtk_paint_box_gap(style, gdkDrawable, GTK_STATE_NORMAL,GTK_SHADOW_OUT,
     //      NULL, widget, (char *) "notebook", 0, 0, b.width, b.height,
     //      GTK_POS_TOP, 0, 0);
-    TileGtk_gtk_paint_box(style, pixmap, GTK_STATE_NORMAL, GTK_SHADOW_OUT,
+    TileGtk_gtk_paint_box(style, gdkDrawable, GTK_STATE_NORMAL, GTK_SHADOW_OUT,
          NULL, widget, (char *) "notebook", 0, 0, b.width, b.height);
-    TileGtk_CopyGtkPixmapOnToDrawable(pixmap, d, tkwin,
+    TileGtk_CopyGtkPixmapOnToDrawable(gdkDrawable, d, tkwin,
                    0, 0, b.width, b.height, b.x, b.y);
     TILEGTK_CLEANUP_GTK_DRAWABLE;
 }

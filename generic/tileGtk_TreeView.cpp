@@ -93,7 +93,7 @@ static void TreeViewFieldElementDraw(
 #endif /* TILEGTK_GTK_VERSION_4 */
     TILEGTK_CLEAR_FOCUS(state);
     // printf("x=%d, y=%d, w=%d, h=%d\n", b.x, b.y, b.width, b.height);
-    TileGtk_CopyGtkPixmapOnToDrawable(pixmap, d, tkwin,
+    TileGtk_CopyGtkPixmapOnToDrawable(gdkDrawable, d, tkwin,
                                     0, 0, b.width, b.height, b.x, b.y);
     Tcl_MutexUnlock(&tilegtkMutex);
 }
@@ -175,7 +175,7 @@ static void TreeViewClientElementDraw(
 #endif /* TILEGTK_GTK_VERSION_4 */
 #endif
     // printf("x=%d, y=%d, w=%d, h=%d\n", b.x, b.y, b.width, b.height);
-    TileGtk_CopyGtkPixmapOnToDrawable(pixmap, d, tkwin,
+    TileGtk_CopyGtkPixmapOnToDrawable(gdkDrawable, d, tkwin,
                                     0, 0, b.width, b.height, b.x, b.y);
     Tcl_MutexUnlock(&tilegtkMutex);
 }
@@ -251,7 +251,7 @@ static void TreeHeadingBorderElementDraw(
                                   &painter);
 #endif /* TILEGTK_GTK_VERSION_4 */
     // printf("x=%d, y=%d, w=%d, h=%d\n", b.x, b.y, b.width, b.height);
-    TileGtk_CopyGtkPixmapOnToDrawable(pixmap, d, tkwin,
+    TileGtk_CopyGtkPixmapOnToDrawable(gdkDrawable, d, tkwin,
                                     0, 0, b.width, b.height, b.x, b.y);
     Tcl_MutexUnlock(&tilegtkMutex);
 }
