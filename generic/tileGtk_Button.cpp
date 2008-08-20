@@ -80,7 +80,7 @@ static void ButtonElementDraw(
     /*
      * The following was taken from GTK+ button drawing code.
      */
-    border_width = GTK_CONTAINER(widget)->border_width;
+    border_width = ((GtkContainer*) widget)->border_width;
     TileGtk_gtk_widget_style_get(widget,
            "default-border",         &tmp_border,
            "default-outside-border", &tmp_outside_border,

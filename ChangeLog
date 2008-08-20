@@ -1,6 +1,8 @@
 20 Aug 2008  Georgios Petasis  <petasis@iit.demokritos.gr>
-  * generic/tileGtk_Button.cpp: Reworked button drawing to be identical to the
-  drawing done by GTK+.
+  * generic/tileGtk_Button.cpp:
+  * generic/tileGtk_CheckButton.cpp:
+  * generic/tileGtk_RadioButton.cpp: Reworked button drawing to be identical
+  to the drawing done by GTK+.
 
 13 Aug 2008  Georgios Petasis  <petasis@iit.demokritos.gr>
   * generic/tileGtk_Utilities.h:

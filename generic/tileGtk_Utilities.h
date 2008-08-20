@@ -62,9 +62,12 @@
 #define TILEGTK_DRAWABLE_FROM_WIDGET \
   TILEGTK_DRAWABLE_FROM_WIDGET_SIZE(b.width, b.height)
 
-#define TILEGTK_DEFAULT_BACKGROUND \
+#define TILEGTK_DEFAULT_BACKGROUND_SIZE(pw, ph) \
   TileGtk_gtk_style_apply_default_background(style, gdkDrawable, TRUE, \
-               gtkState, NULL, 0, 0, b.width, b.height);
+               gtkState, NULL, 0, 0, pw, ph);
+
+#define TILEGTK_DEFAULT_BACKGROUND \
+  TILEGTK_DEFAULT_BACKGROUND_SIZE(b.width, b.height)
 
 #define TILEGTK_CLEANUP_GTK_DRAWABLE \
   if (gdkDrawable) TileGtk_g_object_unref(gdkDrawable);

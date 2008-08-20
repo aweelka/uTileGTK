@@ -313,9 +313,9 @@ void TileGtk_CopyGtkPixmapOnToDrawable(GdkPixmap *gdkDrawable, Drawable d,
       return;
     }
     imgb = TileGtk_gdk_pixbuf_get_from_drawable(imgb, gdkDrawable,
-                                                NULL, 0, 0, 0, 0, w, h);
+                                                NULL, x, y, 0, 0, w, h);
     TileGtk_gdk_pixbuf_xlib_render_to_drawable(imgb, d, gc,
-         x, y, x1, x2, w, h, XLIB_RGB_DITHER_MAX, 0, 0);
+         0, 0, x1, x2, w, h, XLIB_RGB_DITHER_MAX, 0, 0);
     TileGtk_gdk_pixbuf_unref(imgb);
     Tk_FreeGC(Tk_Display(tkwin), gc);
 #endif
