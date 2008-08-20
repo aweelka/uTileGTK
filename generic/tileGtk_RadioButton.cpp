@@ -55,7 +55,7 @@ static void RadioButtonIndicatorElementDraw(
     GtkWidget *widget = TileGtk_GetRadioButton(wc);
     TILEGTK_ENSURE_WIDGET_OK;
     TILEGTK_DRAWABLE_FROM_WIDGET_SIZE(b.width+20, b.height+20);
-    style = TileGtk_GetGtkWindowStyle(wc->gtkWindow);
+    TILEGTK_STYLE_BACKGROUND_DEFAULT;
     TILEGTK_DEFAULT_BACKGROUND_SIZE(b.width+20, b.height+20);
     TILEGTK_STYLE_FROM_WIDGET;
     TILEGTK_WIDGET_SET_FOCUS(widget);
@@ -118,11 +118,13 @@ static void RadioButtonBorderElementDraw(
     GtkWidget *widget = TileGtk_GetRadioButton(wc);
     TILEGTK_ENSURE_WIDGET_OK;
     TILEGTK_DRAWABLE_FROM_WIDGET;
-    TILEGTK_STYLE_FROM_WIDGET;
+    TILEGTK_STYLE_BACKGROUND_DEFAULT;
+    TILEGTK_DEFAULT_BACKGROUND;
     if (state & TTK_STATE_FOCUS) {
       gint border_width = ((GtkContainer*) widget)->border_width;
       gint focus_width;
       gint focus_pad;
+      TILEGTK_STYLE_FROM_WIDGET;
       TILEGTK_WIDGET_SET_FOCUS(widget);
       TileGtk_StateShadowTableLookup(NULL, state, gtkState, gtkShadow,
             TILEGTK_SECTION_BUTTONS|TILEGTK_SECTION_ALL);

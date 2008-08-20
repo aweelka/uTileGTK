@@ -60,22 +60,19 @@ static void EntryFieldElementDraw(
 {
     TILEGTK_GTK_DRAWABLE_DEFINITIONS;
     TILEGTK_ENSURE_GTK_STYLE_ENGINE_ACTIVE;
-    /* TILEGTK_SETUP_GTK_DRAWABLE; */
     gboolean hasFrame = TRUE;
     GtkWidget *widget = TileGtk_GetEntry(wc);
     TILEGTK_ENSURE_WIDGET_OK;
-    TILEGTK_STYLE_FROM_WIDGET;
     TILEGTK_DRAWABLE_FROM_WIDGET;
-    TileGtk_StateShadowTableLookup(NULL, state, gtkState, gtkShadow,
-            TILEGTK_SECTION_ENTRY|TILEGTK_SECTION_ALL);
-    // TILEGTK_SETUP_WIDGET_SIZE(b.width, b.height);
-    TILEGTK_WIDGET_SET_FOCUS(widget);
-    // TileGtk_g_object_get(widget, "has-frame", &hasFrame, NULL);
+    style = TileGtk_GetGtkWindowStyle(wc->gtkWindow);
+    TILEGTK_DEFAULT_BACKGROUND;
     if (hasFrame) {
-      TileGtk_gtk_paint_shadow(style, gdkDrawable, gtkState, gtkShadow, NULL, widget,
-                      "entry", 0, 0, b.width, b.height);
-    } else {
-      TILEGTK_DEFAULT_BACKGROUND;
+      TILEGTK_STYLE_FROM_WIDGET;
+      TileGtk_StateShadowTableLookup(NULL, state, gtkState, gtkShadow,
+              TILEGTK_SECTION_ENTRY|TILEGTK_SECTION_ALL);
+      TILEGTK_WIDGET_SET_FOCUS(widget);
+      TileGtk_gtk_paint_shadow(style, gdkDrawable, gtkState, gtkShadow, NULL,
+              widget, "entry", 0, 0, b.width, b.height);
     }
     // TileGtk_StateInfo(state, gtkState, gtkShadow, tkwin, widget);
     TileGtk_CopyGtkPixmapOnToDrawable(gdkDrawable, d, tkwin,

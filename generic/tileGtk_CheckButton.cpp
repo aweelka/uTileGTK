@@ -54,12 +54,13 @@ static void CheckButtonIndicatorElementDraw(
     TILEGTK_ENSURE_GTK_STYLE_ENGINE_ACTIVE;
     GtkWidget *widget = TileGtk_GetCheckButton(wc);
     TILEGTK_ENSURE_WIDGET_OK;
-    TILEGTK_STYLE_FROM_WIDGET;
     TILEGTK_DRAWABLE_FROM_WIDGET;
+    style = TileGtk_GetGtkWindowStyle(wc->gtkWindow);
+    TILEGTK_DEFAULT_BACKGROUND;
+    TILEGTK_STYLE_FROM_WIDGET;
     TILEGTK_WIDGET_SET_FOCUS(widget);
     TileGtk_gtk_widget_style_get(widget,
            "indicator-size", &indicator_size, NULL);
-    TILEGTK_DEFAULT_BACKGROUND;
     TileGtk_StateShadowTableLookup(NULL, state, gtkState, gtkShadow,
             TILEGTK_SECTION_BUTTONS|TILEGTK_SECTION_ALL);
     // TileGtk_StateInfo(state, gtkState, gtkShadow, tkwin, widget);
@@ -113,11 +114,13 @@ static void CheckButtonBorderElementDraw(
     GtkWidget *widget = TileGtk_GetCheckButton(wc);
     TILEGTK_ENSURE_WIDGET_OK;
     TILEGTK_DRAWABLE_FROM_WIDGET;
-    TILEGTK_STYLE_FROM_WIDGET;
+    TILEGTK_STYLE_BACKGROUND_DEFAULT;
+    TILEGTK_DEFAULT_BACKGROUND;
     if (state & TTK_STATE_FOCUS) {
       gint border_width = ((GtkContainer*) widget)->border_width;
       gint focus_width;
       gint focus_pad;
+      TILEGTK_STYLE_FROM_WIDGET;
       TILEGTK_WIDGET_SET_FOCUS(widget);
       TileGtk_StateShadowTableLookup(NULL, state, gtkState, gtkShadow,
             TILEGTK_SECTION_BUTTONS|TILEGTK_SECTION_ALL);

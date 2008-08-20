@@ -47,28 +47,31 @@ static void ComboboxFieldElementDraw(
 {
     TILEGTK_GTK_DRAWABLE_DEFINITIONS;
     TILEGTK_ENSURE_GTK_STYLE_ENGINE_ACTIVE;
-    /* TILEGTK_SETUP_GTK_DRAWABLE; */
     GtkWidget *widget = NULL;
     if (state & (TTK_STATE_DISABLED|TTK_STATE_READONLY)) {
       widget = TileGtk_GetCombobox(wc);
       TILEGTK_ENSURE_WIDGET_OK;
-      TILEGTK_STYLE_FROM_WIDGET;
       TILEGTK_DRAWABLE_FROM_WIDGET;
+      TILEGTK_STYLE_BACKGROUND_DEFAULT;
+      TILEGTK_DEFAULT_BACKGROUND;
+      TILEGTK_STYLE_FROM_WIDGET;
       TileGtk_StateShadowTableLookup(NULL, state, gtkState, gtkShadow,
               TILEGTK_SECTION_BUTTONS|TILEGTK_SECTION_ALL);
       TILEGTK_WIDGET_SET_FOCUS(widget);
-      TileGtk_gtk_paint_box(style, gdkDrawable, gtkState, gtkShadow, NULL, widget,
-                   "button", 0, 0, b.width, b.height);
+      TileGtk_gtk_paint_box(style, gdkDrawable, gtkState, gtkShadow, NULL,
+              widget, "button", 0, 0, b.width, b.height);
     } else {
       widget = TileGtk_GetComboboxEntry(wc);
       TILEGTK_ENSURE_WIDGET_OK;
-      TILEGTK_STYLE_FROM_WIDGET;
       TILEGTK_DRAWABLE_FROM_WIDGET;
+      TILEGTK_STYLE_BACKGROUND_DEFAULT;
+      TILEGTK_DEFAULT_BACKGROUND;
+      TILEGTK_STYLE_FROM_WIDGET;
       TileGtk_StateShadowTableLookup(NULL, state, gtkState, gtkShadow,
               TILEGTK_SECTION_ENTRY|TILEGTK_SECTION_ALL);
       TILEGTK_WIDGET_SET_FOCUS(widget);
-      TileGtk_gtk_paint_shadow(style, gdkDrawable, gtkState, gtkShadow, NULL, widget,
-                       "combobox", 0, 0, b.width, b.height);
+      TileGtk_gtk_paint_shadow(style, gdkDrawable, gtkState, gtkShadow, NULL,
+              widget, "combobox", 0, 0, b.width, b.height);
     }
     TileGtk_CopyGtkPixmapOnToDrawable(gdkDrawable, d, tkwin,
                    0, 0, b.width, b.height, b.x, b.y);

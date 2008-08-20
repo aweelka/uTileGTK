@@ -38,7 +38,7 @@ GtkStyle *TileGtk_GetGtkStyle(void) {
 }; /* TileGtk_GetGtkStyle */
 
 void TileGtk_InitialiseGtkWidget(TileGtk_WidgetCache* wc, GtkWidget* widget) {
-  GtkStyle *style;
+  // GtkStyle *style;
   if (!wc || !widget) return;
   if (!wc->protoLayout) {
     wc->protoLayout = TileGtk_gtk_fixed_new();
@@ -47,8 +47,8 @@ void TileGtk_InitialiseGtkWidget(TileGtk_WidgetCache* wc, GtkWidget* widget) {
   if (!wc->protoLayout) return;
   TileGtk_gtk_container_add((GtkContainer*)(wc->protoLayout), widget);
   TileGtk_gtk_widget_realize(widget);
-  //style = TileGtk_gtk_rc_get_style(widget);
-  //if (style) TileGtk_gtk_style_attach(style,
+  // style = TileGtk_gtk_rc_get_style(widget);
+  // if (style) TileGtk_gtk_style_attach(style,
 }; /* TileGtk_InitialiseGtkWidget */
 
 #define TILEGTK_CHECK_WIDGET(widget, allocator_function) \
@@ -268,7 +268,7 @@ void TileGtk_CopyGtkPixmapOnToDrawable(GdkPixmap *gdkDrawable, Drawable d,
     gcValues.graphics_exposures = False;
     GC gc = Tk_GetGC(tkwin, GCForeground | GCBackground | GCGraphicsExposures,
                      &gcValues);
-    GdkGC *gdkGC = TileGtk_gdk_gc_new(pixmap);
+    GdkGC *gdkGC = TileGtk_gdk_gc_new(gdkDrawable);
     HDC hdcSrc = TileGtk_gdk_win32_hdc_get(gdkDrawable, gdkGC, gc_usage);
     /* Create a Tk Drawable from the HDC... */
     TkWinDrawable gtkD;

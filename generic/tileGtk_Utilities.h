@@ -51,13 +51,17 @@
   gdkDrawable = TileGtk_gdk_pixmap_new(wc->gtkWindow->window, pw, ph, -1); \
   style = TileGtk_GetGtkWindowStyle(wc->gtkWindow);
 
+#define TILEGTK_STYLE_BACKGROUND_DEFAULT \
+  if (wc && wc->gtkWindow) style = TileGtk_GetGtkWindowStyle(wc->gtkWindow); \
+  if (!style) return;
+
 #define TILEGTK_STYLE_FROM_WIDGET \
   style = TileGtk_GetGtkWindowStyle(widget); \
   if (!style) style = TileGtk_GetGtkWindowStyle(wc->gtkWindow); \
   if (!style) return;
 
 #define TILEGTK_DRAWABLE_FROM_WIDGET_SIZE(pw, ph) \
-  gdkDrawable = TileGtk_gdk_pixmap_new(widget->window, pw, ph, Tk_Depth(tkwin));
+  gdkDrawable = TileGtk_gdk_pixmap_new(widget->window, pw, ph, -1);
 
 #define TILEGTK_DRAWABLE_FROM_WIDGET \
   TILEGTK_DRAWABLE_FROM_WIDGET_SIZE(b.width, b.height)
