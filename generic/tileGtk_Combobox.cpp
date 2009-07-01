@@ -116,6 +116,12 @@ static void ComboboxArrowElementDraw(
     TILEGTK_ENSURE_GTK_STYLE_ENGINE_ACTIVE;
     /* TILEGTK_SETUP_GTK_DRAWABLE; */
     GtkWidget *widget = NULL;
+    GtkWidget *arrow_widget = TileGtk_GetArrow(wc);
+    gfloat arrow_scaling;
+    gint arrow_x;
+    gint arrow_y;
+    gint arrow_width;
+    gint arrow_height;
     if (state & (TTK_STATE_DISABLED|TTK_STATE_READONLY)) {
       widget = TileGtk_GetCombobox(wc);
       TILEGTK_ENSURE_WIDGET_OK;
@@ -137,8 +143,17 @@ static void ComboboxArrowElementDraw(
       TileGtk_gtk_paint_flat_box(style, gdkDrawable, gtkState, gtkShadow, NULL,
               widget, "combobox", 0, 0, b.width, b.height);
     }
+    /* Draw the arrow, according to the desired scaling! */
+    TileGtk_gtk_widget_style_get(arrow_widget, "arrow-scaling",
+                                 &arrow_scaling, NULL);
+    if (arrow_scaling == 0.0) arrow_scaling = 1.0;
+    arrow_width  = b.width  * arrow_scaling;
+    arrow_height = b.height * arrow_scaling;
+    arrow_x =  (b.width  - arrow_width) / 2;
+    arrow_y =  (b.height - arrow_height) / 2;
     TileGtk_gtk_paint_arrow(style, gdkDrawable, gtkState, GTK_SHADOW_NONE, NULL,
-        widget, "combo", GTK_ARROW_DOWN, FALSE, 0, 0, b.width, b.height);
+        arrow_widget, "combo", GTK_ARROW_DOWN, TRUE,
+        arrow_x, arrow_y, arrow_width, arrow_height);
     TileGtk_CopyGtkPixmapOnToDrawable(gdkDrawable, d, tkwin,
                    0, 0, b.width, b.height, b.x, b.y);
     TILEGTK_CLEANUP_GTK_DRAWABLE;

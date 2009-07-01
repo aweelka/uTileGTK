@@ -60,6 +60,11 @@ void TileGtk_InitialiseGtkWidget(TileGtk_WidgetCache* wc, GtkWidget* widget) {
   } \
   return wc->widget;
 
+GtkWidget *TileGtk_GetArrow(TileGtk_WidgetCache* wc) {
+  TILEGTK_CHECK_WIDGET(gtkArrow,
+                       TileGtk_gtk_arrow_new(GTK_ARROW_DOWN, GTK_SHADOW_NONE));
+}; /* TileGtk_GetButton */
+
 GtkWidget *TileGtk_GetButton(TileGtk_WidgetCache* wc) {
   TILEGTK_CHECK_WIDGET(gtkButton, TileGtk_gtk_button_new());
 }; /* TileGtk_GetButton */

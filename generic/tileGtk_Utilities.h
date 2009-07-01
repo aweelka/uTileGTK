@@ -130,6 +130,10 @@
   printf("x=%d, y=%d, w=%d, h=%d\n", b.x, b.y, b.width, b.height); \
   fflush(0);
 
+#define TILEGTK_DEBUG_PRINT_TK_WIDGET \
+  printf("Widget: %s,p=%p\n", Tk_PathName(tkwin), tkwin); \
+  fflush(0);
+
 #define TILEGTK_GTKBORDER_TO_PADDING(border) \
   Ttk_MakePadding(border.left, border.top, border.right, border.bottom)
 
@@ -149,6 +153,7 @@ extern void TileGtk_CopyGtkPixmapOnToDrawable(GdkPixmap *, Drawable, Tk_Window,
 extern void TileGtk_StateInfo(int, GtkStateType,
                     GtkShadowType, Tk_Window, GtkWidget *widget = NULL);
 
+extern GtkWidget *TileGtk_GetArrow(TileGtk_WidgetCache* wc);
 extern GtkWidget *TileGtk_GetButton(TileGtk_WidgetCache* wc);
 extern GtkWidget *TileGtk_GetCheckButton(TileGtk_WidgetCache* wc);
 extern GtkWidget *TileGtk_GetRadioButton(TileGtk_WidgetCache* wc);

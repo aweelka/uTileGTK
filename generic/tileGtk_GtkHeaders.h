@@ -30,6 +30,7 @@ typedef struct TileGtk_WidgetCache {
   int            orientation;
   GtkOrientation gtkOrientation;
   GdkDisplay*    gdkDisplay;
+  GtkWidget*     gtkArrow;
   GtkWidget*     gtkNotebook;
   GtkWidget*     gtkEntry;
   GtkWidget*     gtkHScale;

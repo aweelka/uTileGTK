@@ -1,3 +1,9 @@
+01 Jul 2009  Georgios Petasis  <petasis@iit.demokritos.gr>
+  * generic/tileGtk_Combobox.cpp:
+  * generic/tileGtk_Menubutton.cpp:
+  * generic/tileGtk_Scrollbar.cpp: Applied the scaling required by GTK+
+  arrows.
+
 20 Aug 2008  Georgios Petasis  <petasis@iit.demokritos.gr>
   * generic/tileGtk_Button.cpp:
   * generic/tileGtk_CheckButton.cpp:

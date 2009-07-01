@@ -148,6 +148,10 @@ proc get_function_spec {f} {
     gtk_adjustment_set_value {
       set a {GtkAdjustment *adjustment, gdouble value}
     }
+    gtk_arrow_new {
+      set a {GtkArrowType at, GtkShadowType st}
+      set t {GtkWidget*}
+    }
     gtk_vpaned_new -
     gtk_toolbar_new -
     gtk_statusbar_new -

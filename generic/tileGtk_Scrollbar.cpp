@@ -210,6 +210,11 @@ static void ScrollbarUpArrowElementDraw(
     TILEGTK_SETUP_GTK_DRAWABLE;
     GtkWidget *widget = TileGtk_GetScrollBar(wc);
     int horizontal = wc->orientation == TTK_ORIENT_HORIZONTAL;
+    gfloat arrow_scaling;
+    gint arrow_x;
+    gint arrow_y;
+    gint arrow_width;
+    gint arrow_height;
     TILEGTK_ENSURE_WIDGET_OK;
     TILEGTK_STYLE_FROM_WIDGET;
     TileGtk_StateShadowTableLookup(NULL, state, gtkState, gtkShadow,
@@ -218,13 +223,21 @@ static void ScrollbarUpArrowElementDraw(
     TILEGTK_WIDGET_SET_FOCUS(widget);
     // TILEGTK_DEFAULT_BACKGROUND;
     // TileGtk_StateInfo(state, gtkState, gtkShadow, tkwin, widget);
-    TileGtk_gtk_paint_box(style, gdkDrawable, gtkState, GTK_SHADOW_IN, NULL, widget,
-        horizontal ? "hscrollbar":"vscrollbar",
+    TileGtk_gtk_paint_box(style, gdkDrawable, gtkState, GTK_SHADOW_IN, NULL,
+        widget, horizontal ? "hscrollbar":"vscrollbar",
         0, 0, b.width, b.height);
-    TileGtk_gtk_paint_arrow(style, gdkDrawable, gtkState, gtkShadow, NULL, widget,
-        horizontal ? "hscrollbar":"vscrollbar",
+    /* Draw the arrow, according to the desired scaling! */
+    TileGtk_gtk_widget_style_get(widget, "arrow-scaling", &arrow_scaling, NULL);
+    if (arrow_scaling == 0.0) arrow_scaling = 1.0;
+    arrow_width  = b.width  * arrow_scaling;
+    arrow_height = b.height * arrow_scaling;
+    arrow_x =  (b.width  - arrow_width) / 2;
+    arrow_y =  (b.height - arrow_height) / 2;
+
+    TileGtk_gtk_paint_arrow(style, gdkDrawable, gtkState, gtkShadow, NULL,
+        widget, horizontal ? "hscrollbar":"vscrollbar",
         horizontal? GTK_ARROW_LEFT : GTK_ARROW_UP, FALSE,
-        0, 0, b.width, b.height);
+        arrow_x, arrow_y, arrow_width, arrow_height);
     TileGtk_CopyGtkPixmapOnToDrawable(gdkDrawable, d, tkwin,
                    0, 0, b.width, b.height, b.x, b.y);
     TILEGTK_CLEANUP_GTK_DRAWABLE;
@@ -263,6 +276,11 @@ static void ScrollbarDownArrowElementDraw(
     GtkWidget *widget = TileGtk_GetScrollBar(wc);
     int horizontal = wc->orientation == TTK_ORIENT_HORIZONTAL;
     TILEGTK_ENSURE_WIDGET_OK;
+    gfloat arrow_scaling;
+    gint arrow_x;
+    gint arrow_y;
+    gint arrow_width;
+    gint arrow_height;
     TILEGTK_STYLE_FROM_WIDGET;
     TileGtk_StateShadowTableLookup(NULL, state, gtkState, gtkShadow,
             TILEGTK_SECTION_STEPPERS|TILEGTK_SECTION_ALL);
@@ -270,12 +288,21 @@ static void ScrollbarDownArrowElementDraw(
     TILEGTK_WIDGET_SET_FOCUS(widget);
     // TILEGTK_DEFAULT_BACKGROUND;
     // TileGtk_StateInfo(state, gtkState, gtkShadow, tkwin, widget);
-    TileGtk_gtk_paint_box(style, gdkDrawable, gtkState, GTK_SHADOW_IN, NULL, widget,
-        horizontal ? "hscrollbar":"vscrollbar", 0, 0, b.width, b.height);
-    TileGtk_gtk_paint_arrow(style, gdkDrawable, gtkState, gtkShadow, NULL, widget,
-        horizontal ? "hscrollbar":"vscrollbar",
-        horizontal? GTK_ARROW_RIGHT : GTK_ARROW_DOWN, FALSE,
+    TileGtk_gtk_paint_box(style, gdkDrawable, gtkState, GTK_SHADOW_IN, NULL,
+        widget, horizontal ? "hscrollbar":"vscrollbar",
         0, 0, b.width, b.height);
+    /* Draw the arrow, according to the desired scaling! */
+    TileGtk_gtk_widget_style_get(widget, "arrow-scaling", &arrow_scaling, NULL);
+    if (arrow_scaling == 0.0) arrow_scaling = 1.0;
+    arrow_width  = b.width  * arrow_scaling;
+    arrow_height = b.height * arrow_scaling;
+    arrow_x =  (b.width  - arrow_width) / 2;
+    arrow_y =  (b.height - arrow_height) / 2;
+
+    TileGtk_gtk_paint_arrow(style, gdkDrawable, gtkState, gtkShadow, NULL,
+        widget, horizontal ? "hscrollbar":"vscrollbar",
+        horizontal? GTK_ARROW_RIGHT : GTK_ARROW_DOWN, TRUE,
+        arrow_x, arrow_y, arrow_width, arrow_height);
     TileGtk_CopyGtkPixmapOnToDrawable(gdkDrawable, d, tkwin,
                    0, 0, b.width, b.height, b.x, b.y);
     TILEGTK_CLEANUP_GTK_DRAWABLE;
