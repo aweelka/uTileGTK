@@ -247,9 +247,11 @@ void TileGtk_StateInfo(int state, GtkStateType gtkState,
     if (state & TTK_STATE_USER6) {
       printf("TTK_STATE_USER6 %d ", TTK_STATE_USER6);
     } 
+#ifdef TTK_STATE_USER7
     if (state & TTK_STATE_USER7) {
       printf("TTK_STATE_USER7 %d ", TTK_STATE_USER7);
     }
+#endif /* TTK_STATE_USER7 */
     printf(" state=%d\n", state);
     printf("  GTK state: %s, shadow: %s",
       TileGtk_GtkStateStr(gtkState), TileGtk_GtkShadowStr(gtkShadow));
