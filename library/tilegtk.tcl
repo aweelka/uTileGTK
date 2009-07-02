@@ -571,8 +571,11 @@ namespace eval ttk::theme::tilegtk {
         interp eval $PreviewInterp "
           wm withdraw .
           set auto_path \{$::auto_path\}
-          package require tile
-          package require ttk::theme::tilegtk
+          if {[catch {package require Ttk}]} {
+            package require tile
+          }
+          ttk::setTheme tilegtk
+          # package require ttk::theme::tilegtk
           ttk::theme::tilegtk::applyStyle \{[currentThemeName]\}
           toplevel .widgets -height 250 -width 400 \
                             -use [winfo id $dlgFrame.preview.container]

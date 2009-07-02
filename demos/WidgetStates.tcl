@@ -3,7 +3,9 @@
 ## This demo shows information about the Gtk/GNOME style currently in use.
 ##
 ###############################################################################
-package require tile
+if {[catch {package require Ttk}]} {
+  package require tile
+}
 ttk::setTheme tilegtk
 foreach {arg val} $argv {
   switch -glob -- $arg {

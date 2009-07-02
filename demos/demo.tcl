@@ -11,7 +11,9 @@ eval destroy [winfo children .]		;# in case script is re-sourced
 #
 variable demodir [file dirname [info script]]
 lappend auto_path . $demodir
-package require tile
+if {[catch {package require Ttk}]} {
+  package require tile
+}
 ttk::setTheme tilegtk
 foreach {arg val} $argv {
   switch -glob -- $arg {
