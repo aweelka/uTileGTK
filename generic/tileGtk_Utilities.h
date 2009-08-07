@@ -66,6 +66,11 @@
 #define TILEGTK_DRAWABLE_FROM_WIDGET \
   TILEGTK_DRAWABLE_FROM_WIDGET_SIZE(b.width, b.height)
 
+// #define TILEGTK_DRAWABLE_FROM_WIDGET \
+//   gdkDrawable = gdk_pixmap_foreign_new(Tk_WindowId(tkwin)); \
+//   GdkColormap gdkColormap = gdk_x11_colormap_foreign_new(gdkx_visual_get(Tk_Visual(tkwin)), Tk_Colormap(tkwin)); \
+//   gdk_drawable_set_colormap(gdkDrawable, gdkColormap);
+
 #define TILEGTK_DEFAULT_BACKGROUND_SIZE(pw, ph) \
   TileGtk_gtk_style_apply_default_background(style, gdkDrawable, TRUE, \
                gtkState, NULL, 0, 0, pw, ph);
@@ -157,6 +162,7 @@ extern GtkWidget *TileGtk_GetArrow(TileGtk_WidgetCache* wc);
 extern GtkWidget *TileGtk_GetButton(TileGtk_WidgetCache* wc);
 extern GtkWidget *TileGtk_GetCheckButton(TileGtk_WidgetCache* wc);
 extern GtkWidget *TileGtk_GetRadioButton(TileGtk_WidgetCache* wc);
+extern GtkWidget *TileGtk_GetToolBar(TileGtk_WidgetCache* wc);
 extern GtkWidget *TileGtk_GetToolButton(TileGtk_WidgetCache* wc);
 extern GtkWidget *TileGtk_GetFrame(TileGtk_WidgetCache* wc);
 extern GtkWidget *TileGtk_GetEntry(TileGtk_WidgetCache* wc);

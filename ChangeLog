@@ -1,3 +1,6 @@
+08 Aug 2009  Georgios Petasis  <petasis@iit.demokritos.gr>
+  * generic/tileGtk_ToolButton.cpp: Fixes in tool button drawing code.
+
 01 Jul 2009  Georgios Petasis  <petasis@iit.demokritos.gr>
   * generic/tileGtk_Combobox.cpp:
   * generic/tileGtk_Menubutton.cpp:

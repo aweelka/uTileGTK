@@ -124,8 +124,11 @@ static void ButtonElementDraw(
       height -= 2 * (focus_width + focus_pad);
     }
 
-    TileGtk_gtk_paint_box(style, gdkDrawable, gtkState, gtkShadow, NULL, widget,
-            "button", x, y, width, height);
+    if (button->relief != GTK_RELIEF_NONE || (state & TTK_STATE_PRESSED) ||
+        (state & TTK_STATE_ACTIVE) ) {
+      TileGtk_gtk_paint_box(style, gdkDrawable, gtkState, gtkShadow, NULL,
+             widget, "button", x, y, width, height);
+    }
      
     if (state & TTK_STATE_FOCUS) {
       gint child_displacement_x;

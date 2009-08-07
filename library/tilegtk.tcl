@@ -481,7 +481,7 @@ namespace eval ttk::theme::tilegtk {
   };# kdeStyleChangeNotification
 
   ## applyStyle:
-  #  This procedure can be used to apply any available Qt/KDE style.
+  #  This procedure can be used to apply any available GTK+ style.
   #  Ths "style" parameter must be a string from the style names returned by
   #  ttk::theme::tilegtk::availableStyles.
   proc applyStyle {style} {
@@ -538,7 +538,7 @@ namespace eval ttk::theme::tilegtk {
   #  provided frame widget.
   proc createThemeConfigurationPanel {dlgFrame} {
     ## The first element in our panel, is a combobox, with all the available
-    ## Qt/KDE styles.
+    ## GTK+ styles.
     ttk::labelframe $dlgFrame.style_selection -text "GTK+ Style:"
       ttk::combobox $dlgFrame.style_selection.style -state readonly
       $dlgFrame.style_selection.style set [currentThemeName]
@@ -687,7 +687,7 @@ namespace eval ttk::theme::tilegtk {
   if {0 && ![info exists ::testConfigurationPanel]} {
     toplevel .themeConfPanel
     wm withdraw .themeConfPanel
-    wm title .themeConfPanel "TileQt Configuration Panel..."
+    wm title .themeConfPanel "TileGTK Configuration Panel..."
     frame .themeConfPanel.page
     createThemeConfigurationPanel .themeConfPanel.page
     update

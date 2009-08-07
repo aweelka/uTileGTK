@@ -77,8 +77,12 @@ GtkWidget *TileGtk_GetRadioButton(TileGtk_WidgetCache* wc) {
   return TileGtk_GetCheckButton(wc);
 }; /* TileGtk_GetRadioButton */
 
-GtkWidget *TileGtk_GetToolButton(TileGtk_WidgetCache* wc) {
+GtkWidget *TileGtk_GetToolBar(TileGtk_WidgetCache* wc) {
   TILEGTK_CHECK_WIDGET(gtkToolBar, TileGtk_gtk_toolbar_new());
+}; /* TileGtk_GetToolBar */
+
+GtkWidget *TileGtk_GetToolButton(TileGtk_WidgetCache* wc) {
+  TILEGTK_CHECK_WIDGET(gtkToolButton, TileGtk_gtk_button_new());
 }; /* TileGtk_GetToolButton */
 
 GtkWidget *TileGtk_GetFrame(TileGtk_WidgetCache* wc) {

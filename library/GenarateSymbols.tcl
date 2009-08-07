@@ -152,6 +152,10 @@ proc get_function_spec {f} {
       set a {GtkArrowType at, GtkShadowType st}
       set t {GtkWidget*}
     }
+    gtk_tool_button_new {
+      set t {GtkToolItem*}
+      set a {GtkWidget *icon_widget, const gchar *label}
+    }
     gtk_vpaned_new -
     gtk_toolbar_new -
     gtk_statusbar_new -
@@ -165,6 +169,14 @@ proc get_function_spec {f} {
     gtk_check_button_new -
     gtk_button_new {
       set t {GtkWidget*}
+    }
+    gtk_button_get_relief {
+      set t {GtkReliefStyle}
+      set a {GtkButton *button}
+    }
+    gtk_button_set_relief {
+      set t {}
+      set a {GtkButton *button, GtkReliefStyle newstyle}
     }
     gtk_border_free {
       set a {GtkBorder*}

@@ -45,6 +45,7 @@ typedef struct TileGtk_WidgetCache {
   GtkWidget*     gtkCheckButton;
   GtkWidget*     gtkSpinButton;
   GtkWidget*     gtkToolBar;
+  GtkWidget*     gtkToolButton;
   GtkWidget*     gtkTreeView;
   GtkWidget*     gtkTreeHeader;
   GtkWidget*     gtkFrame;
