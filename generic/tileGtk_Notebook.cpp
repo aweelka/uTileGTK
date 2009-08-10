@@ -60,12 +60,16 @@ static void NotebookTabElementDraw(
     int height_with_overlap = b.height + TAB_BASE_OVERLAP_MAX;
     int dh = 0;
     /* TILEGTK_SETUP_GTK_DRAWABLE_PIXMAP_SIZE(b.width, height_with_overlap); */
-    GtkWidget *widget = TileGtk_GetNotebook(wc);
+    /* GtkWidget *widget = TileGtk_GetNotebook(wc); */
+    /* 10 Aug 2009: Notebook widgets usually have a lighter background.
+     * To avoid multiple background colours inside the widget,
+     *  use a frame for drawing instead of a notebook gtk widget. */
+    GtkWidget *widget = TileGtk_GetFrame(wc);
     TILEGTK_ENSURE_WIDGET_OK;
     TILEGTK_STYLE_FROM_WIDGET;
     TILEGTK_DRAWABLE_FROM_WIDGET_SIZE(b.width, height_with_overlap);
-    TileGtk_gtk_style_apply_default_background(style, gdkDrawable, TRUE, gtkState, \
-                            NULL, 0, 0, b.width, height_with_overlap);
+    TileGtk_gtk_style_apply_default_background(style, gdkDrawable, TRUE,
+            gtkState, NULL, 0, 0, b.width, height_with_overlap);
 
     if (state & TTK_STATE_SELECTED) {
       dh = 1 /*widget->style->ythickness - 1*/;
@@ -122,11 +126,16 @@ static void NotebookClientElementDraw(
     TILEGTK_GTK_DRAWABLE_DEFINITIONS;
     TILEGTK_ENSURE_GTK_STYLE_ENGINE_ACTIVE;
     /* TILEGTK_SETUP_GTK_DRAWABLE; */
-    GtkWidget *widget = TileGtk_GetNotebook(wc);
+    /* GtkWidget *widget = TileGtk_GetNotebook(wc); */
+    /* 10 Aug 2009: Notebook widgets usually have a lighter background.
+     * To avoid multiple background colours inside the widget,
+     *  use a frame for drawing instead of a notebook gtk widget. */
+    GtkWidget *widget = TileGtk_GetFrame(wc);
     TILEGTK_ENSURE_WIDGET_OK;
     TILEGTK_STYLE_FROM_WIDGET;
     TILEGTK_DRAWABLE_FROM_WIDGET;
-    // TileGtk_gtk_paint_box_gap(style, gdkDrawable, GTK_STATE_NORMAL,GTK_SHADOW_OUT,
+    // TileGtk_gtk_paint_box_gap(style, gdkDrawable,
+    //      GTK_STATE_NORMAL,GTK_SHADOW_OUT,
     //      NULL, widget, (char *) "notebook", 0, 0, b.width, b.height,
     //      GTK_POS_TOP, 0, 0);
     TileGtk_gtk_paint_box(style, gdkDrawable, GTK_STATE_NORMAL, GTK_SHADOW_OUT,
