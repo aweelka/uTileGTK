@@ -732,8 +732,12 @@ RANLIB_STUB
 TCLSH_PROG
 WISH_PROG
 GLIBINCDIR
+GLIBLIBINCDIR
 GTKINCDIR
-GTKLIBDIR
+GTKLIBINCDIR
+PANGOINCDIR
+CAIROINCDIR
+ATKINCDIR
 LTLIBOBJS'
 ac_subst_files=''
       ac_precious_vars='build_alias
@@ -1334,9 +1338,13 @@ Optional Packages:
   --with-tclinclude       directory containing the public Tcl header files
   --with-tkinclude        directory containing the public Tk header files
   --with-celib=DIR        use Windows/CE support library from DIR
-  --with-glib-inc=DIR       directory containing Glib headers (default: /usr/include/glib-2.0
-  --with-gtk-inc=DIR       directory containing Gtk headers (default: /usr/include/gtk-2.0
-  --with-gtk-lib=DIR       directory containing Gtk libraries (default: /usr/lib
+  --with-glib-inc=DIR     directory containing Glib headers (default: /usr/include/glib-2.0
+  --with-glib-lib-inc=DIR directory containing Glib (config) headers in lib directory (default: /usr/lib/glib-2.0/include
+  --with-gtk-inc=DIR      directory containing Gtk headers directory (default: /usr/lib/gtk-2.0/include
+  --with-gtk-lib-inc=DIR  directory containing Gtk (config) headers in lib directory (default: /usr/lib/gtk-2.0/include
+  --with-pango-inc=DIR    directory containing Pango headers (default: /usr/include/pango-1.0
+  --with-cairo-inc=DIR    directory containing Cairo headers (default: /usr/include/cairo
+  --with-atk-inc=DIR      directory containing Atk headers (default: /usr/include/atk-1.0
 
 Some influential environment variables:
   CC          C compiler command
@@ -11317,6 +11325,17 @@ fi
 
 
 
+# Check whether --with-glib-lib-inc was given.
+if test "${with_glib_lib_inc+set}" = set; then
+  withval=$with_glib_lib_inc; GLIBLIBINCDIR=$withval
+
+else
+  GLIBLIBINCDIR=/usr/lib/glib-2.0/include
+
+fi
+
+
+
 # Check whether --with-gtk-inc was given.
 if test "${with_gtk_inc+set}" = set; then
   withval=$with_gtk_inc; GTKINCDIR=$withval
@@ -11328,12 +11347,45 @@ fi
 
 
 
-# Check whether --with-gtk-lib was given.
-if test "${with_gtk_lib+set}" = set; then
-  withval=$with_gtk_lib; GTKLIBDIR=$withval
+# Check whether --with-gtk-lib-inc was given.
+if test "${with_gtk_lib_inc+set}" = set; then
+  withval=$with_gtk_lib_inc; GTKLIBINCDIR=$withval
 
 else
-  GTKLIBDIR=/usr/lib
+  GTKLIBINCDIR=/usr/lib/gtk-2.0/include
+
+fi
+
+
+
+# Check whether --with-pango-inc was given.
+if test "${with_pango_inc+set}" = set; then
+  withval=$with_pango_inc; PANGOINCDIR=$withval
+
+else
+  PANGOINCDIR=/usr/include/pango-1.0
+
+fi
+
+
+
+# Check whether --with-cairo-inc was given.
+if test "${with_cairo_inc+set}" = set; then
+  withval=$with_cairo_inc; CAIROINCDIR=$withval
+
+else
+  CAIROINCDIR=/usr/include/cairo
+
+fi
+
+
+
+# Check whether --with-atk-inc was given.
+if test "${with_atk_inc+set}" = set; then
+  withval=$with_atk_inc; ATKINCDIR=$withval
+
+else
+  ATKINCDIR=/usr/include/atk-1.0
 
 fi
 
@@ -12138,12 +12190,16 @@ RANLIB_STUB!$RANLIB_STUB$ac_delim
 TCLSH_PROG!$TCLSH_PROG$ac_delim
 WISH_PROG!$WISH_PROG$ac_delim
 GLIBINCDIR!$GLIBINCDIR$ac_delim
+GLIBLIBINCDIR!$GLIBLIBINCDIR$ac_delim
 GTKINCDIR!$GTKINCDIR$ac_delim
-GTKLIBDIR!$GTKLIBDIR$ac_delim
+GTKLIBINCDIR!$GTKLIBINCDIR$ac_delim
+PANGOINCDIR!$PANGOINCDIR$ac_delim
+CAIROINCDIR!$CAIROINCDIR$ac_delim
+ATKINCDIR!$ATKINCDIR$ac_delim
 LTLIBOBJS!$LTLIBOBJS$ac_delim
 _ACEOF
 
-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 26; then
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 30; then
     break
   elif $ac_last_try; then
     { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5

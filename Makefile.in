@@ -147,7 +147,7 @@ SHARED_BUILD	= @SHARED_BUILD@
 #INCLUDES	= @PKG_INCLUDES@ @TCL_INCLUDES@
 
 # Add output of 'glib-config --cflags' : -I/usr/include/glib-1.2 -I/usr/lib/glib/include
-INCLUDES	= @PKG_INCLUDES@ @TCL_INCLUDES@ @TK_INCLUDES@ @TK_XINCLUDES@ -I@GLIBINCDIR@ -I@GTKINCDIR@ -I/usr/include/glib-1.2 -I/usr/lib/glib-2.0/include -I/usr/lib/gtk-2.0/include  -I/usr/include/cairo -I/usr/include/pango-1.0 -I/usr/include/atk-1.0
+INCLUDES	= @PKG_INCLUDES@ @TCL_INCLUDES@ @TK_INCLUDES@ @TK_XINCLUDES@ -I@GLIBINCDIR@ -I@GLIBLIBINCDIR@ -I@GTKINCDIR@ -I@GTKLIBINCDIR@ -I@PANGOINCDIR@ -I@CAIROINCDIR@ -I@ATKINCDIR@
 
 PKG_CFLAGS	= @PKG_CFLAGS@
 

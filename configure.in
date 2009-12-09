@@ -190,25 +190,53 @@ TEA_PROG_WISH
 #--------------------------------------------------------------------
 
 AC_ARG_WITH(glib-inc,
-  [  --with-glib-inc=DIR       directory containing Glib headers (default: /usr/include/glib-2.0],
+  [  --with-glib-inc=DIR     directory containing Glib headers (default: /usr/include/glib-2.0)],
   [GLIBINCDIR=$withval
    AC_SUBST(GLIBINCDIR)],
   [GLIBINCDIR=/usr/include/glib-2.0
    AC_SUBST(GLIBINCDIR)])
 
+AC_ARG_WITH(glib-lib-inc,
+  [  --with-glib-lib-inc=DIR directory containing Glib (config) headers in lib directory (default: /usr/lib/glib-2.0/include)],
+  [GLIBLIBINCDIR=$withval
+   AC_SUBST(GLIBLIBINCDIR)],
+  [GLIBLIBINCDIR=/usr/lib/glib-2.0/include
+   AC_SUBST(GLIBLIBINCDIR)])
+
 AC_ARG_WITH(gtk-inc,
-  [  --with-gtk-inc=DIR       directory containing Gtk headers (default: /usr/include/gtk-2.0],
+  [  --with-gtk-inc=DIR      directory containing Gtk headers directory (default: /usr/lib/gtk-2.0/include)],
   [GTKINCDIR=$withval
    AC_SUBST(GTKINCDIR)],
   [GTKINCDIR=/usr/include/gtk-2.0
    AC_SUBST(GTKINCDIR)])
 
-AC_ARG_WITH(gtk-lib,
-  [  --with-gtk-lib=DIR       directory containing Gtk libraries (default: /usr/lib],
-  [GTKLIBDIR=$withval
-   AC_SUBST(GTKLIBDIR)],
-  [GTKLIBDIR=/usr/lib
-   AC_SUBST(GTKLIBDIR)])
+AC_ARG_WITH(gtk-lib-inc,
+  [  --with-gtk-lib-inc=DIR  directory containing Gtk (config) headers in lib directory (default: /usr/lib/gtk-2.0/include)],
+  [GTKLIBINCDIR=$withval
+   AC_SUBST(GTKLIBINCDIR)],
+  [GTKLIBINCDIR=/usr/lib/gtk-2.0/include
+   AC_SUBST(GTKLIBINCDIR)])
+
+AC_ARG_WITH(pango-inc,
+  [  --with-pango-inc=DIR    directory containing Pango headers (default: /usr/include/pango-1.0)],
+  [PANGOINCDIR=$withval
+   AC_SUBST(PANGOINCDIR)],
+  [PANGOINCDIR=/usr/include/pango-1.0
+   AC_SUBST(PANGOINCDIR)])
+
+AC_ARG_WITH(cairo-inc,
+  [  --with-cairo-inc=DIR    directory containing Cairo headers (default: /usr/include/cairo)],
+  [CAIROINCDIR=$withval
+   AC_SUBST(CAIROINCDIR)],
+  [CAIROINCDIR=/usr/include/cairo
+   AC_SUBST(CAIROINCDIR)])
+
+AC_ARG_WITH(atk-inc,
+  [  --with-atk-inc=DIR      directory containing Atk headers (default: /usr/include/atk-1.0)],
+  [ATKINCDIR=$withval
+   AC_SUBST(ATKINCDIR)],
+  [ATKINCDIR=/usr/include/atk-1.0
+   AC_SUBST(ATKINCDIR)])
 
 #--------------------------------------------------------------------
 # Finally, substitute all of the various values into the Makefile.
