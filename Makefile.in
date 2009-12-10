@@ -164,7 +164,7 @@ CONFIG_CLEAN_FILES = Makefile pkgIndex.tcl
 CLEANFILES	= @CLEANFILES@
 
 CPPFLAGS	= @CPPFLAGS@
-LIBS		= @PKG_LIBS@ @LIBS@ -lgtk-x11-2.0 -lglib-2.0 -lgdk-x11-2.0 -lgobject-2.0 -lgdk_pixbuf_xlib-2.0
+LIBS		= @PKG_LIBS@ @LIBS@ -lgtk-x11-2.0 -lglib-2.0 -lgdk-x11-2.0 -lgobject-2.0 -lgdk_pixbuf_xlib-2.0 -lstdc++
 AR		= @AR@
 CFLAGS		= @CFLAGS@
 COMPILE		= $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -212,12 +212,14 @@ install-binaries: binaries install-lib-binaries install-bin-binaries
 #========================================================================
 
 install-libraries: libraries
-	@mkdir -p $(DESTDIR)$(includedir)
-	@echo "Installing header files in $(DESTDIR)$(includedir)"
-	@list='$(PKG_HEADERS)'; for i in $$list; do \
-	    echo "Installing $(srcdir)/$$i" ; \
-	    $(INSTALL_DATA) $(srcdir)/$$i $(DESTDIR)$(includedir) ; \
-	done;
+	@if test '$(PKG_HEADERS)' != ''; then \
+	  @mkdir -p $(DESTDIR)$(includedir); \
+	  @echo "Installing header files in $(DESTDIR)$(includedir)" \
+	  @list='$(PKG_HEADERS)'; for i in $$list; do \
+	      echo "Installing $(srcdir)/$$i" ; \
+	      $(INSTALL_DATA) $(srcdir)/$$i $(DESTDIR)$(includedir) ; \
+	  done; \
+	fi
 
 #========================================================================
 # Install documentation.  Unix manpages should go in the $(mandir)
@@ -247,10 +249,10 @@ depend:
 # source files above.
 #========================================================================
 
-generic/tileGtk_Symbols.cpp:
-	$(TCLSH) GenerateSymbols.tcl 
+$(srcdir)/generic/tileGtk_Symbols.cpp: $(srcdir)/GenerateSymbols.tcl
+	$(TCLSH) $(srcdir)/GenerateSymbols.tcl 
 
-$(PKG_LIB_FILE): generic/tileGtk_Symbols.cpp $(PKG_OBJECTS)
+$(PKG_LIB_FILE): $(srcdir)/generic/tileGtk_Symbols.cpp $(PKG_OBJECTS)
 	-rm -f $(PKG_LIB_FILE)
 	${MAKE_LIB}
 	$(RANLIB) $(PKG_LIB_FILE)
@@ -337,7 +339,8 @@ dist: dist-clean
 clean:  
 	-test -z "$(BINARIES)" || rm -f $(BINARIES)
 	-rm -f *.$(OBJEXT) core *.core
-	-rm -f generic/tileGtk_Symbols.cpp generic/tileGtk_Symbols.h
+	-rm -f $(srcdir)/generic/tileGtk_Symbols.cpp
+	-rm -f $(srcdir)/generic/tileGtk_Symbols.h
 	-test -z "$(CLEANFILES)" || rm -f $(CLEANFILES)
 
 distclean: clean
@@ -402,13 +405,15 @@ install-lib-binaries: binaries
 #========================================================================
 
 install-bin-binaries: binaries
-	@mkdir -p $(DESTDIR)$(bindir)
-	@list='$(bin_BINARIES)'; for p in $$list; do \
-	  if test -f $$p; then \
-	    echo " $(INSTALL_PROGRAM) $$p $(DESTDIR)$(bindir)/$$p"; \
-	    $(INSTALL_PROGRAM) $$p $(DESTDIR)$(bindir)/$$p; \
-	  fi; \
-	done
+	@if test '$(bin_BINARIES)' != ''; then \
+	  mkdir -p $(DESTDIR)$(bindir) \
+	  list='$(bin_BINARIES)'; for p in $$list; do \
+	    if test -f $$p; then \
+	      echo " $(INSTALL_PROGRAM) $$p $(DESTDIR)$(bindir)/$$p"; \
+	      $(INSTALL_PROGRAM) $$p $(DESTDIR)$(bindir)/$$p; \
+	    fi; \
+	  done; \
+	fi
 
 Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status
 	cd $(top_builddir) \
