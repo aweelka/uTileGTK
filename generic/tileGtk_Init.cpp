@@ -19,8 +19,8 @@ static char initScript[] =
   "namespace eval tilegtk { };"
   "namespace eval ttk::theme::tilegtk { variable version "
                                                  PACKAGE_VERSION " };"
-  "tcl_findLibrary tilegtk $ttk::theme::tilegtk::version "
-  "$ttk::theme::tilegtk::version tilegtk.tcl TILEGTK_LIBRARY tilegtk::library;";
+    "source [file join $::tilegtkdir tilegtk.tcl];"
+    "unset ::tilegtkdir;";
 #ifdef TILEGTK_LOAD_GTK_DYNAMICALLY
 static char libsInitScript[] =
   "ttk::theme::tilegtk::loadLibraries";
