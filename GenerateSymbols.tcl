@@ -334,7 +334,7 @@ proc get_function_spec {f} {
 
 set HomeDir [file dirname [file normalize [info script]]]
 
-set sources [file dirname $HomeDir]/generic
+set sources $HomeDir/generic
 
 ##
 ## Force the following symbols to exist!

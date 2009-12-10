@@ -1,5 +1,5 @@
 /*
- * $Id$
+ * $Id: tileGtk_Init.cpp,v 1.14 2008/08/19 21:38:06 petasis Exp $
  *
  * Copyright (C) 2004-2008 Georgios Petasis
  *

@@ -1,0 +1,31 @@
+UNIX BUILD
+==========
+
+Requirements
+------------
+
+You'll need the Gtk development headers.
+
+Configure
+---------
+
+Default configure
+
+$ ./configure
+
+or specify one or more of the configure options:
+
+$ ./configure --prefix=... --with-tcl=... --with-tk=... --with-gtk-inc=... --with-gtk-lib=...
+
+Default value for gtk-inc: /usr/include/gtk
+Default value for gtk-lib: /usr/lib
+
+Build
+-----
+
+$ make
+
+Install
+-------
+
+$ make install
