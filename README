@@ -15,10 +15,9 @@ $ ./configure
 
 or specify one or more of the configure options:
 
-$ ./configure --prefix=... --with-tcl=... --with-tk=... --with-gtk-inc=... --with-gtk-lib=...
+$ ./configure --prefix=... --with-tcl=... --with-tk=... --with-glib-inc=... --with-glib-lib-inc=... --with-gtk-inc=... --with-gtk-lib-inc=... --with-pango-inc=... --with-cairo-inc=... --with-atk-inc=...
 
-Default value for gtk-inc: /usr/include/gtk
-Default value for gtk-lib: /usr/lib
+Check 'configure --help' for default values of the different options.
 
 Build
 -----
