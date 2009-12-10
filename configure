@@ -1338,13 +1338,13 @@ Optional Packages:
   --with-tclinclude       directory containing the public Tcl header files
   --with-tkinclude        directory containing the public Tk header files
   --with-celib=DIR        use Windows/CE support library from DIR
-  --with-glib-inc=DIR     directory containing Glib headers (default: /usr/include/glib-2.0
-  --with-glib-lib-inc=DIR directory containing Glib (config) headers in lib directory (default: /usr/lib/glib-2.0/include
-  --with-gtk-inc=DIR      directory containing Gtk headers directory (default: /usr/lib/gtk-2.0/include
-  --with-gtk-lib-inc=DIR  directory containing Gtk (config) headers in lib directory (default: /usr/lib/gtk-2.0/include
-  --with-pango-inc=DIR    directory containing Pango headers (default: /usr/include/pango-1.0
-  --with-cairo-inc=DIR    directory containing Cairo headers (default: /usr/include/cairo
-  --with-atk-inc=DIR      directory containing Atk headers (default: /usr/include/atk-1.0
+  --with-glib-inc=DIR     directory containing Glib headers (default: /usr/include/glib-2.0)
+  --with-glib-lib-inc=DIR directory containing Glib (config) headers in lib directory (default: /usr/lib/glib-2.0/include)
+  --with-gtk-inc=DIR      directory containing Gtk headers directory (default: /usr/lib/gtk-2.0/include)
+  --with-gtk-lib-inc=DIR  directory containing Gtk (config) headers in lib directory (default: /usr/lib/gtk-2.0/include)
+  --with-pango-inc=DIR    directory containing Pango headers (default: /usr/include/pango-1.0)
+  --with-cairo-inc=DIR    directory containing Cairo headers (default: /usr/include/cairo)
+  --with-atk-inc=DIR      directory containing Atk headers (default: /usr/include/atk-1.0)
 
 Some influential environment variables:
   CC          C compiler command
@@ -6838,7 +6838,7 @@ done
 # tileGtk_TreeView.cpp tileGtk_Separator.cpp tileGtk_Arrows.cpp
 
 
-    vars="tileGtk_Init.cpp tileGtk_Symbols.cpp tileGtk_GtkApp.cpp tileGtk_Utilities.cpp tileGtk_Background.cpp tileGtk_Button.cpp tileGtk_CheckButton.cpp tileGtk_RadioButton.cpp tileGtk_ToolButton.cpp tileGtk_Labelframe.cpp tileGtk_Entry.cpp tileGtk_Menubutton.cpp tileGtk_Scrollbar.cpp tileGtk_Scale.cpp tileGtk_Progress.cpp tileGtk_SizeGrip.cpp tileGtk_Paned.cpp tileGtk_Notebook.cpp tileGtk_Combobox.cpp"
+    vars="tileGtk_Init.cpp tileGtk_GtkApp.cpp tileGtk_Utilities.cpp tileGtk_Background.cpp tileGtk_Button.cpp tileGtk_CheckButton.cpp tileGtk_RadioButton.cpp tileGtk_ToolButton.cpp tileGtk_Labelframe.cpp tileGtk_Entry.cpp tileGtk_Menubutton.cpp tileGtk_Scrollbar.cpp tileGtk_Scale.cpp tileGtk_Progress.cpp tileGtk_SizeGrip.cpp tileGtk_Paned.cpp tileGtk_Notebook.cpp tileGtk_Combobox.cpp"
     for i in $vars; do
 	case $i in
 	    \$*)

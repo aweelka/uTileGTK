@@ -73,7 +73,7 @@ TEA_SETUP_COMPILER
 
 # tileGtk_TreeView.cpp tileGtk_Separator.cpp tileGtk_Arrows.cpp 
 
-TEA_ADD_SOURCES([tileGtk_Init.cpp tileGtk_Symbols.cpp tileGtk_GtkApp.cpp tileGtk_Utilities.cpp tileGtk_Background.cpp tileGtk_Button.cpp tileGtk_CheckButton.cpp tileGtk_RadioButton.cpp tileGtk_ToolButton.cpp tileGtk_Labelframe.cpp tileGtk_Entry.cpp tileGtk_Menubutton.cpp tileGtk_Scrollbar.cpp tileGtk_Scale.cpp tileGtk_Progress.cpp tileGtk_SizeGrip.cpp tileGtk_Paned.cpp tileGtk_Notebook.cpp tileGtk_Combobox.cpp])
+TEA_ADD_SOURCES([tileGtk_Init.cpp tileGtk_GtkApp.cpp tileGtk_Utilities.cpp tileGtk_Background.cpp tileGtk_Button.cpp tileGtk_CheckButton.cpp tileGtk_RadioButton.cpp tileGtk_ToolButton.cpp tileGtk_Labelframe.cpp tileGtk_Entry.cpp tileGtk_Menubutton.cpp tileGtk_Scrollbar.cpp tileGtk_Scale.cpp tileGtk_Progress.cpp tileGtk_SizeGrip.cpp tileGtk_Paned.cpp tileGtk_Notebook.cpp tileGtk_Combobox.cpp])
 TEA_ADD_HEADERS([])
 TEA_ADD_INCLUDES([])
 TEA_ADD_LIBS([])

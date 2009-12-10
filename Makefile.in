@@ -35,8 +35,8 @@
 # $(srcdir) or in the generic, win or unix subdirectory.
 #========================================================================
 
-PKG_SOURCES	= @PKG_SOURCES@
-PKG_OBJECTS	= @PKG_OBJECTS@
+PKG_SOURCES	= @PKG_SOURCES@ tileGtk_Symbols.cpp
+PKG_OBJECTS	= @PKG_OBJECTS@ tileGtk_Symbols.o
 
 PKG_STUB_SOURCES = @PKG_STUB_SOURCES@
 PKG_STUB_OBJECTS = @PKG_STUB_OBJECTS@
@@ -247,7 +247,10 @@ depend:
 # source files above.
 #========================================================================
 
-$(PKG_LIB_FILE): $(PKG_OBJECTS)
+tileGtk_Symbols:
+	$(TCLSH) GenerateSymbols.tcl 
+
+$(PKG_LIB_FILE): tileGtk_Symbols $(PKG_OBJECTS)
 	-rm -f $(PKG_LIB_FILE)
 	${MAKE_LIB}
 	$(RANLIB) $(PKG_LIB_FILE)
@@ -332,6 +335,7 @@ dist: dist-clean
 clean:  
 	-test -z "$(BINARIES)" || rm -f $(BINARIES)
 	-rm -f *.$(OBJEXT) core *.core
+	-rm -f generic/tileGtk_Symbols.cpp generic/tileGtk_Symbols.h
 	-test -z "$(CLEANFILES)" || rm -f $(CLEANFILES)
 
 distclean: clean
