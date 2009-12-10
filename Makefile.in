@@ -36,7 +36,7 @@
 #========================================================================
 
 PKG_SOURCES	= @PKG_SOURCES@ tileGtk_Symbols.cpp
-PKG_OBJECTS	= @PKG_OBJECTS@ tileGtk_Symbols.o
+PKG_OBJECTS	= @PKG_OBJECTS@ tileGtk_Symbols.$(OBJEXT)
 
 PKG_STUB_SOURCES = @PKG_STUB_SOURCES@
 PKG_STUB_OBJECTS = @PKG_STUB_OBJECTS@
@@ -247,10 +247,10 @@ depend:
 # source files above.
 #========================================================================
 
-tileGtk_Symbols:
+generic/tileGtk_Symbols.cpp:
 	$(TCLSH) GenerateSymbols.tcl 
 
-$(PKG_LIB_FILE): tileGtk_Symbols $(PKG_OBJECTS)
+$(PKG_LIB_FILE): generic/tileGtk_Symbols.cpp $(PKG_OBJECTS)
 	-rm -f $(PKG_LIB_FILE)
 	${MAKE_LIB}
 	$(RANLIB) $(PKG_LIB_FILE)
@@ -276,6 +276,8 @@ $(PKG_STUB_LIB_FILE): $(PKG_STUB_OBJECTS)
 #========================================================================
 
 VPATH = $(srcdir):$(srcdir)/generic:$(srcdir)/unix:$(srcdir)/win
+
+.SUFFIXES: .cpp .$(OBJEXT)
 
 .cpp.@OBJEXT@:
 	$(COMPILE) -c `@CYGPATH@ $<` -o $@
@@ -407,8 +409,6 @@ install-bin-binaries: binaries
 	    $(INSTALL_PROGRAM) $$p $(DESTDIR)$(bindir)/$$p; \
 	  fi; \
 	done
-
-.SUFFIXES: .c .$(OBJEXT)
 
 Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status
 	cd $(top_builddir) \
