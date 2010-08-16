@@ -553,9 +553,11 @@ int Tilegtk_InitialiseLibrary(ClientData clientData, Tcl_Interp *interp,
   };
   enum methods {
     L_REQUIRED,
+    #ifdef TILEGTK_LOAD_GTK_DYNAMICALLY
     L_GDK,  L_GDK_PIXBUF, L_GDK_PIXBUF_XLIB,
     L_GLIB, L_GOBJECT,
     L_GTK
+    #endif /* TILEGTK_LOAD_GTK_DYNAMICALLY */
   };
   int index;
   const char *result = NULL;
@@ -569,14 +571,14 @@ int Tilegtk_InitialiseLibrary(ClientData clientData, Tcl_Interp *interp,
   Tcl_MutexLock(&tilegtkMutex);
   switch ((enum methods) index) {
     case L_REQUIRED:
-#ifdef TILEGTK_LOAD_GTK_DYNAMICALLY
+      #ifdef TILEGTK_LOAD_GTK_DYNAMICALLY
       Tcl_SetObjResult(interp, Tcl_NewBooleanObj(1));
-#else
+      #else
       Tcl_SetObjResult(interp, Tcl_NewBooleanObj(0));
-#endif /* TILEGTK_LOAD_GTK_DYNAMICALLY */
+      #endif /* TILEGTK_LOAD_GTK_DYNAMICALLY */
       Tcl_MutexUnlock(&tilegtkMutex);
       return TCL_OK;
-#ifdef TILEGTK_LOAD_GTK_DYNAMICALLY
+    #ifdef TILEGTK_LOAD_GTK_DYNAMICALLY
     case L_GDK:
       if (!TILEGTK_LAST_SYMBOL_gdk && objc > 2) {
         result = TileGtk_InitialiseSymbols_gdk(Tcl_GetString(objv[2]));
@@ -588,12 +590,12 @@ int Tilegtk_InitialiseLibrary(ClientData clientData, Tcl_Interp *interp,
       }
       break;
     case L_GDK_PIXBUF_XLIB:
-#ifndef __WIN32__
+    #ifndef __WIN32__
       if (!TILEGTK_LAST_SYMBOL_gdk_pixbuf_xlib && objc > 2) {
         result = TileGtk_InitialiseSymbols_gdk_pixbuf_xlib(
                                                 Tcl_GetString(objv[2]));
       }
-#endif
+    #endif
       break;
     case L_GLIB:
       if (!TILEGTK_LAST_SYMBOL_glib && objc > 2) {
@@ -610,7 +612,7 @@ int Tilegtk_InitialiseLibrary(ClientData clientData, Tcl_Interp *interp,
         result = TileGtk_InitialiseSymbols_gtk(Tcl_GetString(objv[2]));
       }
       break;
-#endif /* TILEGTK_LOAD_GTK_DYNAMICALLY */
+    #endif /* TILEGTK_LOAD_GTK_DYNAMICALLY */
   }
   Tcl_MutexUnlock(&tilegtkMutex);
         
@@ -621,36 +623,51 @@ int Tilegtk_InitialiseLibrary(ClientData clientData, Tcl_Interp *interp,
   return TCL_OK;
 }; /* Tilegtk_InitialiseLibrary */
 
+void setPalette (Tcl_Interp *interp)
+{
+	GtkSettings *settings = TileGtk_gtk_settings_get_default();
+	using namespace std;
+	map<string, const char**> coupling;
+	const char *bg_color[] = {"activeBackground", "highlightBackground", 
+		"background", "insertBackground", NULL};
+	coupling[string("bg_color")] = bg_color;
+	const char *fg_color[] = {"foreground", "activeForeground", 
+		"highlightColor", "disabledForeground", "troughColor", NULL};
+	coupling[string("fg_color")] = fg_color;
+	const char *selected_fg_color[] = {"selectForeground", NULL};
+	coupling[string("selected_fg_color")] = selected_fg_color;
+	const char *selected_bg_color[] = {"selectBackground", NULL};
+	coupling[string("selected_bg_color")] = selected_bg_color;
+	string script("tk_setPalette ");
+
+	gchar *theme;
+	g_object_get(settings, "gtk-color-scheme", &theme, NULL);
+	char *l, *t;
+	for(t = theme; (l = strsep(&t, ";\n")) != NULL;) {
+		// We have a single line of the theme in l
+		char name[128], value[128];
+		name[0] = 0; value[0] = 0;
+		sscanf(l, "%[^:]: %s", name, value);
+		char col[128]; 
+		sprintf(col, "#%c%c%c%c%c%c", value[1], value[2], value[5], value[6], value[9], value[10]);
+		if(coupling.count(string(name)) == 0) {
+		//	printf("ignoring %s\n", name);
+			continue;
+		}
+		const char **tab = coupling[string(name)];
+		for(; *tab != NULL; tab++){
+			script = script + *tab + " " + col + " ";
+		}
+	}
+
+	Tcl_Eval(interp, script.c_str());
+
+} /* setPalette */
+
 int Tilegtk_SetPalette(ClientData clientData, Tcl_Interp *interp,
                                  int objc, Tcl_Obj *const objv[]) {
-#if 0
-  static const char *Methods[] = {
-    "-background",       "-foreground",
-    "-buttonBackground", "-buttonForeground",
-    "-selectBackground", "-selectForeground",
-    "-windowBackground", "-windowForeground",
-    "-linkColor",        "-visitedLinkColor",
-    "-contrast",
-    (char *) NULL
-  };
-  enum methods {
-    CLR_background,       CLR_foreground,
-    CLR_buttonBackground, CLR_buttonForeground,
-    CLR_selectBackground, CLR_selectForeground,
-    CLR_windowBackground, CLR_windowForeground,
-    CLR_linkColor,        CLR_visitedLinkColor,
-    CLR_contrast
-  };
-  int index, contrast_;
-  char *value;
-  if ((objc-1)%2) {
-    Tcl_WrongNumArgs(interp, 1, objv, "?-key value?");
-    return TCL_ERROR;
-  }
-  Tcl_MutexLock(&tilegtkMutex);
-  Tcl_MutexUnlock(&tilegtkMutex);
-#endif
-  return TCL_OK;
+    setPalette(interp); 
+    return TCL_OK;
 }; /* Tilegtk_SetPalette */
 
 int Tilegtk_SetStyle(ClientData clientData, Tcl_Interp *interp,
@@ -745,48 +762,6 @@ int Tilegtk_SetStyle(ClientData clientData, Tcl_Interp *interp,
   Tcl_MutexUnlock(&tilegtkMutex);
   return TCL_OK;
 }; /* Tilegtk_SetStyle */
-
-void setPalette (Tcl_Interp *interp)
-{
-	GtkSettings *settings = TileGtk_gtk_settings_get_default();
-	using namespace std;
-	map<string, char**> coupling;
-	char *bg_color[] = {"activeBackground", "highlightBackground", 
-		"background", "insertBackground", NULL};
-	coupling[string("bg_color")] = bg_color;
-	char *fg_color[] = {"foreground", "activeForeground", 
-		"highlightColor", "disabledForeground", "troughColor", NULL};
-	coupling[string("fg_color")] = fg_color;
-	char *selected_fg_color[] = {"selectForeground", NULL};
-	coupling[string("selected_fg_color")] = selected_fg_color;
-	char *selected_bg_color[] = {"selectBackground", NULL};
-	coupling[string("selected_bg_color")] = selected_bg_color;
-	string script("tk_setPalette ");
-
-	gchar *theme;
-	g_object_get(settings, "gtk-color-scheme", &theme, NULL);
-	printf("=== THEME ===\n%s\n=== END THEME ===\n", theme);
-	char *l, *t;
-	for(t = theme; (l = strsep(&t, ";\n")) != NULL;) {
-		// We have a single line of the theme in l
-		char name[128], value[128];
-		name[0] = 0; value[0] = 0;
-		sscanf(l, "%[^:]: %s", name, value);
-		char col[128]; 
-		sprintf(col, "#%c%c%c%c%c%c", value[1], value[2], value[5], value[6], value[9], value[10]);
-		//printf("name='%s' value='%s' col='%s'\n", name, value, col);
-		if(coupling.count(string(name)) == 0) {
-			printf("ignoring %s\n", name);
-			continue;
-		}
-		char **tab = coupling[string(name)];
-		for(; *tab != NULL; tab++){
-			script = script + *tab + " " + col + " ";
-		}
-	}
-
-	Tcl_Eval(interp, script.c_str()); 
-}
 
 extern "C" int DLLEXPORT
 Tilegtk_Init(Tcl_Interp *interp)
@@ -883,10 +858,10 @@ Tilegtk_Init(Tcl_Interp *interp)
     Tcl_CreateObjCommand(interp,
                          "ttk::theme::tilegtk::currentThemeColourKeys",
                          Tilegtk_ColourKeys, (ClientData) wc, NULL);
-#if 0
     Tcl_CreateObjCommand(interp,
                          "ttk::theme::tilegtk::setPalette",
                          Tilegtk_SetPalette, (ClientData) wc, NULL);
+#if 0
     Tcl_CreateObjCommand(interp,
                          "ttk::theme::tilegtk::getPixelMetric",
                          Tilegtk_GetPixelMetric, (ClientData) wc, NULL);
