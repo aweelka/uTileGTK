@@ -8,7 +8,8 @@
 
 #include "tileGtk_Utilities.h"
 #include "tileGtk_TkHeaders.h"
-#include <string.h>
+#include <string>
+#include <map>
 
 static int TileGtk_GtkAppCreated = 0;
 
@@ -745,6 +746,48 @@ int Tilegtk_SetStyle(ClientData clientData, Tcl_Interp *interp,
   return TCL_OK;
 }; /* Tilegtk_SetStyle */
 
+void setPalette (Tcl_Interp *interp)
+{
+	GtkSettings *settings = TileGtk_gtk_settings_get_default();
+	using namespace std;
+	map<string, char**> coupling;
+	char *bg_color[] = {"activeBackground", "highlightBackground", 
+		"background", "insertBackground", NULL};
+	coupling[string("bg_color")] = bg_color;
+	char *fg_color[] = {"foreground", "activeForeground", 
+		"highlightColor", "disabledForeground", "troughColor", NULL};
+	coupling[string("fg_color")] = fg_color;
+	char *selected_fg_color[] = {"selectForeground", NULL};
+	coupling[string("selected_fg_color")] = selected_fg_color;
+	char *selected_bg_color[] = {"selectBackground", NULL};
+	coupling[string("selected_bg_color")] = selected_bg_color;
+	string script("tk_setPalette ");
+
+	gchar *theme;
+	g_object_get(settings, "gtk-color-scheme", &theme, NULL);
+	printf("=== THEME ===\n%s\n=== END THEME ===\n", theme);
+	char *l, *t;
+	for(t = theme; (l = strsep(&t, ";\n")) != NULL;) {
+		// We have a single line of the theme in l
+		char name[128], value[128];
+		name[0] = 0; value[0] = 0;
+		sscanf(l, "%[^:]: %s", name, value);
+		char col[128]; 
+		sprintf(col, "#%c%c%c%c%c%c", value[1], value[2], value[5], value[6], value[9], value[10]);
+		//printf("name='%s' value='%s' col='%s'\n", name, value, col);
+		if(coupling.count(string(name)) == 0) {
+			printf("ignoring %s\n", name);
+			continue;
+		}
+		char **tab = coupling[string(name)];
+		for(; *tab != NULL; tab++){
+			script = script + *tab + " " + col + " ";
+		}
+	}
+
+	Tcl_Eval(interp, script.c_str()); 
+}
+
 extern "C" int DLLEXPORT
 Tilegtk_Init(Tcl_Interp *interp)
 {
@@ -879,6 +922,7 @@ Tilegtk_Init(Tcl_Interp *interp)
     }
     Tcl_PkgProvide(interp, "ttk::theme::tilegtk", PACKAGE_VERSION);
     Tcl_PkgProvide(interp, PACKAGE_NAME, PACKAGE_VERSION);
+    setPalette(interp);
     return TCL_OK;
 }; /* TileGtk_Init */
 
